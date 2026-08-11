@@ -9,16 +9,16 @@
 
     :root {
       --bg-dark: #090a0f;
-      --panel-bg: rgba(18, 18, 24, 0.85);
+      --panel-bg: rgba(18, 18, 24, 0.9);
       --accent-red: #ff2a4b;
       --accent-red-glow: rgba(255, 42, 75, 0.4);
       --text-main: #f1f5f9;
       --text-muted: #94a3b8;
       --pitch-green: #0f2b1d;
-      --pitch-lines: rgba(255, 255, 255, 0.4);
+      --pitch-lines: rgba(255, 255, 255, 0.5);
       --border-tech: rgba(255, 255, 255, 0.08);
 
-      /* COLORI RUOLI */
+      /* COLORI RUOLI PER PARENTESI LATERALI */
       --role-p: #f1c40f; /* Giallo Portiere */
       --role-d: #2ecc71; /* Verde Difensore */
       --role-c: #3498db; /* Azzurro Centrocampista */
@@ -28,7 +28,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
     body {
-      background: radial-gradient(circle at 50% 10%, #1a1c29 0%, var(--bg-dark) 70%);
+      background: #090a0f;
       color: var(--text-main);
       display: flex;
       flex-direction: column;
@@ -36,9 +36,9 @@
       overflow: hidden;
     }
 
-    /* HEADER */
+    /* HEADER SCURO */
     header {
-      background: rgba(10, 10, 15, 0.95);
+      background: rgba(10, 10, 15, 0.98);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-tech);
       padding: 10px 24px;
@@ -120,7 +120,7 @@
     }
     .btn-save-match:hover { background: #ff4d6d; }
 
-    /* LAYOUT CON SIDEBARS */
+    /* LAYOUT CON SIDEBARS SCURE E CENTRO CHIARO */
     .main-container { display: flex; flex: 1; overflow: hidden; padding: 15px; gap: 15px; }
 
     .sidebar-left, .sidebar-right {
@@ -131,7 +131,7 @@
       padding: 16px;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
     }
 
     .sidebar-left { width: 270px; }
@@ -175,20 +175,29 @@
       border-color: var(--accent-red);
     }
 
-    /* CAMPO DA GIOCO */
-    .pitch-container { flex: 1; display: flex; justify-content: center; align-items: center; }
+    /* AREA CAMPO CHIARA (SFONDO GRIGIO CHIARO CHIARO) */
+    .pitch-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+      border-radius: 16px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+      padding: 10px;
+    }
 
     .pitch {
       width: 100%;
       max-width: 520px;
       height: 98%;
       background: radial-gradient(circle at 50% 50%, #153e2b 0%, var(--pitch-green) 100%);
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
       border-bottom: none;
       border-radius: 12px 12px 0 0;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
     }
 
     /* DISEGNO DELLA PORTA IN ALTO */
@@ -208,11 +217,11 @@
     .goal-area { position: absolute; top: 0; left: 34%; width: 32%; height: 10%; border: 1px solid var(--pitch-lines); border-top: none; }
     .center-circle { position: absolute; bottom: -70px; left: 50%; transform: translateX(-50%); width: 140px; height: 140px; border: 1px solid var(--pitch-lines); border-radius: 50%; }
 
-    /* PALLINI E TESTO GIOCATORE */
+    /* PALLINI GIOCATORE */
     .player-node {
       width: 42px;
       height: 42px;
-      background: radial-gradient(circle at 30% 30%, #444, #222); /* Colore neutro iniziale */
+      background: radial-gradient(circle at 30% 30%, #ff4d6d, var(--accent-red));
       color: white;
       border: 2px solid rgba(255,255,255,0.9);
       border-radius: 50%;
@@ -258,13 +267,13 @@
       pointer-events: none;
     }
 
-    /* ROSTER E FORM CON RUOLO */
+    /* ROSTER GIOCATORI */
     .add-player-form { display: flex; gap: 6px; }
     .add-player-form input, .add-player-form select {
       padding: 8px;
       border: 1px solid var(--border-tech);
       border-radius: 6px;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.5);
       color: var(--text-main);
       font-size: 12px;
     }
@@ -283,15 +292,17 @@
 
     .player-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 6px; }
 
+    /* ETICHETTE CON PARENTESI LATERALI (BORDER LEFT E RIGHT) */
     .player-item {
       padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-tech);
       border-radius: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 13px;
+      color: #ffffff; /* Testo Bianco */
       cursor: grab;
       user-select: none;
       transition: all 0.2s ease;
@@ -299,31 +310,30 @@
 
     .player-item:active { cursor: grabbing; }
 
-    /* STATO SPENTO QUANDO INSERITO IN CAMPO */
     .player-item.used {
-      opacity: 0.35;
-      filter: grayscale(80%);
+      opacity: 0.3;
+      filter: grayscale(100%);
       cursor: not-allowed;
-      border-left-color: #555 !important;
     }
 
     .player-item .num {
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
       padding: 2px 7px;
       border-radius: 4px;
       margin-right: 8px;
       min-width: 32px;
       text-align: center;
       display: inline-block;
-      color: #000;
     }
 
-    /* BADGE RUOLI */
-    .role-P { background-color: var(--role-p); border-left: 4px solid var(--role-p); }
-    .role-D { background-color: var(--role-d); border-left: 4px solid var(--role-d); }
-    .role-C { background-color: var(--role-c); border-left: 4px solid var(--role-c); }
-    .role-A { background-color: var(--role-a); border-left: 4px solid var(--role-a); }
+    /* BORDINI LATERALI (PARENTESI DI COLORE) */
+    .player-item.role-P { border-left: 4px solid var(--role-p); border-right: 4px solid var(--role-p); }
+    .player-item.role-D { border-left: 4px solid var(--role-d); border-right: 4px solid var(--role-d); }
+    .player-item.role-C { border-left: 4px solid var(--role-c); border-right: 4px solid var(--role-c); }
+    .player-item.role-A { border-left: 4px solid var(--role-a); border-right: 4px solid var(--role-a); }
 
     .btn-del-player {
       background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px;
@@ -368,17 +378,17 @@
       <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3 <span>►</span></button>
     </aside>
 
-    <!-- CAMPO DA GIOCO -->
+    <!-- AREA CAMPO DA GIOCO CHIARA -->
     <main class="pitch-container">
       <div class="pitch" id="pitch">
-        <div class="goal-frame"></div> <!-- PORTA IN ALTO -->
+        <div class="goal-frame"></div>
         <div class="penalty-area"></div>
         <div class="goal-area"></div>
         <div class="center-circle"></div>
       </div>
     </main>
 
-    <!-- ROSTER GIOCATORI CON RUOLO -->
+    <!-- ROSTER GIOCATORI -->
     <aside class="sidebar-right">
       <div class="panel-header">Rosa Giocatori</div>
       <form class="add-player-form" id="playerForm">
@@ -507,13 +517,11 @@
         label.innerText = playerData.name;
         label.style.display = 'block';
 
-        // Applica colore del ruolo
         if (roleColors[playerData.role]) {
           node.style.background = roleColors[playerData.role];
           node.style.color = '#000';
         }
 
-        // Salva identificativo e aggiorna lista disattivati
         node.dataset.playerId = playerData.id;
         updateUsedPlayersState();
       });
@@ -521,7 +529,6 @@
       pitch.appendChild(node);
     }
 
-    // AGGIORNA STATO SPENTO/ATTIVO DEI GIOCATORI NELLA ROSA
     function updateUsedPlayersState() {
       const activeIds = Array.from(document.querySelectorAll('.player-node'))
         .map(n => n.dataset.playerId)
@@ -549,7 +556,7 @@
         li.dataset.id = player.id;
         li.draggable = true;
         li.innerHTML = `
-          <span><span class="num ${player.role}">${player.role} #${player.num}</span>${player.name}</span>
+          <span><span class="num">${player.role} #${player.num}</span>${player.name}</span>
           <button class="btn-del-player" onclick="deletePlayer('${player.id}')">✕</button>
         `;
 
