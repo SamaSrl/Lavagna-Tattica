@@ -77,7 +77,7 @@
       text-transform: uppercase;
     }
 
-    /* MATCH CONTROL PANEL IN HEADER */
+    /* MATCH PANEL */
     .match-panel {
       display: flex;
       align-items: center;
@@ -114,7 +114,7 @@
     }
     .btn-save-match:hover { background: #ff4d6d; }
 
-    /* LAYOUT PRINCIPALE */
+    /* LAYOUT CON SIDEBARS INGRANDITE */
     .main-container { display: flex; flex: 1; overflow: hidden; padding: 15px; gap: 15px; }
 
     .sidebar-left, .sidebar-right {
@@ -128,8 +128,9 @@
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
 
-    .sidebar-left { width: 240px; }
-    .sidebar-right { width: 300px; gap: 12px; }
+    /* LARGHENZA AUMENTATA PER EVITARE TAGLI */
+    .sidebar-left { width: 270px; }
+    .sidebar-right { width: 330px; gap: 12px; }
 
     .panel-header {
       font-family: 'Orbitron', sans-serif;
@@ -189,7 +190,7 @@
     .goal-area { position: absolute; top: 0; left: 34%; width: 32%; height: 10%; border: 1px solid var(--pitch-lines); border-top: none; }
     .center-circle { position: absolute; bottom: -70px; left: 50%; transform: translateX(-50%); width: 140px; height: 140px; border: 1px solid var(--pitch-lines); border-radius: 50%; }
 
-    /* PALLINI (INGRANDITI E CON NOME SOTTO) */
+    /* PALLINI E TESTO GIOCATORE */
     .player-node {
       width: 42px;
       height: 42px;
@@ -219,39 +220,43 @@
       border-color: #10b981;
     }
 
+    .player-num-span {
+      pointer-events: none;
+    }
+
     .player-label {
       position: absolute;
       bottom: -20px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.9);
       color: #fff;
       padding: 2px 6px;
       border-radius: 4px;
-      font-size: 10px;
+      font-size: 11px;
       white-space: nowrap;
       border: 1px solid var(--border-tech);
       font-family: 'Inter', sans-serif;
       pointer-events: none;
     }
 
-    /* ROSTER E GIOCATORI TRASCINABILI */
-    .add-player-form { display: flex; gap: 6px; }
+    /* ROSTER E FORM */
+    .add-player-form { display: flex; gap: 8px; }
     .add-player-form input {
       padding: 8px 10px;
       border: 1px solid var(--border-tech);
       border-radius: 6px;
       background: rgba(0, 0, 0, 0.4);
       color: var(--text-main);
-      font-size: 12px;
+      font-size: 13px;
     }
     .add-player-form input[type="text"] { flex: 1; }
-    .add-player-form input[type="number"] { width: 50px; font-family: 'JetBrains Mono', monospace; }
+    .add-player-form input[type="number"] { width: 65px; font-family: 'JetBrains Mono', monospace; }
     .add-player-form button {
       background: var(--accent-red);
       color: white;
       border: none;
-      padding: 0 12px;
+      padding: 0 14px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 700;
@@ -260,7 +265,7 @@
     .player-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 6px; }
 
     .player-item {
-      padding: 8px 10px;
+      padding: 8px 12px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-tech);
       border-left: 3px solid var(--accent-red);
@@ -268,7 +273,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 12px;
+      font-size: 13px;
       cursor: grab;
       user-select: none;
     }
@@ -280,9 +285,12 @@
       font-weight: 700;
       color: var(--accent-red);
       background: rgba(255, 42, 75, 0.1);
-      padding: 1px 5px;
+      padding: 2px 7px;
       border-radius: 4px;
-      margin-right: 6px;
+      margin-right: 8px;
+      min-width: 32px;
+      text-align: center;
+      display: inline-block;
     }
 
     .btn-del-player {
@@ -293,7 +301,7 @@
 </head>
 <body>
 
-  <!-- HEADER CON MATCH CONTROL & STORICO -->
+  <!-- HEADER -->
   <header>
     <div class="header-brand">
       <div class="logo-frame">
@@ -305,7 +313,7 @@
       </div>
     </div>
 
-    <!-- PANNELLO MATCH & STORICO -->
+    <!-- MATCH & STORICO -->
     <div class="match-panel">
       <select id="historySelect" onchange="loadMatchFromHistory(this.value)">
         <option value="">-- Carica da Storico --</option>
@@ -318,7 +326,7 @@
 
   <div class="main-container">
 
-    <!-- SINISTRA: SELEZIONE MODULI -->
+    <!-- MODULI -->
     <aside class="sidebar-left">
       <div class="panel-header">Moduli</div>
       <button class="formation-btn" onclick="setFormation('4-3-3')">4 - 3 - 3 <span>►</span></button>
@@ -328,7 +336,7 @@
       <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3 <span>►</span></button>
     </aside>
 
-    <!-- CENTRO: CAMPO DA GIOCO -->
+    <!-- CAMPO DA GIOCO -->
     <main class="pitch-container">
       <div class="pitch" id="pitch">
         <div class="penalty-area"></div>
@@ -337,7 +345,7 @@
       </div>
     </main>
 
-    <!-- DESTRA: ROSTA GIOCATORI DRAGGABILI -->
+    <!-- ROSTER GIOCATORI -->
     <aside class="sidebar-right">
       <div class="panel-header">Rosa Giocatori</div>
       <form class="add-player-form" id="playerForm">
@@ -355,35 +363,35 @@
     let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
     let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
 
-    // PORTIERE ABBASSATO AL LIMITE DEL CAMPO (top: 96%)
+    // PORTIERE ALZATO AL 91% (Evita il taglio del nome)
     const formations = {
       '4-3-3': [
-        {top: 96, left: 50},
+        {top: 91, left: 50},
         {top: 75, left: 15}, {top: 78, left: 38}, {top: 78, left: 62}, {top: 75, left: 85},
         {top: 50, left: 30}, {top: 55, left: 50}, {top: 50, left: 70},
         {top: 20, left: 20}, {top: 15, left: 50}, {top: 20, left: 80}
       ],
       '4-4-2': [
-        {top: 96, left: 50},
+        {top: 91, left: 50},
         {top: 75, left: 15}, {top: 78, left: 38}, {top: 78, left: 62}, {top: 75, left: 85},
         {top: 48, left: 15}, {top: 50, left: 38}, {top: 50, left: 62}, {top: 48, left: 85},
         {top: 20, left: 35}, {top: 20, left: 65}
       ],
       '3-5-2': [
-        {top: 96, left: 50},
+        {top: 91, left: 50},
         {top: 78, left: 25}, {top: 80, left: 50}, {top: 78, left: 75},
         {top: 45, left: 10}, {top: 52, left: 33}, {top: 55, left: 50}, {top: 52, left: 67}, {top: 45, left: 90},
         {top: 20, left: 35}, {top: 20, left: 65}
       ],
       '4-2-3-1': [
-        {top: 96, left: 50},
+        {top: 91, left: 50},
         {top: 75, left: 15}, {top: 78, left: 38}, {top: 78, left: 62}, {top: 75, left: 85},
         {top: 58, left: 35}, {top: 58, left: 65},
         {top: 35, left: 20}, {top: 35, left: 50}, {top: 35, left: 80},
         {top: 15, left: 50}
       ],
       '3-4-3': [
-        {top: 96, left: 50},
+        {top: 91, left: 50},
         {top: 78, left: 25}, {top: 80, left: 50}, {top: 78, left: 75},
         {top: 50, left: 15}, {top: 52, left: 38}, {top: 52, left: 62}, {top: 50, left: 85},
         {top: 20, left: 20}, {top: 15, left: 50}, {top: 20, left: 80}
@@ -396,14 +404,19 @@
       config.forEach(pos => createPlayerNode(pos.top, pos.left));
     }
 
-    // CREAZIONE PALLINI VUOTI
     function createPlayerNode(top, left, num = '', name = '') {
       const node = document.createElement('div');
       node.className = 'player-node';
       node.style.top = top + '%';
       node.style.left = left + '%';
-      node.innerText = num;
 
+      // Span separato per il numero interno al pallino
+      const numSpan = document.createElement('span');
+      numSpan.className = 'player-num-span';
+      numSpan.innerText = num;
+      node.appendChild(numSpan);
+
+      // Etichetta sotto per il nome
       const label = document.createElement('div');
       label.className = 'player-label';
       label.innerText = name;
@@ -444,8 +457,8 @@
         node.classList.remove('drag-over');
         const playerData = JSON.parse(e.dataTransfer.getData('text/plain'));
         
-        // Assegna Numero e Nome
-        node.childNodes[0].nodeValue = playerData.num;
+        // Assegna Numero e Nome correttamente
+        numSpan.innerText = playerData.num;
         label.innerText = playerData.name;
         label.style.display = 'block';
       });
@@ -453,7 +466,7 @@
       pitch.appendChild(node);
     }
 
-    // GESTIONE ROSTER GIOCATORI (CON MEMORIA PERMANENTE)
+    // ROSTER GIOCATORI
     function renderRoster() {
       const list = document.getElementById('playerList');
       list.innerHTML = '';
@@ -492,7 +505,7 @@
       renderRoster();
     }
 
-    // SALVATAGGIO STORICO MATCH
+    // STORICO MATCH
     function saveCurrentMatch() {
       const date = document.getElementById('matchDate').value;
       const opponent = document.getElementById('opponentName').value;
@@ -502,11 +515,10 @@
         return;
       }
 
-      // Raccoglie le posizioni attuali dei pallini
       const nodes = Array.from(document.querySelectorAll('.player-node')).map(node => ({
         top: parseFloat(node.style.top),
         left: parseFloat(node.style.left),
-        num: node.childNodes[0].nodeValue || '',
+        num: node.querySelector('.player-num-span').innerText || '',
         name: node.querySelector('.player-label').innerText || ''
       }));
 
