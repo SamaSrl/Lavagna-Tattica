@@ -17,7 +17,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #1e1e1e; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-    /* HEADER CON LOGO E COLORI ROSSONERI */
+    /* HEADER CON LOGO, TASTO MENU E COLORI ROSSONERI */
     header {
       background-color: var(--primary-color);
       color: var(--text-color);
@@ -29,6 +29,20 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.5);
       z-index: 100;
     }
+
+    /* BOTTONE HAMBURGER MENU */
+    .menu-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 26px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px;
+    }
+    .menu-btn:hover { color: var(--accent-color); }
 
     .logo-container {
       width: 45px;
@@ -46,6 +60,60 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
+    }
+
+    /* CONTAINER PRINCIPALE PER LAYOUT CON SIDEBAR */
+    .main-container {
+      display: flex;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* MENU A SCOMPARSA A SINISTRA */
+    .sidebar-left {
+      position: absolute;
+      left: -260px;
+      top: 0;
+      bottom: 0;
+      width: 260px;
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      transition: left 0.3s ease;
+      z-index: 90;
+      padding: 20px;
+      box-shadow: 3px 0 10px rgba(0,0,0,0.5);
+      border-right: 1px solid #333;
+    }
+    .sidebar-left.open { left: 0; }
+    
+    .sidebar-left h3 {
+      margin-bottom: 15px;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 2px solid var(--accent-color);
+      padding-bottom: 5px;
+    }
+
+    .formation-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      background-color: #222;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: bold;
+      font-size: 15px;
+      transition: all 0.2s ease;
+    }
+    .formation-btn:hover {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
     }
 
     /* AREA CAMPO DA GIOCO (MEZZO CAMPO) */
@@ -104,41 +172,101 @@
       box-shadow: 0 3px 6px rgba(0,0,0,0.4);
       z-index: 10;
       touch-action: none;
+      transition: top 0.4s ease, left 0.4s ease; /* Transizione morbida cambio modulo */
     }
-    .player-node:active { cursor: grabbing; scale: 1.1; }
+    .player-node:active { cursor: grabbing; scale: 1.1; transition: none; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER CON LOGO SQUADRA -->
+  <!-- HEADER -->
   <header>
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
     <div class="logo-container">
       <img src="https://b2-content.tuttocampo.it/Teams/Original/937685.png?v=2" alt="Logo Squadra">
     </div>
     <h2>LAVAGNA TATTICA</h2>
   </header>
 
-  <!-- MEZZO CAMPO DA GIOCO -->
-  <main class="pitch-container">
-    <div class="pitch" id="pitch">
-      <div class="penalty-area"></div>
-      <div class="goal-area"></div>
-      <div class="center-circle"></div>
-    </div>
-  </main>
+  <!-- CONTAINER CORPO -->
+  <div class="main-container">
+
+    <!-- MENU A SCOMPARSA A SINISTRA -->
+    <aside class="sidebar-left" id="sidebarLeft">
+      <h3>Moduli Tattici</h3>
+      <button class="formation-btn" onclick="setFormation('4-3-3')">4 - 3 - 3</button>
+      <button class="formation-btn" onclick="setFormation('4-4-2')">4 - 4 - 2</button>
+      <button class="formation-btn" onclick="setFormation('3-5-2')">3 - 5 - 2</button>
+      <button class="formation-btn" onclick="setFormation('4-2-3-1')">4 - 2 - 3 - 1</button>
+      <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3</button>
+    </aside>
+
+    <!-- MEZZO CAMPO DA GIOCO -->
+    <main class="pitch-container">
+      <div class="pitch" id="pitch">
+        <div class="penalty-area"></div>
+        <div class="goal-area"></div>
+        <div class="center-circle"></div>
+      </div>
+    </main>
+
+  </div>
 
   <script>
     const pitch = document.getElementById('pitch');
+    const sidebarLeft = document.getElementById('sidebarLeft');
 
-    // Posizioni iniziali di prova (11 pallini sul campo)
-    const initialPositions = [
-      {top: 90, left: 50, label: 'P'},
-      {top: 75, left: 15, label: '2'}, {top: 78, left: 38, label: '5'}, {top: 78, left: 62, label: '6'}, {top: 75, left: 85, label: '3'},
-      {top: 50, left: 30, label: '8'}, {top: 55, left: 50, label: '4'}, {top: 50, left: 70, label: '10'},
-      {top: 20, left: 20, label: '7'}, {top: 15, left: 50, label: '9'}, {top: 20, left: 80, label: '11'}
-    ];
+    // Mappatura delle coordinate dei vari moduli calcistici (%)
+    const formations = {
+      '4-3-3': [
+        {top: 90, left: 50, label: 'P'},
+        {top: 75, left: 15, label: '3'}, {top: 78, left: 38, label: '5'}, {top: 78, left: 62, label: '6'}, {top: 75, left: 85, label: '2'},
+        {top: 50, left: 30, label: '8'}, {top: 55, left: 50, label: '4'}, {top: 50, left: 70, label: '10'},
+        {top: 20, left: 20, label: '11'}, {top: 15, left: 50, label: '9'}, {top: 20, left: 80, label: '7'}
+      ],
+      '4-4-2': [
+        {top: 90, left: 50, label: 'P'},
+        {top: 75, left: 15, label: '3'}, {top: 78, left: 38, label: '5'}, {top: 78, left: 62, label: '6'}, {top: 75, left: 85, label: '2'},
+        {top: 48, left: 15, label: '11'}, {top: 50, left: 38, label: '8'}, {top: 50, left: 62, label: '4'}, {top: 48, left: 85, label: '7'},
+        {top: 20, left: 35, label: '9'}, {top: 20, left: 65, label: '10'}
+      ],
+      '3-5-2': [
+        {top: 90, left: 50, label: 'P'},
+        {top: 78, left: 25, label: '5'}, {top: 80, left: 50, label: '6'}, {top: 78, left: 75, label: '2'},
+        {top: 45, left: 10, label: '3'}, {top: 52, left: 33, label: '8'}, {top: 55, left: 50, label: '4'}, {top: 52, left: 67, label: '10'}, {top: 45, left: 90, label: '7'},
+        {top: 20, left: 35, label: '9'}, {top: 20, left: 65, label: '11'}
+      ],
+      '4-2-3-1': [
+        {top: 90, left: 50, label: 'P'},
+        {top: 75, left: 15, label: '3'}, {top: 78, left: 38, label: '5'}, {top: 78, left: 62, label: '6'}, {top: 75, left: 85, label: '2'},
+        {top: 58, left: 35, label: '4'}, {top: 58, left: 65, label: '8'},
+        {top: 35, left: 20, label: '11'}, {top: 35, left: 50, label: '10'}, {top: 35, left: 80, label: '7'},
+        {top: 15, left: 50, label: '9'}
+      ],
+      '3-4-3': [
+        {top: 90, left: 50, label: 'P'},
+        {top: 78, left: 25, label: '5'}, {top: 80, left: 50, label: '6'}, {top: 78, left: 75, label: '2'},
+        {top: 50, left: 15, label: '3'}, {top: 52, left: 38, label: '4'}, {top: 52, left: 62, label: '8'}, {top: 50, left: 85, label: '7'},
+        {top: 20, left: 20, label: '11'}, {top: 15, left: 50, label: '9'}, {top: 20, left: 80, label: '10'}
+      ]
+    };
 
-    // Funzione per creare i pallini e attivare il Drag & Drop
+    // Apertura / Chiusura Menu
+    function toggleSidebar() {
+      sidebarLeft.classList.toggle('open');
+    }
+
+    // Applica modulo selezionato
+    function setFormation(fmt) {
+      document.querySelectorAll('.player-node').forEach(node => node.remove());
+      const config = formations[fmt] || formations['4-3-3'];
+      config.forEach(pos => createPlayerNode(pos.top, pos.left, pos.label));
+      
+      // Chiude il menu dopo la selezione
+      sidebarLeft.classList.remove('open');
+    }
+
+    // Creazione pallini con Drag & Drop
     function createPlayerNode(top, left, labelText) {
       const node = document.createElement('div');
       node.className = 'player-node';
@@ -148,7 +276,6 @@
 
       let isDragging = false;
 
-      // Gestione per Mouse e Touch (Smartphone/Tablet)
       const startDrag = () => { isDragging = true; };
       const stopDrag = () => { isDragging = false; };
 
@@ -161,7 +288,6 @@
         let x = clientX - rect.left;
         let y = clientY - rect.top;
 
-        // Limiti per non far uscire i pallini dal campo
         x = Math.max(16, Math.min(x, rect.width - 16));
         y = Math.max(16, Math.min(y, rect.height - 16));
 
@@ -181,8 +307,8 @@
       pitch.appendChild(node);
     }
 
-    // Carica i pallini in campo
-    initialPositions.forEach(pos => createPlayerNode(pos.top, pos.left, pos.label));
+    // Inizializza con il modulo 4-3-3
+    setFormation('4-3-3');
   </script>
 
 </body>
