@@ -114,7 +114,7 @@
     }
     .btn-save-match:hover { background: #ff4d6d; }
 
-    /* LAYOUT CON SIDEBARS INGRANDITE */
+    /* LAYOUT CON SIDEBARS */
     .main-container { display: flex; flex: 1; overflow: hidden; padding: 15px; gap: 15px; }
 
     .sidebar-left, .sidebar-right {
@@ -128,7 +128,6 @@
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
 
-    /* LARGHENZA AUMENTATA PER EVITARE TAGLI */
     .sidebar-left { width: 270px; }
     .sidebar-right { width: 330px; gap: 12px; }
 
@@ -363,38 +362,38 @@
     let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
     let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
 
-    // PORTIERE ALZATO AL 91% (Evita il taglio del nome)
+    // FORMAZIONE INVERTITA (Portiere top: 10%, Attaccanti verso bottom: 80%)
     const formations = {
       '4-3-3': [
-        {top: 91, left: 50},
-        {top: 75, left: 15}, {top: 78, left: 38}, {top: 78, left: 62}, {top: 75, left: 85},
-        {top: 50, left: 30}, {top: 55, left: 50}, {top: 50, left: 70},
-        {top: 20, left: 20}, {top: 15, left: 50}, {top: 20, left: 80}
+        {top: 10, left: 50},
+        {top: 25, left: 15}, {top: 22, left: 38}, {top: 22, left: 62}, {top: 25, left: 85},
+        {top: 50, left: 30}, {top: 45, left: 50}, {top: 50, left: 70},
+        {top: 80, left: 20}, {top: 85, left: 50}, {top: 80, left: 80}
       ],
       '4-4-2': [
-        {top: 91, left: 50},
-        {top: 75, left: 15}, {top: 78, left: 38}, {top: 78, left: 62}, {top: 75, left: 85},
-        {top: 48, left: 15}, {top: 50, left: 38}, {top: 50, left: 62}, {top: 48, left: 85},
-        {top: 20, left: 35}, {top: 20, left: 65}
+        {top: 10, left: 50},
+        {top: 25, left: 15}, {top: 22, left: 38}, {top: 22, left: 62}, {top: 25, left: 85},
+        {top: 52, left: 15}, {top: 50, left: 38}, {top: 50, left: 62}, {top: 52, left: 85},
+        {top: 80, left: 35}, {top: 80, left: 65}
       ],
       '3-5-2': [
-        {top: 91, left: 50},
-        {top: 78, left: 25}, {top: 80, left: 50}, {top: 78, left: 75},
-        {top: 45, left: 10}, {top: 52, left: 33}, {top: 55, left: 50}, {top: 52, left: 67}, {top: 45, left: 90},
-        {top: 20, left: 35}, {top: 20, left: 65}
+        {top: 10, left: 50},
+        {top: 22, left: 25}, {top: 20, left: 50}, {top: 22, left: 75},
+        {top: 55, left: 10}, {top: 48, left: 33}, {top: 45, left: 50}, {top: 48, left: 67}, {top: 55, left: 90},
+        {top: 80, left: 35}, {top: 80, left: 65}
       ],
       '4-2-3-1': [
-        {top: 91, left: 50},
-        {top: 75, left: 15}, {top: 78, left: 38}, {top: 78, left: 62}, {top: 75, left: 85},
-        {top: 58, left: 35}, {top: 58, left: 65},
-        {top: 35, left: 20}, {top: 35, left: 50}, {top: 35, left: 80},
-        {top: 15, left: 50}
+        {top: 10, left: 50},
+        {top: 25, left: 15}, {top: 22, left: 38}, {top: 22, left: 62}, {top: 25, left: 85},
+        {top: 42, left: 35}, {top: 42, left: 65},
+        {top: 65, left: 20}, {top: 65, left: 50}, {top: 65, left: 80},
+        {top: 85, left: 50}
       ],
       '3-4-3': [
-        {top: 91, left: 50},
-        {top: 78, left: 25}, {top: 80, left: 50}, {top: 78, left: 75},
-        {top: 50, left: 15}, {top: 52, left: 38}, {top: 52, left: 62}, {top: 50, left: 85},
-        {top: 20, left: 20}, {top: 15, left: 50}, {top: 20, left: 80}
+        {top: 10, left: 50},
+        {top: 22, left: 25}, {top: 20, left: 50}, {top: 22, left: 75},
+        {top: 50, left: 15}, {top: 48, left: 38}, {top: 48, left: 62}, {top: 50, left: 85},
+        {top: 80, left: 20}, {top: 85, left: 50}, {top: 80, left: 80}
       ]
     };
 
@@ -410,20 +409,17 @@
       node.style.top = top + '%';
       node.style.left = left + '%';
 
-      // Span separato per il numero interno al pallino
       const numSpan = document.createElement('span');
       numSpan.className = 'player-num-span';
       numSpan.innerText = num;
       node.appendChild(numSpan);
 
-      // Etichetta sotto per il nome
       const label = document.createElement('div');
       label.className = 'player-label';
       label.innerText = name;
       if (!name) label.style.display = 'none';
       node.appendChild(label);
 
-      // SPOSTAMENTO PALLINI LIBERO
       let isDragging = false;
       const startDrag = () => { isDragging = true; };
       const stopDrag = () => { isDragging = false; };
@@ -449,7 +445,6 @@
       document.addEventListener('mouseup', stopDrag);
       document.addEventListener('touchend', stopDrag);
 
-      // DROP GIOCATORE SUL PALLINO
       node.addEventListener('dragover', (e) => { e.preventDefault(); node.classList.add('drag-over'); });
       node.addEventListener('dragleave', () => node.classList.remove('drag-over'));
       node.addEventListener('drop', (e) => {
@@ -457,7 +452,6 @@
         node.classList.remove('drag-over');
         const playerData = JSON.parse(e.dataTransfer.getData('text/plain'));
         
-        // Assegna Numero e Nome correttamente
         numSpan.innerText = playerData.num;
         label.innerText = playerData.name;
         label.style.display = 'block';
@@ -466,7 +460,6 @@
       pitch.appendChild(node);
     }
 
-    // ROSTER GIOCATORI
     function renderRoster() {
       const list = document.getElementById('playerList');
       list.innerHTML = '';
@@ -505,7 +498,6 @@
       renderRoster();
     }
 
-    // STORICO MATCH
     function saveCurrentMatch() {
       const date = document.getElementById('matchDate').value;
       const opponent = document.getElementById('opponentName').value;
@@ -553,7 +545,6 @@
       match.nodes.forEach(p => createPlayerNode(p.top, p.left, p.num, p.name));
     }
 
-    // INIZIALIZZAZIONE
     renderRoster();
     updateHistorySelect();
     setFormation('4-3-3');
