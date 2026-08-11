@@ -368,6 +368,11 @@
 
     /* STILI OTTIMIZZATI DEDICATI ALLA STAMPA / PDF */
     @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
       body {
         background: white !important;
         color: black !important;
@@ -375,7 +380,6 @@
         overflow: visible !important;
       }
 
-      /* Nasconde menu laterali, bottoni, dropdown storico e form */
       .sidebar-left, 
       .sidebar-right, 
       .btn-print, 
@@ -385,7 +389,6 @@
         display: none !important; 
       }
 
-      /* Formattazione Header per la Stampa */
       header {
         background: white !important;
         color: black !important;
@@ -404,7 +407,6 @@
         font-size: 20px !important;
       }
 
-      /* Sostituisce gli input con testo leggibile in stampa */
       .match-panel {
         background: none !important;
         border: none !important;
@@ -420,7 +422,6 @@
         padding: 0 !important;
       }
 
-      /* Layout Campo in Stampa */
       .main-container {
         padding: 20px 0 0 0 !important;
         justify-content: center !important;
@@ -433,22 +434,35 @@
         width: 100% !important;
       }
 
+      /* Riconfigurazione visibilità campo e linee per la stampa */
       .pitch {
         max-width: 480px !important;
         height: 620px !important;
-        border: 2px solid #000 !important;
+        background: var(--pitch-green) !important;
+        border: 2px solid #ffffff !important;
+        border-bottom: none !important;
         box-shadow: none !important;
+      }
+
+      .goal-frame {
+        border: 2px solid #ffffff !important;
+        border-top: none !important;
+        background: rgba(255, 255, 255, 0.3) !important;
+      }
+
+      .penalty-area, .goal-area, .center-circle {
+        border-color: #ffffff !important;
       }
 
       .player-node {
         box-shadow: none !important;
-        border: 2px solid #000 !important;
+        border: 2px solid #ffffff !important;
       }
 
       .player-label {
-        background: #000 !important;
-        color: #fff !important;
-        border: none !important;
+        background: #000000 !important;
+        color: #ffffff !important;
+        border: 1px solid #ffffff !important;
       }
     }
   </style>
