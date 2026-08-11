@@ -17,6 +17,12 @@
       --pitch-green: #0f2b1d;
       --pitch-lines: rgba(255, 255, 255, 0.4);
       --border-tech: rgba(255, 255, 255, 0.08);
+
+      /* COLORI RUOLI */
+      --role-p: #f1c40f; /* Giallo Portiere */
+      --role-d: #2ecc71; /* Verde Difensore */
+      --role-c: #3498db; /* Azzurro Centrocampista */
+      --role-a: #e74c3c; /* Rosso Attaccante */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -129,7 +135,7 @@
     }
 
     .sidebar-left { width: 270px; }
-    .sidebar-right { width: 330px; gap: 12px; }
+    .sidebar-right { width: 350px; gap: 12px; }
 
     .panel-header {
       font-family: 'Orbitron', sans-serif;
@@ -169,7 +175,7 @@
       border-color: var(--accent-red);
     }
 
-    /* CAMPO */
+    /* CAMPO DA GIOCO */
     .pitch-container { flex: 1; display: flex; justify-content: center; align-items: center; }
 
     .pitch {
@@ -185,6 +191,19 @@
       box-shadow: 0 20px 50px rgba(0,0,0,0.8);
     }
 
+    /* DISEGNO DELLA PORTA IN ALTO */
+    .goal-frame {
+      position: absolute;
+      top: -2px;
+      left: 40%;
+      width: 20%;
+      height: 12px;
+      border: 2px solid #ffffff;
+      border-top: none;
+      background: rgba(255, 255, 255, 0.15);
+      z-index: 5;
+    }
+
     .penalty-area { position: absolute; top: 0; left: 18%; width: 64%; height: 26%; border: 1px solid var(--pitch-lines); border-top: none; }
     .goal-area { position: absolute; top: 0; left: 34%; width: 32%; height: 10%; border: 1px solid var(--pitch-lines); border-top: none; }
     .center-circle { position: absolute; bottom: -70px; left: 50%; transform: translateX(-50%); width: 140px; height: 140px; border: 1px solid var(--pitch-lines); border-radius: 50%; }
@@ -193,7 +212,7 @@
     .player-node {
       width: 42px;
       height: 42px;
-      background: radial-gradient(circle at 30% 30%, #ff4d6d, var(--accent-red));
+      background: radial-gradient(circle at 30% 30%, #444, #222); /* Colore neutro iniziale */
       color: white;
       border: 2px solid rgba(255,255,255,0.9);
       border-radius: 50%;
@@ -210,7 +229,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.6);
       z-index: 10;
       touch-action: none;
-      transition: top 0.4s ease, left 0.4s ease;
+      transition: top 0.4s ease, left 0.4s ease, background 0.3s ease;
     }
 
     .player-node.drag-over {
@@ -239,23 +258,24 @@
       pointer-events: none;
     }
 
-    /* ROSTER E FORM */
-    .add-player-form { display: flex; gap: 8px; }
-    .add-player-form input {
-      padding: 8px 10px;
+    /* ROSTER E FORM CON RUOLO */
+    .add-player-form { display: flex; gap: 6px; }
+    .add-player-form input, .add-player-form select {
+      padding: 8px;
       border: 1px solid var(--border-tech);
       border-radius: 6px;
       background: rgba(0, 0, 0, 0.4);
       color: var(--text-main);
-      font-size: 13px;
+      font-size: 12px;
     }
     .add-player-form input[type="text"] { flex: 1; }
-    .add-player-form input[type="number"] { width: 65px; font-family: 'JetBrains Mono', monospace; }
+    .add-player-form input[type="number"] { width: 50px; font-family: 'JetBrains Mono', monospace; }
+    .add-player-form select { width: 55px; font-weight: bold; }
     .add-player-form button {
       background: var(--accent-red);
       color: white;
       border: none;
-      padding: 0 14px;
+      padding: 0 12px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 700;
@@ -267,7 +287,6 @@
       padding: 8px 12px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-tech);
-      border-left: 3px solid var(--accent-red);
       border-radius: 6px;
       display: flex;
       justify-content: space-between;
@@ -275,22 +294,36 @@
       font-size: 13px;
       cursor: grab;
       user-select: none;
+      transition: all 0.2s ease;
     }
 
-    .player-item:active { cursor: grabbing; background: rgba(255, 42, 75, 0.2); }
+    .player-item:active { cursor: grabbing; }
+
+    /* STATO SPENTO QUANDO INSERITO IN CAMPO */
+    .player-item.used {
+      opacity: 0.35;
+      filter: grayscale(80%);
+      cursor: not-allowed;
+      border-left-color: #555 !important;
+    }
 
     .player-item .num {
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
-      color: var(--accent-red);
-      background: rgba(255, 42, 75, 0.1);
       padding: 2px 7px;
       border-radius: 4px;
       margin-right: 8px;
       min-width: 32px;
       text-align: center;
       display: inline-block;
+      color: #000;
     }
+
+    /* BADGE RUOLI */
+    .role-P { background-color: var(--role-p); border-left: 4px solid var(--role-p); }
+    .role-D { background-color: var(--role-d); border-left: 4px solid var(--role-d); }
+    .role-C { background-color: var(--role-c); border-left: 4px solid var(--role-c); }
+    .role-A { background-color: var(--role-a); border-left: 4px solid var(--role-a); }
 
     .btn-del-player {
       background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px;
@@ -338,18 +371,25 @@
     <!-- CAMPO DA GIOCO -->
     <main class="pitch-container">
       <div class="pitch" id="pitch">
+        <div class="goal-frame"></div> <!-- PORTA IN ALTO -->
         <div class="penalty-area"></div>
         <div class="goal-area"></div>
         <div class="center-circle"></div>
       </div>
     </main>
 
-    <!-- ROSTER GIOCATORI -->
+    <!-- ROSTER GIOCATORI CON RUOLO -->
     <aside class="sidebar-right">
       <div class="panel-header">Rosa Giocatori</div>
       <form class="add-player-form" id="playerForm">
         <input type="text" id="pName" placeholder="Nome" required autocomplete="off">
         <input type="number" id="pNum" placeholder="N°" required>
+        <select id="pRole">
+          <option value="P">P</option>
+          <option value="D">D</option>
+          <option value="C" selected>C</option>
+          <option value="A">A</option>
+        </select>
         <button type="submit">+</button>
       </form>
       <ul class="player-list" id="playerList"></ul>
@@ -362,7 +402,13 @@
     let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
     let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
 
-    // FORMAZIONE INVERTITA (Portiere top: 10%, Attaccanti verso bottom: 80%)
+    const roleColors = {
+      'P': 'var(--role-p)',
+      'D': 'var(--role-d)',
+      'C': 'var(--role-c)',
+      'A': 'var(--role-a)'
+    };
+
     const formations = {
       '4-3-3': [
         {top: 10, left: 50},
@@ -401,13 +447,18 @@
       document.querySelectorAll('.player-node').forEach(node => node.remove());
       const config = formations[fmt] || formations['4-3-3'];
       config.forEach(pos => createPlayerNode(pos.top, pos.left));
+      updateUsedPlayersState();
     }
 
-    function createPlayerNode(top, left, num = '', name = '') {
+    function createPlayerNode(top, left, num = '', name = '', role = '') {
       const node = document.createElement('div');
       node.className = 'player-node';
       node.style.top = top + '%';
       node.style.left = left + '%';
+      if (role && roleColors[role]) {
+        node.style.background = roleColors[role];
+        node.style.color = '#000';
+      }
 
       const numSpan = document.createElement('span');
       numSpan.className = 'player-num-span';
@@ -455,46 +506,89 @@
         numSpan.innerText = playerData.num;
         label.innerText = playerData.name;
         label.style.display = 'block';
+
+        // Applica colore del ruolo
+        if (roleColors[playerData.role]) {
+          node.style.background = roleColors[playerData.role];
+          node.style.color = '#000';
+        }
+
+        // Salva identificativo e aggiorna lista disattivati
+        node.dataset.playerId = playerData.id;
+        updateUsedPlayersState();
       });
 
       pitch.appendChild(node);
+    }
+
+    // AGGIORNA STATO SPENTO/ATTIVO DEI GIOCATORI NELLA ROSA
+    function updateUsedPlayersState() {
+      const activeIds = Array.from(document.querySelectorAll('.player-node'))
+        .map(n => n.dataset.playerId)
+        .filter(Boolean);
+
+      document.querySelectorAll('.player-item').forEach(item => {
+        if (activeIds.includes(item.dataset.id)) {
+          item.classList.add('used');
+          item.draggable = false;
+        } else {
+          item.classList.remove('used');
+          item.draggable = true;
+        }
+      });
     }
 
     function renderRoster() {
       const list = document.getElementById('playerList');
       list.innerHTML = '';
       roster.forEach((player, idx) => {
+        if (!player.id) player.id = 'p_' + Date.now() + '_' + idx;
+
         const li = document.createElement('li');
-        li.className = 'player-item';
+        li.className = `player-item role-${player.role}`;
+        li.dataset.id = player.id;
         li.draggable = true;
         li.innerHTML = `
-          <span><span class="num">#${player.num}</span>${player.name}</span>
-          <button class="btn-del-player" onclick="deletePlayer(${idx})">✕</button>
+          <span><span class="num ${player.role}">${player.role} #${player.num}</span>${player.name}</span>
+          <button class="btn-del-player" onclick="deletePlayer('${player.id}')">✕</button>
         `;
 
         li.addEventListener('dragstart', (e) => {
+          if (li.classList.contains('used')) {
+            e.preventDefault();
+            return;
+          }
           e.dataTransfer.setData('text/plain', JSON.stringify(player));
         });
 
         list.appendChild(li);
       });
       localStorage.setItem('teamRoster', JSON.stringify(roster));
+      updateUsedPlayersState();
     }
 
     document.getElementById('playerForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const nameInput = document.getElementById('pName');
       const numInput = document.getElementById('pNum');
+      const roleInput = document.getElementById('pRole');
 
-      roster.push({ name: nameInput.value, num: numInput.value });
+      const newPlayer = {
+        id: 'p_' + Date.now(),
+        name: nameInput.value,
+        num: numInput.value,
+        role: roleInput.value
+      };
+
+      roster.push(newPlayer);
       renderRoster();
 
       nameInput.value = '';
       numInput.value = '';
     });
 
-    function deletePlayer(idx) {
-      roster.splice(idx, 1);
+    function deletePlayer(id) {
+      roster = roster.filter(p => p.id !== id);
       renderRoster();
     }
 
@@ -511,7 +605,8 @@
         top: parseFloat(node.style.top),
         left: parseFloat(node.style.left),
         num: node.querySelector('.player-num-span').innerText || '',
-        name: node.querySelector('.player-label').innerText || ''
+        name: node.querySelector('.player-label').innerText || '',
+        playerId: node.dataset.playerId || ''
       }));
 
       const matchData = { id: Date.now(), date, opponent, nodes };
@@ -542,7 +637,12 @@
       document.getElementById('opponentName').value = match.opponent;
 
       document.querySelectorAll('.player-node').forEach(node => node.remove());
-      match.nodes.forEach(p => createPlayerNode(p.top, p.left, p.num, p.name));
+      match.nodes.forEach(p => {
+        const playerObj = roster.find(r => r.id === p.playerId);
+        const role = playerObj ? playerObj.role : '';
+        createPlayerNode(p.top, p.left, p.num, p.name, role);
+      });
+      updateUsedPlayersState();
     }
 
     renderRoster();
