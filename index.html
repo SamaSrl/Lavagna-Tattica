@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PRO TACTICS - Tactical Analysis Suite</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
 
     :root {
       --bg-dark: #090a0f;
-      --panel-bg: rgba(18, 18, 24, 0.75);
+      --panel-bg: rgba(18, 18, 24, 0.85);
       --accent-red: #ff2a4b;
       --accent-red-glow: rgba(255, 42, 75, 0.4);
       --text-main: #f1f5f9;
@@ -30,12 +30,12 @@
       overflow: hidden;
     }
 
-    /* HEADER HYPER-TECH */
+    /* HEADER */
     header {
-      background: rgba(10, 10, 15, 0.85);
+      background: rgba(10, 10, 15, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-tech);
-      padding: 12px 24px;
+      padding: 10px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -46,23 +46,23 @@
     .header-brand { display: flex; align-items: center; gap: 16px; }
 
     .logo-frame {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
       background: linear-gradient(135deg, #222, #000);
       border: 1px solid var(--accent-red);
-      box-shadow: 0 0 12px var(--accent-red-glow);
+      box-shadow: 0 0 10px var(--accent-red-glow);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 3px;
+      padding: 2px;
     }
 
     .logo-frame img { width: 100%; height: 100%; object-fit: contain; }
 
     .brand-titles h1 {
       font-family: 'Orbitron', sans-serif;
-      font-size: 18px;
+      font-size: 16px;
       letter-spacing: 2px;
       background: linear-gradient(90deg, #fff, var(--text-muted));
       -webkit-background-clip: text;
@@ -70,79 +70,84 @@
     }
 
     .brand-titles span {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--accent-red);
       font-weight: 700;
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       text-transform: uppercase;
     }
 
-    .system-status {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.03);
-      padding: 6px 14px;
-      border-radius: 20px;
-      border: 1px solid var(--border-tech);
+    /* MATCH CONTROL PANEL IN HEADER */
+    .match-panel {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-tech);
     }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #10b981;
-      box-shadow: 0 0 8px #10b981;
+    .match-panel input, .match-panel select {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-tech);
+      color: var(--text-main);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
     }
+
+    .match-panel input[type="text"] { width: 140px; }
+    .match-panel input:focus, .match-panel select:focus { border-color: var(--accent-red); outline: none; }
+
+    .btn-save-match {
+      background: var(--accent-red);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--accent-red-glow);
+      transition: 0.2s;
+    }
+    .btn-save-match:hover { background: #ff4d6d; }
 
     /* LAYOUT PRINCIPALE */
     .main-container { display: flex; flex: 1; overflow: hidden; padding: 15px; gap: 15px; }
 
-    /* PANNELLI SIDEBAR IN VETRO SATINATO */
     .sidebar-left, .sidebar-right {
       background: var(--panel-bg);
       backdrop-filter: blur(16px);
       border: 1px solid var(--border-tech);
       border-radius: 16px;
-      padding: 20px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
 
-    .sidebar-left { width: 260px; }
-    .sidebar-right { width: 300px; gap: 15px; }
+    .sidebar-left { width: 240px; }
+    .sidebar-right { width: 300px; gap: 12px; }
 
     .panel-header {
       font-family: 'Orbitron', sans-serif;
-      font-size: 13px;
+      font-size: 12px;
       letter-spacing: 1.5px;
       color: var(--text-muted);
       text-transform: uppercase;
-      margin-bottom: 15px;
-      padding-bottom: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
       border-bottom: 1px solid var(--border-tech);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .panel-header::after {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background: var(--accent-red);
-      box-shadow: 0 0 6px var(--accent-red);
-      border-radius: 50%;
-    }
-
-    /* BOTTONI FORMAZIONE TECH */
     .formation-btn {
       width: 100%;
-      padding: 12px 16px;
+      padding: 10px 14px;
       margin-bottom: 8px;
       background: rgba(255, 255, 255, 0.02);
       color: var(--text-main);
@@ -151,29 +156,21 @@
       cursor: pointer;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 500;
-      font-size: 14px;
+      font-size: 13px;
       text-align: left;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      transition: 0.2s;
     }
 
     .formation-btn:hover {
       background: rgba(255, 42, 75, 0.1);
       border-color: var(--accent-red);
-      box-shadow: 0 0 15px var(--accent-red-glow);
-      transform: translateX(3px);
     }
 
-    /* AREA CAMPO */
-    .pitch-container {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
+    /* CAMPO */
+    .pitch-container { flex: 1; display: flex; justify-content: center; align-items: center; }
 
     .pitch {
       width: 100%;
@@ -185,28 +182,18 @@
       border-radius: 12px 12px 0 0;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 40px rgba(0,0,0,0.5);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
     }
 
-    /* LINEE DI CAMPO TECNOLOGICHE */
-    .penalty-area {
-      position: absolute; top: 0; left: 18%; width: 64%; height: 26%;
-      border: 1px solid var(--pitch-lines); border-top: none;
-    }
-    .goal-area {
-      position: absolute; top: 0; left: 34%; width: 32%; height: 10%;
-      border: 1px solid var(--pitch-lines); border-top: none;
-    }
-    .center-circle {
-      position: absolute; bottom: -70px; left: 50%; transform: translateX(-50%);
-      width: 140px; height: 140px; border: 1px solid var(--pitch-lines); border-radius: 50%;
-    }
+    .penalty-area { position: absolute; top: 0; left: 18%; width: 64%; height: 26%; border: 1px solid var(--pitch-lines); border-top: none; }
+    .goal-area { position: absolute; top: 0; left: 34%; width: 32%; height: 10%; border: 1px solid var(--pitch-lines); border-top: none; }
+    .center-circle { position: absolute; bottom: -70px; left: 50%; transform: translateX(-50%); width: 140px; height: 140px; border: 1px solid var(--pitch-lines); border-radius: 50%; }
 
-    /* PALLINI / NODI GIOCATORI */
+    /* PALLINI (INGRANDITI E CON NOME SOTTO) */
     .player-node {
-      width: 36px;
-      height: 36px;
-      background: radial-gradient(circle at 30% 30%, #ff4d6d, var(--accent-color, #d62828));
+      width: 42px;
+      height: 42px;
+      background: radial-gradient(circle at 30% 30%, #ff4d6d, var(--accent-red));
       color: white;
       border: 2px solid rgba(255,255,255,0.9);
       border-radius: 50%;
@@ -216,88 +203,97 @@
       justify-content: center;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 15px;
       cursor: grab;
       user-select: none;
       transform: translate(-50%, -50%);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 10px var(--accent-red-glow);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
       z-index: 10;
       touch-action: none;
-      transition: top 0.4s ease, left 0.4s ease, box-shadow 0.2s ease;
+      transition: top 0.4s ease, left 0.4s ease;
     }
 
-    .player-node:active {
-      cursor: grabbing;
-      scale: 1.15;
-      box-shadow: 0 0 20px var(--accent-red);
-      transition: none;
+    .player-node.drag-over {
+      scale: 1.25;
+      box-shadow: 0 0 20px #10b981;
+      border-color: #10b981;
     }
 
-    /* FORM & LISTA GIOCATORI */
-    .add-player-form { display: flex; gap: 8px; }
-
-    .add-player-form input {
-      padding: 10px 12px;
+    .player-label {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      white-space: nowrap;
       border: 1px solid var(--border-tech);
-      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      pointer-events: none;
+    }
+
+    /* ROSTER E GIOCATORI TRASCINABILI */
+    .add-player-form { display: flex; gap: 6px; }
+    .add-player-form input {
+      padding: 8px 10px;
+      border: 1px solid var(--border-tech);
+      border-radius: 6px;
       background: rgba(0, 0, 0, 0.4);
       color: var(--text-main);
-      font-size: 13px;
-      outline: none;
+      font-size: 12px;
     }
-    .add-player-form input:focus { border-color: var(--accent-red); }
     .add-player-form input[type="text"] { flex: 1; }
-    .add-player-form input[type="number"] { width: 60px; font-family: 'JetBrains Mono', monospace; }
-
+    .add-player-form input[type="number"] { width: 50px; font-family: 'JetBrains Mono', monospace; }
     .add-player-form button {
       background: var(--accent-red);
       color: white;
       border: none;
-      padding: 0 16px;
-      border-radius: 8px;
+      padding: 0 12px;
+      border-radius: 6px;
       cursor: pointer;
       font-weight: 700;
-      font-size: 16px;
-      box-shadow: 0 0 10px var(--accent-red-glow);
-      transition: 0.2s;
     }
-    .add-player-form button:hover { background: #ff4d6d; }
 
-    .player-list {
-      flex: 1;
-      overflow-y: auto;
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    .player-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 6px; }
 
     .player-item {
-      padding: 10px 14px;
-      background: rgba(255, 255, 255, 0.02);
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border-tech);
       border-left: 3px solid var(--accent-red);
-      border-radius: 8px;
+      border-radius: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 13px;
+      font-size: 12px;
+      cursor: grab;
+      user-select: none;
     }
+
+    .player-item:active { cursor: grabbing; background: rgba(255, 42, 75, 0.2); }
 
     .player-item .num {
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
       color: var(--accent-red);
       background: rgba(255, 42, 75, 0.1);
-      padding: 2px 6px;
+      padding: 1px 5px;
       border-radius: 4px;
-      margin-right: 8px;
+      margin-right: 6px;
     }
+
+    .btn-del-player {
+      background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px;
+    }
+    .btn-del-player:hover { color: var(--accent-red); }
   </style>
 </head>
 <body>
 
-  <!-- HEADER TECNOLOGICO -->
+  <!-- HEADER CON MATCH CONTROL & STORICO -->
   <header>
     <div class="header-brand">
       <div class="logo-frame">
@@ -308,15 +304,21 @@
         <span>Match Analysis Suite</span>
       </div>
     </div>
-    <div class="system-status">
-      <div class="status-dot"></div> LIVE TACTICS SESSION
+
+    <!-- PANNELLO MATCH & STORICO -->
+    <div class="match-panel">
+      <select id="historySelect" onchange="loadMatchFromHistory(this.value)">
+        <option value="">-- Carica da Storico --</option>
+      </select>
+      <input type="date" id="matchDate">
+      <input type="text" id="opponentName" placeholder="Avversario...">
+      <button class="btn-save-match" onclick="saveCurrentMatch()">SALVA MATCH</button>
     </div>
   </header>
 
-  <!-- LAYOUT A 3 COLONNE -->
   <div class="main-container">
 
-    <!-- SINISTRA: SELEZIONE MODULO -->
+    <!-- SINISTRA: SELEZIONE MODULI -->
     <aside class="sidebar-left">
       <div class="panel-header">Moduli</div>
       <button class="formation-btn" onclick="setFormation('4-3-3')">4 - 3 - 3 <span>►</span></button>
@@ -326,7 +328,7 @@
       <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3 <span>►</span></button>
     </aside>
 
-    <!-- CENTRO: MEZZO CAMPO -->
+    <!-- CENTRO: CAMPO DA GIOCO -->
     <main class="pitch-container">
       <div class="pitch" id="pitch">
         <div class="penalty-area"></div>
@@ -335,76 +337,83 @@
       </div>
     </main>
 
-    <!-- DESTRA: GESTIONE SQUADRA -->
+    <!-- DESTRA: ROSTA GIOCATORI DRAGGABILI -->
     <aside class="sidebar-right">
-      <div class="panel-header">Roster Giocatori</div>
+      <div class="panel-header">Rosa Giocatori</div>
       <form class="add-player-form" id="playerForm">
-        <input type="text" id="pName" placeholder="Nome Giocatore" required autocomplete="off">
+        <input type="text" id="pName" placeholder="Nome" required autocomplete="off">
         <input type="number" id="pNum" placeholder="N°" required>
         <button type="submit">+</button>
       </form>
-      <ul class="player-list" id="playerList">
-        <!-- I giocatori inseriti compaiono qui -->
-      </ul>
+      <ul class="player-list" id="playerList"></ul>
     </aside>
 
   </div>
 
   <script>
     const pitch = document.getElementById('pitch');
+    let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
+    let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
 
+    // PORTIERE ABBASSATO AL LIMITE DEL CAMPO (top: 96%)
     const formations = {
       '4-3-3': [
-        {top: 90, left: 50, label: '1'},
-        {top: 75, left: 15, label: '3'}, {top: 78, left: 38, label: '5'}, {top: 78, left: 62, label: '6'}, {top: 75, left: 85, label: '2'},
-        {top: 50, left: 30, label: '8'}, {top: 55, left: 50, label: '4'}, {top: 50, left: 70, label: '10'},
-        {top: 20, left: 20, label: '11'}, {top: 15, left: 50, label: '9'}, {top: 20, left: 80, label: '7'}
+        {top: 96, left: 50},
+        {top: 75, left: 15}, {top: 78, left: 38}, {top: 78, left: 62}, {top: 75, left: 85},
+        {top: 50, left: 30}, {top: 55, left: 50}, {top: 50, left: 70},
+        {top: 20, left: 20}, {top: 15, left: 50}, {top: 20, left: 80}
       ],
       '4-4-2': [
-        {top: 90, left: 50, label: '1'},
-        {top: 75, left: 15, label: '3'}, {top: 78, left: 38, label: '5'}, {top: 78, left: 62, label: '6'}, {top: 75, left: 85, label: '2'},
-        {top: 48, left: 15, label: '11'}, {top: 50, left: 38, label: '8'}, {top: 50, left: 62, label: '4'}, {top: 48, left: 85, label: '7'},
-        {top: 20, left: 35, label: '9'}, {top: 20, left: 65, label: '10'}
+        {top: 96, left: 50},
+        {top: 75, left: 15}, {top: 78, left: 38}, {top: 78, left: 62}, {top: 75, left: 85},
+        {top: 48, left: 15}, {top: 50, left: 38}, {top: 50, left: 62}, {top: 48, left: 85},
+        {top: 20, left: 35}, {top: 20, left: 65}
       ],
       '3-5-2': [
-        {top: 90, left: 50, label: '1'},
-        {top: 78, left: 25, label: '5'}, {top: 80, left: 50, label: '6'}, {top: 78, left: 75, label: '2'},
-        {top: 45, left: 10, label: '3'}, {top: 52, left: 33, label: '8'}, {top: 55, left: 50, label: '4'}, {top: 52, left: 67, label: '10'}, {top: 45, left: 90, label: '7'},
-        {top: 20, left: 35, label: '9'}, {top: 20, left: 65, label: '11'}
+        {top: 96, left: 50},
+        {top: 78, left: 25}, {top: 80, left: 50}, {top: 78, left: 75},
+        {top: 45, left: 10}, {top: 52, left: 33}, {top: 55, left: 50}, {top: 52, left: 67}, {top: 45, left: 90},
+        {top: 20, left: 35}, {top: 20, left: 65}
       ],
       '4-2-3-1': [
-        {top: 90, left: 50, label: '1'},
-        {top: 75, left: 15, label: '3'}, {top: 78, left: 38, label: '5'}, {top: 78, left: 62, label: '6'}, {top: 75, left: 85, label: '2'},
-        {top: 58, left: 35, label: '4'}, {top: 58, left: 65, label: '8'},
-        {top: 35, left: 20, label: '11'}, {top: 35, left: 50, label: '10'}, {top: 35, left: 80, label: '7'},
-        {top: 15, left: 50, label: '9'}
+        {top: 96, left: 50},
+        {top: 75, left: 15}, {top: 78, left: 38}, {top: 78, left: 62}, {top: 75, left: 85},
+        {top: 58, left: 35}, {top: 58, left: 65},
+        {top: 35, left: 20}, {top: 35, left: 50}, {top: 35, left: 80},
+        {top: 15, left: 50}
       ],
       '3-4-3': [
-        {top: 90, left: 50, label: '1'},
-        {top: 78, left: 25, label: '5'}, {top: 80, left: 50, label: '6'}, {top: 78, left: 75, label: '2'},
-        {top: 50, left: 15, label: '3'}, {top: 52, left: 38, label: '4'}, {top: 52, left: 62, label: '8'}, {top: 50, left: 85, label: '7'},
-        {top: 20, left: 20, label: '11'}, {top: 15, left: 50, label: '9'}, {top: 20, left: 80, label: '10'}
+        {top: 96, left: 50},
+        {top: 78, left: 25}, {top: 80, left: 50}, {top: 78, left: 75},
+        {top: 50, left: 15}, {top: 52, left: 38}, {top: 52, left: 62}, {top: 50, left: 85},
+        {top: 20, left: 20}, {top: 15, left: 50}, {top: 20, left: 80}
       ]
     };
 
     function setFormation(fmt) {
       document.querySelectorAll('.player-node').forEach(node => node.remove());
       const config = formations[fmt] || formations['4-3-3'];
-      config.forEach(pos => createPlayerNode(pos.top, pos.left, pos.label));
+      config.forEach(pos => createPlayerNode(pos.top, pos.left));
     }
 
-    function createPlayerNode(top, left, labelText) {
+    // CREAZIONE PALLINI VUOTI
+    function createPlayerNode(top, left, num = '', name = '') {
       const node = document.createElement('div');
       node.className = 'player-node';
       node.style.top = top + '%';
       node.style.left = left + '%';
-      node.innerText = labelText;
+      node.innerText = num;
 
+      const label = document.createElement('div');
+      label.className = 'player-label';
+      label.innerText = name;
+      if (!name) label.style.display = 'none';
+      node.appendChild(label);
+
+      // SPOSTAMENTO PALLINI LIBERO
       let isDragging = false;
-
       const startDrag = () => { isDragging = true; };
       const stopDrag = () => { isDragging = false; };
-
       const moveDrag = (e) => {
         if (!isDragging) return;
         const rect = pitch.getBoundingClientRect();
@@ -413,9 +422,8 @@
 
         let x = clientX - rect.left;
         let y = clientY - rect.top;
-
-        x = Math.max(18, Math.min(x, rect.width - 18));
-        y = Math.max(18, Math.min(y, rect.height - 18));
+        x = Math.max(21, Math.min(x, rect.width - 21));
+        y = Math.max(21, Math.min(y, rect.height - 21));
 
         node.style.left = (x / rect.width) * 100 + '%';
         node.style.top = (y / rect.height) * 100 + '%';
@@ -423,33 +431,121 @@
 
       node.addEventListener('mousedown', startDrag);
       node.addEventListener('touchstart', startDrag);
-
       document.addEventListener('mousemove', moveDrag);
       document.addEventListener('touchmove', moveDrag);
-
       document.addEventListener('mouseup', stopDrag);
       document.addEventListener('touchend', stopDrag);
+
+      // DROP GIOCATORE SUL PALLINO
+      node.addEventListener('dragover', (e) => { e.preventDefault(); node.classList.add('drag-over'); });
+      node.addEventListener('dragleave', () => node.classList.remove('drag-over'));
+      node.addEventListener('drop', (e) => {
+        e.preventDefault();
+        node.classList.remove('drag-over');
+        const playerData = JSON.parse(e.dataTransfer.getData('text/plain'));
+        
+        // Assegna Numero e Nome
+        node.childNodes[0].nodeValue = playerData.num;
+        label.innerText = playerData.name;
+        label.style.display = 'block';
+      });
 
       pitch.appendChild(node);
     }
 
-    // Inserimento Giocatori
+    // GESTIONE ROSTER GIOCATORI (CON MEMORIA PERMANENTE)
+    function renderRoster() {
+      const list = document.getElementById('playerList');
+      list.innerHTML = '';
+      roster.forEach((player, idx) => {
+        const li = document.createElement('li');
+        li.className = 'player-item';
+        li.draggable = true;
+        li.innerHTML = `
+          <span><span class="num">#${player.num}</span>${player.name}</span>
+          <button class="btn-del-player" onclick="deletePlayer(${idx})">✕</button>
+        `;
+
+        li.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', JSON.stringify(player));
+        });
+
+        list.appendChild(li);
+      });
+      localStorage.setItem('teamRoster', JSON.stringify(roster));
+    }
+
     document.getElementById('playerForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const nameInput = document.getElementById('pName');
       const numInput = document.getElementById('pNum');
 
-      const li = document.createElement('li');
-      li.className = 'player-item';
-      li.innerHTML = `<span><span class="num">#${numInput.value}</span>${nameInput.value}</span>`;
-      
-      document.getElementById('playerList').appendChild(li);
+      roster.push({ name: nameInput.value, num: numInput.value });
+      renderRoster();
 
       nameInput.value = '';
       numInput.value = '';
     });
 
+    function deletePlayer(idx) {
+      roster.splice(idx, 1);
+      renderRoster();
+    }
+
+    // SALVATAGGIO STORICO MATCH
+    function saveCurrentMatch() {
+      const date = document.getElementById('matchDate').value;
+      const opponent = document.getElementById('opponentName').value;
+
+      if (!date || !opponent) {
+        alert('Inserisci sia la Data che l\'Avversario per salvare!');
+        return;
+      }
+
+      // Raccoglie le posizioni attuali dei pallini
+      const nodes = Array.from(document.querySelectorAll('.player-node')).map(node => ({
+        top: parseFloat(node.style.top),
+        left: parseFloat(node.style.left),
+        num: node.childNodes[0].nodeValue || '',
+        name: node.querySelector('.player-label').innerText || ''
+      }));
+
+      const matchData = { id: Date.now(), date, opponent, nodes };
+      matchHistory.push(matchData);
+      localStorage.setItem('matchHistory', JSON.stringify(matchHistory));
+
+      updateHistorySelect();
+      alert('Match salvato nello storico!');
+    }
+
+    function updateHistorySelect() {
+      const select = document.getElementById('historySelect');
+      select.innerHTML = '<option value="">-- Carica da Storico --</option>';
+      matchHistory.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.innerText = `${m.date} - vs ${m.opponent}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function loadMatchFromHistory(id) {
+      if (!id) return;
+      const match = matchHistory.find(m => m.id == id);
+      if (!match) return;
+
+      document.getElementById('matchDate').value = match.date;
+      document.getElementById('opponentName').value = match.opponent;
+
+      document.querySelectorAll('.player-node').forEach(node => node.remove());
+      match.nodes.forEach(p => createPlayerNode(p.top, p.left, p.num, p.name));
+    }
+
+    // INIZIALIZZAZIONE
+    renderRoster();
+    updateHistorySelect();
     setFormation('4-3-3');
+    document.getElementById('matchDate').valueAsDate = new Date();
   </script>
 </body>
 </html>
