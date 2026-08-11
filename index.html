@@ -175,7 +175,7 @@
       border-color: var(--accent-red);
     }
 
-    /* AREA CAMPO CHIARA (SFONDO GRIGIO CHIARO CHIARO) */
+    /* AREA CAMPO DA GIOCO CHIARA */
     .pitch-container {
       flex: 1;
       display: flex;
@@ -185,6 +185,7 @@
       border-radius: 16px;
       box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
       padding: 10px;
+      position: relative;
     }
 
     .pitch {
@@ -198,6 +199,33 @@
       position: relative;
       overflow: hidden;
       box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+
+    /* PULSANTE STAMPA IN BASSO A SX NEL CAMPO */
+    .btn-print {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: var(--panel-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-tech);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: all 0.2s ease;
+      z-index: 50;
+    }
+
+    .btn-print:hover {
+      background: var(--accent-red);
+      border-color: var(--accent-red);
+      box-shadow: 0 0 12px var(--accent-red-glow);
     }
 
     /* DISEGNO DELLA PORTA IN ALTO */
@@ -292,7 +320,6 @@
 
     .player-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 6px; }
 
-    /* ETICHETTE CON PARENTESI LATERALI (BORDER LEFT E RIGHT) */
     .player-item {
       padding: 8px 12px;
       background: rgba(255, 255, 255, 0.04);
@@ -302,7 +329,7 @@
       justify-content: space-between;
       align-items: center;
       font-size: 13px;
-      color: #ffffff; /* Testo Bianco */
+      color: #ffffff;
       cursor: grab;
       user-select: none;
       transition: all 0.2s ease;
@@ -329,7 +356,6 @@
       display: inline-block;
     }
 
-    /* BORDINI LATERALI (PARENTESI DI COLORE) */
     .player-item.role-P { border-left: 4px solid var(--role-p); border-right: 4px solid var(--role-p); }
     .player-item.role-D { border-left: 4px solid var(--role-d); border-right: 4px solid var(--role-d); }
     .player-item.role-C { border-left: 4px solid var(--role-c); border-right: 4px solid var(--role-c); }
@@ -339,6 +365,92 @@
       background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px;
     }
     .btn-del-player:hover { color: var(--accent-red); }
+
+    /* STILI OTTIMIZZATI DEDICATI ALLA STAMPA / PDF */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+
+      /* Nasconde menu laterali, bottoni, dropdown storico e form */
+      .sidebar-left, 
+      .sidebar-right, 
+      .btn-print, 
+      #historySelect, 
+      .btn-save-match, 
+      .brand-titles span { 
+        display: none !important; 
+      }
+
+      /* Formattazione Header per la Stampa */
+      header {
+        background: white !important;
+        color: black !important;
+        border-bottom: 2px solid #000 !important;
+        box-shadow: none !important;
+        padding: 10px 0 !important;
+      }
+
+      .logo-frame {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+      }
+
+      .brand-titles h1 {
+        -webkit-text-fill-color: black !important;
+        font-size: 20px !important;
+      }
+
+      /* Sostituisce gli input con testo leggibile in stampa */
+      .match-panel {
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+      }
+
+      .match-panel input {
+        background: none !important;
+        border: none !important;
+        color: black !important;
+        font-size: 14px !important;
+        font-weight: bold !important;
+        padding: 0 !important;
+      }
+
+      /* Layout Campo in Stampa */
+      .main-container {
+        padding: 20px 0 0 0 !important;
+        justify-content: center !important;
+      }
+
+      .pitch-container {
+        background: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        width: 100% !important;
+      }
+
+      .pitch {
+        max-width: 480px !important;
+        height: 620px !important;
+        border: 2px solid #000 !important;
+        box-shadow: none !important;
+      }
+
+      .player-node {
+        box-shadow: none !important;
+        border: 2px solid #000 !important;
+      }
+
+      .player-label {
+        background: #000 !important;
+        color: #fff !important;
+        border: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -378,8 +490,11 @@
       <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3 <span>►</span></button>
     </aside>
 
-    <!-- AREA CAMPO DA GIOCO CHIARA -->
+    <!-- AREA CAMPO DA GIOCO CHIARA CON TASTO STAMPA -->
     <main class="pitch-container">
+      <button class="btn-print" onclick="window.print()">
+        🖨️ STAMPA / PDF
+      </button>
       <div class="pitch" id="pitch">
         <div class="goal-frame"></div>
         <div class="penalty-area"></div>
