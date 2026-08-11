@@ -7,7 +7,7 @@
   <style>
     /* COLORI SOCIALI (ROSSO E NERO) */
     :root {
-      --primary-color: #121212;   /* Nero per Header/Menu */
+      --primary-color: #121212;   /* Nero per Header/Sidebar */
       --accent-color: #d62828;    /* Rosso per dettagli e pallini */
       --text-color: #ffffff;      /* Testo bianco */
       --pitch-green: #2d6a4f;    /* Verde del campo */
@@ -30,19 +30,6 @@
       z-index: 100;
     }
 
-    .menu-btn {
-      background: none;
-      border: none;
-      color: var(--text-color);
-      font-size: 26px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 5px;
-    }
-    .menu-btn:hover { color: var(--accent-color); }
-
     .logo-container {
       width: 45px;
       height: 45px;
@@ -61,31 +48,13 @@
       object-fit: contain;
     }
 
-    /* CONTAINER PRINCIPALE */
+    /* LAYOUT TRE COLONNE */
     .main-container {
       display: flex;
       flex: 1;
-      position: relative;
       overflow: hidden;
     }
 
-    /* MENU A SCOMPARSA A SINISTRA (MODULI) */
-    .sidebar-left {
-      position: absolute;
-      left: -260px;
-      top: 0;
-      bottom: 0;
-      width: 260px;
-      background-color: var(--primary-color);
-      color: var(--text-color);
-      transition: left 0.3s ease;
-      z-index: 90;
-      padding: 20px;
-      box-shadow: 3px 0 10px rgba(0,0,0,0.5);
-      border-right: 1px solid #333;
-    }
-    .sidebar-left.open { left: 0; }
-    
     .sidebar-left h3, .sidebar-right h3 {
       margin-bottom: 15px;
       font-size: 16px;
@@ -94,6 +63,17 @@
       border-bottom: 2px solid var(--accent-color);
       padding-bottom: 5px;
       color: white;
+    }
+
+    /* SIDEBAR SINISTRA FISSA (MODULI) */
+    .sidebar-left {
+      width: 250px;
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      padding: 20px;
+      border-right: 1px solid #333;
+      display: flex;
+      flex-direction: column;
     }
 
     .formation-btn {
@@ -116,7 +96,7 @@
       border-color: var(--accent-color);
     }
 
-    /* AREA CAMPO DA GIOCO */
+    /* AREA CAMPO DA GIOCO (CENTRALE) */
     .pitch-container {
       flex: 1;
       display: flex;
@@ -175,7 +155,7 @@
     }
     .player-node:active { cursor: grabbing; scale: 1.1; transition: none; }
 
-    /* MENU DESTRA (ROSA GIOCATORI) */
+    /* SIDEBAR DESTRA FISSA (ROSA GIOCATORI) */
     .sidebar-right {
       width: 280px;
       background-color: var(--primary-color);
@@ -240,18 +220,17 @@
 
   <!-- HEADER -->
   <header>
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
     <div class="logo-container">
       <img src="https://b2-content.tuttocampo.it/Teams/Original/937685.png?v=2" alt="Logo Squadra">
     </div>
     <h2>LAVAGNA TATTICA</h2>
   </header>
 
-  <!-- CONTAINER CORPO -->
+  <!-- CONTAINER CORPO TRE COLONNE -->
   <div class="main-container">
 
-    <!-- MENU A SCOMPARSA A SINISTRA -->
-    <aside class="sidebar-left" id="sidebarLeft">
+    <!-- MENU FISSO A SINISTRA -->
+    <aside class="sidebar-left">
       <h3>Moduli Tattici</h3>
       <button class="formation-btn" onclick="setFormation('4-3-3')">4 - 3 - 3</button>
       <button class="formation-btn" onclick="setFormation('4-4-2')">4 - 4 - 2</button>
@@ -269,7 +248,7 @@
       </div>
     </main>
 
-    <!-- MENU DESTRA (ROSA GIOCATORI) -->
+    <!-- MENU FISSO A DESTRA -->
     <aside class="sidebar-right">
       <h3>Rosa Giocatori</h3>
       <form class="add-player-form" id="playerForm">
@@ -286,7 +265,6 @@
 
   <script>
     const pitch = document.getElementById('pitch');
-    const sidebarLeft = document.getElementById('sidebarLeft');
 
     const formations = {
       '4-3-3': [
@@ -322,15 +300,10 @@
       ]
     };
 
-    function toggleSidebar() {
-      sidebarLeft.classList.toggle('open');
-    }
-
     function setFormation(fmt) {
       document.querySelectorAll('.player-node').forEach(node => node.remove());
       const config = formations[fmt] || formations['4-3-3'];
       config.forEach(pos => createPlayerNode(pos.top, pos.left, pos.label));
-      sidebarLeft.classList.remove('open');
     }
 
     function createPlayerNode(top, left, labelText) {
@@ -373,7 +346,7 @@
       pitch.appendChild(node);
     }
 
-    // Gestione Inserimento Giocatori nella Rosa
+    // Inserimento Giocatori
     document.getElementById('playerForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const nameInput = document.getElementById('pName');
