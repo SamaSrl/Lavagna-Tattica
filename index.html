@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tactics App - Gestione Formazione</title>
+  <style>
+    :root {
+      /* PERSONALIZZA QUI I COLORI DELLA SQUADRA */
+      --primary-color: #1a2a3a;   /* Colore principale (Header/Sidebar) */
+      --accent-color: #e63946;    /* Colore secondario/Dettagli */
+      --text-color: #ffffff;      /* Colore testo */
+      --pitch-green: #2d6a4f;    /* Verde del campo */
+      --pitch-lines: #ffffff;    /* Linee del campo */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { display: flex; flex-direction: column; height: 100vh; background-color: #f4f4f9; overflow: hidden; }
+
+    /* HEADER */
+    header {
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    .logo { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-color); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+
+    /* LAYOUT PRINCIPALE */
+    .main-container { display: flex; flex: 1; position: relative; overflow: hidden; }
+
+    /* SIDEBAR SINISTRA (MENU A SCOMPARSA) */
+    .sidebar-left {
+      position: absolute;
+      left: -280px;
+      top: 0;
+      bottom: 0;
+      width: 280px;
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      transition: left 0.3s ease;
+      z-index: 90;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+    }
+    .sidebar-left.open { left: 0; }
+    .sidebar-left h3 { margin-bottom: 15px; border-bottom: 2px solid var(--accent-color); padding-bottom: 5px; }
+    .formation-btn {
+      display: block; width: 100%; padding: 10px; margin-bottom: 10px;
+      background-color: rgba(255,255,255,0.1); color: white; border: 1px solid transparent;
+      border-radius: 5px; cursor: pointer; text-align: left; transition: 0.2s;
+    }
+    .formation-btn:hover { background-color: var(--accent-color); }
+
+    /* CAMPO DI GIOCO (MEZZO CAMPO) */
+    .pitch-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background-color: #e9ecef;
+    }
+    .pitch {
+      width: 100%;
+      max-width: 500px;
+      height: 90%;
+      background-color: var(--pitch-green);
+      border: 4px solid var(--pitch-lines);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    /* Linee Campo */
+    .penalty-area {
+      position: absolute; top: 0; left: 20%; width: 60%; height: 25%;
+      border: 2px solid var(--pitch-lines); border-top: none;
+    }
+    .goal-area {
+      position: absolute; top: 0; left: 35%; width: 30%; height: 10%;
+      border: 2px solid var(--pitch-lines); border-top: none;
+    }
+    .center-circle {
+      position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
+      width: 120px; height: 120px; border: 2px solid var(--pitch-lines); border-radius: 50%;
+    }
+
+    /* PALLINI / GIOCATORI SUL CAMPO */
+    .player-node {
+      width: 36px;
+      height: 36px;
+      background-color: var(--accent-color);
+      color: white;
+      border: 2px solid white;
+      border-radius: 50%;
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: grab;
+      user-select: none;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+    .player-node:active { cursor: grabbing; }
+    .player-node .label {
+      position: absolute; bottom: -18px; font-size: 11px; white-space: nowrap;
+      background: rgba(0,0,0,0.6); padding: 1px 4px; border-radius: 3px;
+    }
+
+    /* SIDEBAR DESTRA (ROSTER GIOCATORI) */
+    .sidebar-right {
+      width: 300px;
+      background-color: #ffffff;
+      border-left: 1px solid #ddd;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .sidebar-right h3 { color: var(--primary-color); border-bottom: 2px solid var(--accent-color); padding-bottom: 5px; }
+    .add-player-form { display: flex; gap: 5px; }
+    .add-player-form input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .add-player-form input[type="text"] { flex: 1; }
+    .add-player-form input[type="number"] { width: 60px; }
+    .add-player-form button {
+      background-color: var(--accent-color); color: white; border: none;
+      padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;
+    }
+    .player-list { flex: 1; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .player-item {
+      padding: 8px 12px; background: #f8f9fa; border: 1px solid #e9ecef;
+      border-left: 4px solid var(--primary-color); border-radius: 4px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="logo">FC</div>
+      <h2>TACTICS BOARD</h2>
+    </div>
+  </header>
+
+  <!-- CONTAINER CENTRALE -->
+  <div class="main-container">
+    
+    <!-- MENU A SCOMPARSA (SINISTRA) -->
+    <aside class="sidebar-left" id="sidebarLeft">
+      <h3>Moduli Tattici</h3>
+      <button class="formation-btn" onclick="setFormation('4-3-3')">4-3-3</button>
+      <button class="formation-btn" onclick="setFormation('4-4-2')">4-4-2</button>
+      <button class="formation-btn" onclick="setFormation('3-5-2')">3-5-2</button>
+      <button class="formation-btn" onclick="setFormation('4-2-3-1')">4-2-3-1</button>
+      <button class="formation-btn" onclick="setFormation('3-4-3')">3-4-3</button>
+    </aside>
+
+    <!-- MEZZO CAMPO -->
+    <main class="pitch-container">
+      <div class="pitch" id="pitch">
+        <div class="penalty-area"></div>
+        <div class="goal-area"></div>
+        <div class="center-circle"></div>
+      </div>
+    </main>
+
+    <!-- MENU GIOCATORI (DESTRA) -->
+    <aside class="sidebar-right">
+      <h3>Rosa Giocatori</h3>
+      <form class="add-player-form" id="playerForm">
+        <input type="text" id="pName" placeholder="Nome" required>
+        <input type="number" id="pNum" placeholder="N°" required>
+        <button type="submit">+</button>
+      </form>
+      <ul class="player-list" id="playerList">
+        <!-- I giocatori aggiunti compariranno qui -->
+      </ul>
+    </aside>
+
+  </div>
+
+  <script>
+    // Configurazione schemi di gioco (percentuale % su metà campo)
+    const formations = {
+      '4-3-3': [
+        {top: 90, left: 50, role: 'POR'},
+        {top: 75, left: 15, role: 'TS'}, {top: 78, left: 38, role: 'DC'}, {top: 78, left: 62, role: 'DC'}, {top: 75, left: 85, role: 'TD'},
+        {top: 50, left: 30, role: 'CC'}, {top: 55, left: 50, role: 'MED'}, {top: 50, left: 70, role: 'CC'},
+        {top: 20, left: 20, role: 'AS'}, {top: 15, left: 50, role: 'ATT'}, {top: 20, left: 80, role: 'AD'}
+      ],
+      '4-4-2': [
+        {top: 90, left: 50, role: 'POR'},
+        {top: 75, left: 15, role: 'TS'}, {top: 78, left: 38, role: 'DC'}, {top: 78, left: 62, role: 'DC'}, {top: 75, left: 85, role: 'TD'},
+        {top: 45, left: 15, role: 'ES'}, {top: 50, left: 38, role: 'CC'}, {top: 50, left: 62, role: 'CC'}, {top: 45, left: 85, role: 'ED'},
+        {top: 20, left: 35, role: 'ATT'}, {top: 20, left: 65, role: 'ATT'}
+      ],
+      '3-5-2': [
+        {top: 90, left: 50, role: 'POR'},
+        {top: 78, left: 25, role: 'DC'}, {top: 80, left: 50, role: 'DC'}, {top: 78, left: 75, role: 'DC'},
+        {top: 45, left: 10, role: 'E' }, {top: 52, left: 33, role: 'CC'}, {top: 55, left: 50, role: 'MED'}, {top: 52, left: 67, role: 'CC'}, {top: 45, left: 90, role: 'E'},
+        {top: 20, left: 35, role: 'ATT'}, {top: 20, left: 65, role: 'ATT'}
+      ]
+    };
+
+    const pitch = document.getElementById('pitch');
+    const sidebarLeft = document.getElementById('sidebarLeft');
+
+    function toggleSidebar() {
+      sidebarLeft.classList.toggle('open');
+    }
+
+    // Renderizza i pallini in campo in base al modulo selezionato
+    function setFormation(fmt) {
+      // Rimuovi i vecchi pallini
+      document.querySelectorAll('.player-node').forEach(node => node.remove());
+      
+      const config = formations[fmt] || formations['4-3-3'];
+      config.forEach((pos, idx) => {
+        createPlayerNode(pos.top, pos.left, pos.role);
+      });
+
+      if(sidebarLeft.classList.contains('open')) toggleSidebar();
+    }
+
+    // Creazione pallino con funzionalità Drag & Drop
+    function createPlayerNode(top, left, labelText) {
+      const node = document.createElement('div');
+      node.className = 'player-node';
+      node.style.top = top + '%';
+      node.style.left = left + '%';
+      node.innerText = labelText;
+
+      let isDragging = false;
+
+      node.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+
+      function onMouseMove(e) {
+        if (!isDragging) return;
+        const rect = pitch.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+
+        // Limiti all'interno del campo
+        x = Math.max(15, Math.min(x, rect.width - 15));
+        y = Math.max(15, Math.min(y, rect.height - 15));
+
+        node.style.left = (x / rect.width) * 100 + '%';
+        node.style.top = (y / rect.height) * 100 + '%';
+      }
+
+      function onMouseUp() {
+        isDragging = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+
+      pitch.appendChild(node);
+    }
+
+    // Gestione Inserimento Giocatori
+    document.getElementById('playerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById('pName');
+      const numInput = document.getElementById('pNum');
+
+      const li = document.createElement('li');
+      li.className = 'player-item';
+      li.innerHTML = `<span><strong>#${numInput.value}</strong> ${nameInput.value}</span>`;
+      
+      document.getElementById('playerList').appendChild(li);
+
+      nameInput.value = '';
+      numInput.value = '';
+    });
+
+    // Inizializza con modulo predefinito
+    setFormation('4-3-3');
+  </script>
+</body>
+</html>
