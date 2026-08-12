@@ -14,15 +14,15 @@
       --accent-red-glow: rgba(255, 42, 75, 0.4);
       --text-main: #f1f5f9;
       --text-muted: #94a3b8;
-      --pitch-green: #0f2b1d;
-      --pitch-lines: rgba(255, 255, 255, 0.5);
+      --pitch-bg: radial-gradient(circle at 50% 50%, #153e2b 0%, #0f2b1d 100%);
+      --pitch-lines: rgba(255, 255, 255, 0.7);
       --border-tech: rgba(255, 255, 255, 0.08);
 
       /* COLORI RUOLI PER PARENTESI LATERALI */
-      --role-p: #f1c40f; /* Giallo Portiere */
-      --role-d: #2ecc71; /* Verde Difensore */
-      --role-c: #3498db; /* Azzurro Centrocampista */
-      --role-a: #e74c3c; /* Rosso Attaccante */
+      --role-p: #f1c40f;
+      --role-d: #2ecc71;
+      --role-c: #3498db;
+      --role-a: #e74c3c;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -120,6 +120,19 @@
     }
     .btn-save-match:hover { background: #ff4d6d; }
 
+    .btn-delete-match {
+      background: #333;
+      color: #ff4d6d;
+      border: 1px solid #ff4d6d;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-delete-match:hover { background: var(--accent-red); color: white; }
+
     /* LAYOUT CON SIDEBARS SCURE E CENTRO CHIARO */
     .main-container { display: flex; flex: 1; overflow: hidden; padding: 15px; gap: 15px; }
 
@@ -192,24 +205,31 @@
       width: 100%;
       max-width: 520px;
       height: 98%;
-      background: radial-gradient(circle at 50% 50%, #153e2b 0%, var(--pitch-green) 100%);
-      border: 2px solid rgba(255, 255, 255, 0.3);
+      background: var(--pitch-bg);
+      border: 2px solid var(--pitch-lines);
       border-bottom: none;
       border-radius: 12px 12px 0 0;
       position: relative;
       overflow: hidden;
       box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      transition: background 0.3s ease;
     }
 
-    /* PULSANTE STAMPA IN BASSO A SX NEL CAMPO */
-    .btn-print {
+    /* CONTROLLI CAMPO (STAMPA E COLORE) */
+    .pitch-controls {
       position: absolute;
       bottom: 20px;
       left: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 50;
+    }
+
+    .btn-print, .btn-color-pitch {
       background: var(--panel-bg);
       color: var(--text-main);
       border: 1px solid var(--border-tech);
-      padding: 10px 16px;
+      padding: 10px 14px;
       border-radius: 8px;
       font-size: 12px;
       font-weight: 700;
@@ -219,10 +239,9 @@
       gap: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       transition: all 0.2s ease;
-      z-index: 50;
     }
 
-    .btn-print:hover {
+    .btn-print:hover, .btn-color-pitch:hover {
       background: var(--accent-red);
       border-color: var(--accent-red);
       box-shadow: 0 0 12px var(--accent-red-glow);
@@ -235,7 +254,7 @@
       left: 40%;
       width: 20%;
       height: 12px;
-      border: 2px solid #ffffff;
+      border: 2px solid var(--pitch-lines);
       border-top: none;
       background: rgba(255, 255, 255, 0.15);
       z-index: 5;
@@ -244,6 +263,12 @@
     .penalty-area { position: absolute; top: 0; left: 18%; width: 64%; height: 26%; border: 1px solid var(--pitch-lines); border-top: none; }
     .goal-area { position: absolute; top: 0; left: 34%; width: 32%; height: 10%; border: 1px solid var(--pitch-lines); border-top: none; }
     .center-circle { position: absolute; bottom: -70px; left: 50%; transform: translateX(-50%); width: 140px; height: 140px; border: 1px solid var(--pitch-lines); border-radius: 50%; }
+
+    /* SFONDO BIANCO PER CAMPO */
+    .pitch.white-pitch {
+      background: #ffffff !important;
+      --pitch-lines: #111111;
+    }
 
     /* PALLINI GIOCATORE */
     .player-node {
@@ -275,9 +300,7 @@
       border-color: #10b981;
     }
 
-    .player-num-span {
-      pointer-events: none;
-    }
+    .player-num-span { pointer-events: none; }
 
     .player-label {
       position: absolute;
@@ -293,6 +316,41 @@
       border: 1px solid var(--border-tech);
       font-family: 'Inter', sans-serif;
       pointer-events: none;
+    }
+
+    /* BADGE CAPITANO / VICE CAPITANO */
+    .captain-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #f1c40f;
+      color: #000;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 2px 4px;
+      border-radius: 50%;
+      border: 1px solid #000;
+      line-height: 1;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    .captain-drag-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .captain-item {
+      padding: 6px 12px;
+      background: #f1c40f;
+      color: #000;
+      font-weight: 800;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: grab;
+      user-select: none;
+      border: 1px solid #fff;
     }
 
     /* ROSTER GIOCATORI */
@@ -335,8 +393,6 @@
       transition: all 0.2s ease;
     }
 
-    .player-item:active { cursor: grabbing; }
-
     .player-item.used {
       opacity: 0.3;
       filter: grayscale(100%);
@@ -366,8 +422,13 @@
     }
     .btn-del-player:hover { color: var(--accent-red); }
 
-    /* STILI OTTIMIZZATI DEDICATI ALLA STAMPA / PDF */
+    /* STILI STAMPA PAGINA INTERA */
     @media print {
+      @page {
+        size: A4 portrait;
+        margin: 5mm;
+      }
+
       * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -376,15 +437,16 @@
       body {
         background: white !important;
         color: black !important;
-        height: auto !important;
-        overflow: visible !important;
+        height: 100vh !important;
+        overflow: hidden !important;
       }
 
       .sidebar-left, 
       .sidebar-right, 
-      .btn-print, 
+      .pitch-controls, 
       #historySelect, 
       .btn-save-match, 
+      .btn-delete-match,
       .brand-titles span { 
         display: none !important; 
       }
@@ -394,7 +456,7 @@
         color: black !important;
         border-bottom: 2px solid #000 !important;
         box-shadow: none !important;
-        padding: 10px 0 !important;
+        padding: 5px 0 !important;
       }
 
       .logo-frame {
@@ -404,7 +466,7 @@
 
       .brand-titles h1 {
         -webkit-text-fill-color: black !important;
-        font-size: 20px !important;
+        font-size: 22px !important;
       }
 
       .match-panel {
@@ -417,14 +479,15 @@
         background: none !important;
         border: none !important;
         color: black !important;
-        font-size: 14px !important;
+        font-size: 16px !important;
         font-weight: bold !important;
         padding: 0 !important;
       }
 
       .main-container {
-        padding: 20px 0 0 0 !important;
+        padding: 10px 0 0 0 !important;
         justify-content: center !important;
+        height: 90vh !important;
       }
 
       .pitch-container {
@@ -432,31 +495,15 @@
         box-shadow: none !important;
         padding: 0 !important;
         width: 100% !important;
+        height: 100% !important;
       }
 
-      /* Riconfigurazione visibilità campo e linee per la stampa */
       .pitch {
-        max-width: 480px !important;
-        height: 620px !important;
-        background: var(--pitch-green) !important;
-        border: 2px solid #ffffff !important;
-        border-bottom: none !important;
+        width: 100% !important;
+        max-width: 680px !important;
+        height: 95% !important;
+        border: 3px solid var(--pitch-lines) !important;
         box-shadow: none !important;
-      }
-
-      .goal-frame {
-        border: 2px solid #ffffff !important;
-        border-top: none !important;
-        background: rgba(255, 255, 255, 0.3) !important;
-      }
-
-      .penalty-area, .goal-area, .center-circle {
-        border-color: #ffffff !important;
-      }
-
-      .player-node {
-        box-shadow: none !important;
-        border: 2px solid #ffffff !important;
       }
 
       .player-label {
@@ -489,6 +536,7 @@
       <input type="date" id="matchDate">
       <input type="text" id="opponentName" placeholder="Avversario...">
       <button class="btn-save-match" onclick="saveCurrentMatch()">SALVA MATCH</button>
+      <button class="btn-delete-match" onclick="deleteCurrentMatch()" title="Elimina partita dallo storico">🗑️</button>
     </div>
   </header>
 
@@ -504,11 +552,12 @@
       <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3 <span>►</span></button>
     </aside>
 
-    <!-- AREA CAMPO DA GIOCO CHIARA CON TASTO STAMPA -->
+    <!-- AREA CAMPO DA GIOCO CHIARA -->
     <main class="pitch-container">
-      <button class="btn-print" onclick="window.print()">
-        🖨️ STAMPA / PDF
-      </button>
+      <div class="pitch-controls">
+        <button class="btn-print" onclick="window.print()">🖨️ STAMPA / PDF</button>
+        <button class="btn-color-pitch" onclick="togglePitchBg()">🎨 SFONDO VERDE / BIANCO</button>
+      </div>
       <div class="pitch" id="pitch">
         <div class="goal-frame"></div>
         <div class="penalty-area"></div>
@@ -517,8 +566,14 @@
       </div>
     </main>
 
-    <!-- ROSTER GIOCATORI -->
+    <!-- ROSTER GIOCATORI CON BADGE CAPITANI -->
     <aside class="sidebar-right">
+      <div class="panel-header">Gradi & Ruoli</div>
+      <div class="captain-drag-container">
+        <div class="captain-item" draggable="true" ondragstart="handleCaptainDrag(event, 'C')">🎖️ CAP (C)</div>
+        <div class="captain-item" draggable="true" ondragstart="handleCaptainDrag(event, 'VC')">🎖️ VICE (VC)</div>
+      </div>
+
       <div class="panel-header">Rosa Giocatori</div>
       <form class="add-player-form" id="playerForm">
         <input type="text" id="pName" placeholder="Nome" required autocomplete="off">
@@ -582,6 +637,10 @@
       ]
     };
 
+    function togglePitchBg() {
+      pitch.classList.toggle('white-pitch');
+    }
+
     function setFormation(fmt) {
       document.querySelectorAll('.player-node').forEach(node => node.remove());
       const config = formations[fmt] || formations['4-3-3'];
@@ -589,7 +648,7 @@
       updateUsedPlayersState();
     }
 
-    function createPlayerNode(top, left, num = '', name = '', role = '') {
+    function createPlayerNode(top, left, num = '', name = '', role = '', capt = '') {
       const node = document.createElement('div');
       node.className = 'player-node';
       node.style.top = top + '%';
@@ -609,6 +668,13 @@
       label.innerText = name;
       if (!name) label.style.display = 'none';
       node.appendChild(label);
+
+      if (capt) {
+        const captDiv = document.createElement('div');
+        captDiv.className = 'captain-badge';
+        captDiv.innerText = capt;
+        node.appendChild(captDiv);
+      }
 
       let isDragging = false;
       const startDrag = () => { isDragging = true; };
@@ -640,22 +706,40 @@
       node.addEventListener('drop', (e) => {
         e.preventDefault();
         node.classList.remove('drag-over');
-        const playerData = JSON.parse(e.dataTransfer.getData('text/plain'));
-        
-        numSpan.innerText = playerData.num;
-        label.innerText = playerData.name;
+        const rawData = e.dataTransfer.getData('text/plain');
+        if (!rawData) return;
+
+        const data = JSON.parse(rawData);
+
+        if (data.type === 'CAPTAIN') {
+          let badge = node.querySelector('.captain-badge');
+          if (!badge) {
+            badge = document.createElement('div');
+            badge.className = 'captain-badge';
+            node.appendChild(badge);
+          }
+          badge.innerText = data.badge;
+          return;
+        }
+
+        numSpan.innerText = data.num;
+        label.innerText = data.name;
         label.style.display = 'block';
 
-        if (roleColors[playerData.role]) {
-          node.style.background = roleColors[playerData.role];
+        if (roleColors[data.role]) {
+          node.style.background = roleColors[data.role];
           node.style.color = '#000';
         }
 
-        node.dataset.playerId = playerData.id;
+        node.dataset.playerId = data.id;
         updateUsedPlayersState();
       });
 
       pitch.appendChild(node);
+    }
+
+    function handleCaptainDrag(e, type) {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'CAPTAIN', badge: type }));
     }
 
     function updateUsedPlayersState() {
@@ -742,15 +826,41 @@
         left: parseFloat(node.style.left),
         num: node.querySelector('.player-num-span').innerText || '',
         name: node.querySelector('.player-label').innerText || '',
+        capt: node.querySelector('.captain-badge') ? node.querySelector('.captain-badge').innerText : '',
         playerId: node.dataset.playerId || ''
       }));
 
-      const matchData = { id: Date.now(), date, opponent, nodes };
-      matchHistory.push(matchData);
-      localStorage.setItem('matchHistory', JSON.stringify(matchHistory));
+      const isWhite = pitch.classList.contains('white-pitch');
 
+      const matchData = { id: Date.now(), date, opponent, nodes, isWhite };
+      
+      const existingIdx = matchHistory.findIndex(m => m.date === date && m.opponent === opponent);
+      if (existingIdx >= 0) {
+        matchHistory[existingIdx] = matchData;
+      } else {
+        matchHistory.push(matchData);
+      }
+
+      localStorage.setItem('matchHistory', JSON.stringify(matchHistory));
       updateHistorySelect();
       alert('Match salvato nello storico!');
+    }
+
+    function deleteCurrentMatch() {
+      const select = document.getElementById('historySelect');
+      const id = select.value;
+
+      if (!id) {
+        alert('Seleziona prima una partita dallo storico per poterla eliminare.');
+        return;
+      }
+
+      if (confirm('Sei sicuro di voler eliminare questa partita dallo storico?')) {
+        matchHistory = matchHistory.filter(m => m.id != id);
+        localStorage.setItem('matchHistory', JSON.stringify(matchHistory));
+        updateHistorySelect();
+        alert('Partita eliminata dallo storico!');
+      }
     }
 
     function updateHistorySelect() {
@@ -772,11 +882,17 @@
       document.getElementById('matchDate').value = match.date;
       document.getElementById('opponentName').value = match.opponent;
 
+      if (match.isWhite) {
+        pitch.classList.add('white-pitch');
+      } else {
+        pitch.classList.remove('white-pitch');
+      }
+
       document.querySelectorAll('.player-node').forEach(node => node.remove());
       match.nodes.forEach(p => {
         const playerObj = roster.find(r => r.id === p.playerId);
         const role = playerObj ? playerObj.role : '';
-        createPlayerNode(p.top, p.left, p.num, p.name, role);
+        createPlayerNode(p.top, p.left, p.num, p.name, role, p.capt);
       });
       updateUsedPlayersState();
     }
