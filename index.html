@@ -12,13 +12,13 @@
       --panel-bg: rgba(18, 18, 24, 0.9);
       --accent-red: #ff2a4b;
       --accent-red-glow: rgba(255, 42, 75, 0.4);
+      --accent-blue: #2563eb;
       --text-main: #f1f5f9;
       --text-muted: #94a3b8;
       --pitch-bg: radial-gradient(circle at 50% 50%, #153e2b 0%, #0f2b1d 100%);
       --pitch-lines: rgba(255, 255, 255, 0.7);
       --border-tech: rgba(255, 255, 255, 0.08);
 
-      /* COLORI RUOLI PER PARENTESI LATERALI */
       --role-p: #f1c40f;
       --role-d: #2ecc71;
       --role-c: #3498db;
@@ -36,7 +36,6 @@
       overflow: hidden;
     }
 
-    /* HEADER SCURO */
     header {
       background: rgba(10, 10, 15, 0.98);
       backdrop-filter: blur(12px);
@@ -83,7 +82,6 @@
       text-transform: uppercase;
     }
 
-    /* MATCH PANEL */
     .match-panel {
       display: flex;
       align-items: center;
@@ -133,7 +131,6 @@
     }
     .btn-delete-match:hover { background: var(--accent-red); color: white; }
 
-    /* LAYOUT CON SIDEBARS SCURE E CENTRO CHIARO */
     .main-container { display: flex; flex: 1; overflow: hidden; padding: 15px; gap: 15px; }
 
     .sidebar-left, .sidebar-right {
@@ -164,6 +161,26 @@
       justify-content: space-between;
     }
 
+    /* PULSANTE NAVIGAZIONE VISTE */
+    .btn-nav-mode {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent-red), #990011);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 0 10px var(--accent-red-glow);
+      transition: all 0.2s;
+    }
+    .btn-nav-mode:hover { filter: brightness(1.2); }
+
     .formation-btn {
       width: 100%;
       padding: 10px 14px;
@@ -188,7 +205,6 @@
       border-color: var(--accent-red);
     }
 
-    /* AREA CAMPO DA GIOCO CHIARA */
     .pitch-container {
       flex: 1;
       display: flex;
@@ -215,7 +231,6 @@
       transition: background 0.3s ease;
     }
 
-    /* CONTROLLI CAMPO (STAMPA E COLORE) */
     .pitch-controls {
       position: absolute;
       bottom: 20px;
@@ -247,7 +262,6 @@
       box-shadow: 0 0 12px var(--accent-red-glow);
     }
 
-    /* DISEGNO DELLA PORTA IN ALTO */
     .goal-frame {
       position: absolute;
       top: -2px;
@@ -264,13 +278,11 @@
     .goal-area { position: absolute; top: 0; left: 34%; width: 32%; height: 10%; border: 1px solid var(--pitch-lines); border-top: none; }
     .center-circle { position: absolute; bottom: -70px; left: 50%; transform: translateX(-50%); width: 140px; height: 140px; border: 1px solid var(--pitch-lines); border-radius: 50%; }
 
-    /* SFONDO BIANCO PER CAMPO */
     .pitch.white-pitch {
       background: #ffffff !important;
       --pitch-lines: #111111;
     }
 
-    /* PALLINI GIOCATORE */
     .player-node {
       width: 42px;
       height: 42px;
@@ -292,6 +304,26 @@
       z-index: 10;
       touch-action: none;
       transition: top 0.4s ease, left 0.4s ease, background 0.3s ease;
+    }
+
+    /* STILE BICOLORE PER CONTRAPPOSIZIONE (METÀ ROSSO METÀ BIANCO) */
+    .player-node.bicolor {
+      background: linear-gradient(135deg, var(--accent-red) 50%, #ffffff 50%) !important;
+      color: #000 !important;
+    }
+
+    /* PALLINI AVVERSARI (BLU) */
+    .player-node.opponent-node {
+      background: radial-gradient(circle at 30% 30%, #60a5fa, var(--accent-blue)) !important;
+      color: #fff !important;
+      border-color: #ffffff;
+    }
+
+    /* PALLONE DA CALCIO */
+    .player-node.ball-node {
+      background: #ffffff !important;
+      border: 2px solid #000 !important;
+      font-size: 20px;
     }
 
     .player-node.drag-over {
@@ -318,7 +350,6 @@
       pointer-events: none;
     }
 
-    /* BADGE CAPITANO / VICE CAPITANO */
     .captain-badge {
       position: absolute;
       top: -6px;
@@ -353,7 +384,46 @@
       border: 1px solid #fff;
     }
 
-    /* ROSTER GIOCATORI */
+    /* RAGGRUPPAMENTO PANCHINA AVVERSARI */
+    .opponents-bench {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: rgba(0,0,0,0.3);
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-tech);
+    }
+
+    .opp-bench-item {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #60a5fa, var(--accent-blue));
+      border: 2px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      user-select: none;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .ball-bench-item {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      user-select: none;
+      font-size: 18px;
+    }
+
     .add-player-form { display: flex; gap: 6px; }
     .add-player-form input, .add-player-form select {
       padding: 8px;
@@ -422,7 +492,6 @@
     }
     .btn-del-player:hover { color: var(--accent-red); }
 
-    /* STILI STAMPA PAGINA INTERA */
     @media print {
       @page {
         size: A4 portrait;
@@ -516,7 +585,6 @@
 </head>
 <body>
 
-  <!-- HEADER -->
   <header>
     <div class="header-brand">
       <div class="logo-frame">
@@ -528,7 +596,6 @@
       </div>
     </div>
 
-    <!-- MATCH & STORICO -->
     <div class="match-panel">
       <select id="historySelect" onchange="loadMatchFromHistory(this.value)">
         <option value="">-- Carica da Storico --</option>
@@ -542,18 +609,39 @@
 
   <div class="main-container">
 
-    <!-- MODULI -->
     <aside class="sidebar-left">
-      <div class="panel-header">Moduli</div>
-      <button class="formation-btn" onclick="setFormation('4-3-3')">4 - 3 - 3 <span>►</span></button>
-      <button class="formation-btn" onclick="setFormation('4-4-2')">4 - 4 - 2 <span>►</span></button>
-      <button class="formation-btn" onclick="setFormation('3-5-2')">3 - 5 - 2 <span>►</span></button>
-      <button class="formation-btn" onclick="setFormation('4-2-3-1')">4 - 2 - 3 - 1 <span>►</span></button>
-      <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3 <span>►</span></button>
+      <button class="btn-nav-mode" id="btnToggleMode" onclick="toggleViewMode()">
+        <span id="navBtnText">Contrapposizione</span> ➔
+      </button>
+
+      <div id="formationMenu">
+        <div class="panel-header">Moduli</div>
+        <button class="formation-btn" onclick="setFormation('4-3-3')">4 - 3 - 3 <span>►</span></button>
+        <button class="formation-btn" onclick="setFormation('4-4-2')">4 - 4 - 2 <span>►</span></button>
+        <button class="formation-btn" onclick="setFormation('3-5-2')">3 - 5 - 2 <span>►</span></button>
+        <button class="formation-btn" onclick="setFormation('4-2-3-1')">4 - 2 - 3 - 1 <span>►</span></button>
+        <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3 <span>►</span></button>
+      </div>
+
+      <div id="opponentsMenu" style="display: none;">
+        <div class="panel-header">Panchina Avversari</div>
+        <div class="opponents-bench">
+          <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '1')">1</div>
+          <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '2')">2</div>
+          <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '3')">3</div>
+          <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '4')">4</div>
+          <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '5')">5</div>
+          <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '6')">6</div>
+          <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '7')">7</div>
+          <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '8')">8</div>
+          <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '9')">9</div>
+          <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '10')">10</div>
+          <div class="ball-bench-item" draggable="true" ondragstart="handleBallDrag(event)">⚽</div>
+        </div>
+      </div>
     </aside>
 
-    <!-- AREA CAMPO DA GIOCO CHIARA -->
-    <main class="pitch-container">
+    <main class="pitch-container" id="pitchContainer">
       <div class="pitch-controls">
         <button class="btn-print" onclick="window.print()">🖨️ STAMPA / PDF</button>
         <button class="btn-color-pitch" onclick="togglePitchBg()">🎨 SFONDO VERDE / BIANCO</button>
@@ -566,7 +654,6 @@
       </div>
     </main>
 
-    <!-- ROSTER GIOCATORI CON BADGE CAPITANI -->
     <aside class="sidebar-right">
       <div class="panel-header">Gradi & Ruoli</div>
       <div class="captain-drag-container">
@@ -595,6 +682,11 @@
     const pitch = document.getElementById('pitch');
     let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
     let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
+
+    // STATO CORRENTE DEL VETTORE POSIZIONI GIOCATORI DELLA SQUADRA
+    let currentTeamNodes = []; 
+    let currentFormationKey = '4-3-3';
+    let isOppositeMode = false;
 
     const roleColors = {
       'P': 'var(--role-p)',
@@ -641,21 +733,87 @@
       pitch.classList.toggle('white-pitch');
     }
 
+    /* GESTIONE CAMBIO VISTA (FORMAZIONE <-> CONTRAPPOSIZIONE) */
+    function toggleViewMode() {
+      isOppositeMode = !isOppositeMode;
+      const btnText = document.getElementById('navBtnText');
+      const formMenu = document.getElementById('formationMenu');
+      const oppMenu = document.getElementById('opponentsMenu');
+
+      if (isOppositeMode) {
+        btnText.innerText = '◄ Formazione';
+        formMenu.style.display = 'none';
+        oppMenu.style.display = 'block';
+      } else {
+        btnText.innerText = 'Contrapposizione';
+        formMenu.style.display = 'block';
+        oppMenu.style.display = 'none';
+      }
+      renderPitchState();
+    }
+
     function setFormation(fmt) {
-      document.querySelectorAll('.player-node').forEach(node => node.remove());
+      currentFormationKey = fmt;
       const config = formations[fmt] || formations['4-3-3'];
-      config.forEach(pos => createPlayerNode(pos.top, pos.left));
+      
+      currentTeamNodes = config.map(pos => ({
+        top: pos.top,
+        left: pos.left,
+        num: '',
+        name: '',
+        role: '',
+        capt: '',
+        playerId: ''
+      }));
+
+      renderPitchState();
+    }
+
+    /* RENDERING SINCRONIZZATO DEL CAMPO IN BASE ALLA VISTA CORRENTE */
+    function renderPitchState() {
+      // Memorizza temporaneamente eventuali pallini avversari e pallone se presenti sul campo
+      const oppNodesData = Array.from(document.querySelectorAll('.player-node.opponent-node')).map(node => ({
+        top: parseFloat(node.style.top),
+        left: parseFloat(node.style.left),
+        num: node.querySelector('.player-num-span').innerText
+      }));
+
+      const ballNodeData = Array.from(document.querySelectorAll('.player-node.ball-node')).map(node => ({
+        top: parseFloat(node.style.top),
+        left: parseFloat(node.style.left)
+      }));
+
+      pitch.querySelectorAll('.player-node').forEach(node => node.remove());
+
+      // Renderizza i giocatori della propria squadra
+      currentTeamNodes.forEach((p, idx) => {
+        createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx);
+      });
+
+      // Ripristina o renderizza avversari e pallone in modalità contrapposizione
+      if (isOppositeMode) {
+        oppNodesData.forEach(p => createOpponentNode(p.top, p.left, p.num));
+        ballNodeData.forEach(p => createBallNode(p.top, p.left));
+      }
+
       updateUsedPlayersState();
     }
 
-    function createPlayerNode(top, left, num = '', name = '', role = '', capt = '') {
+    /* CREAZIONE PALLINI SQUADRA TITOLARE */
+    function createPlayerNode(top, left, num = '', name = '', role = '', capt = '', playerId = '', index = 0) {
       const node = document.createElement('div');
       node.className = 'player-node';
       node.style.top = top + '%';
       node.style.left = left + '%';
-      if (role && roleColors[role]) {
-        node.style.background = roleColors[role];
-        node.style.color = '#000';
+      node.dataset.index = index;
+
+      if (isOppositeMode) {
+        node.classList.add('bicolor');
+      } else {
+        if (role && roleColors[role]) {
+          node.style.background = roleColors[role];
+          node.style.color = '#000';
+        }
       }
 
       const numSpan = document.createElement('span');
@@ -676,30 +834,12 @@
         node.appendChild(captDiv);
       }
 
-      let isDragging = false;
-      const startDrag = () => { isDragging = true; };
-      const stopDrag = () => { isDragging = false; };
-      const moveDrag = (e) => {
-        if (!isDragging) return;
-        const rect = pitch.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      if (playerId) node.dataset.playerId = playerId;
 
-        let x = clientX - rect.left;
-        let y = clientY - rect.top;
-        x = Math.max(21, Math.min(x, rect.width - 21));
-        y = Math.max(21, Math.min(y, rect.height - 21));
-
-        node.style.left = (x / rect.width) * 100 + '%';
-        node.style.top = (y / rect.height) * 100 + '%';
-      };
-
-      node.addEventListener('mousedown', startDrag);
-      node.addEventListener('touchstart', startDrag);
-      document.addEventListener('mousemove', moveDrag);
-      document.addEventListener('touchmove', moveDrag);
-      document.addEventListener('mouseup', stopDrag);
-      document.addEventListener('touchend', stopDrag);
+      attachDragEvents(node, (xPct, yPct) => {
+        currentTeamNodes[index].top = xPct;
+        currentTeamNodes[index].left = yPct;
+      });
 
       node.addEventListener('dragover', (e) => { e.preventDefault(); node.classList.add('drag-over'); });
       node.addEventListener('dragleave', () => node.classList.remove('drag-over'));
@@ -719,6 +859,7 @@
             node.appendChild(badge);
           }
           badge.innerText = data.badge;
+          currentTeamNodes[index].capt = data.badge;
           return;
         }
 
@@ -726,26 +867,120 @@
         label.innerText = data.name;
         label.style.display = 'block';
 
-        if (roleColors[data.role]) {
+        if (!isOppositeMode && roleColors[data.role]) {
           node.style.background = roleColors[data.role];
           node.style.color = '#000';
         }
 
         node.dataset.playerId = data.id;
+
+        // Aggiorna lo stato nel vettore di riferimento
+        currentTeamNodes[index].num = data.num;
+        currentTeamNodes[index].name = data.name;
+        currentTeamNodes[index].role = data.role;
+        currentTeamNodes[index].playerId = data.id;
+
         updateUsedPlayersState();
       });
 
       pitch.appendChild(node);
     }
 
+    /* CREAZIONE PALLINI AVVERSARI (BLU) */
+    function createOpponentNode(top, left, num) {
+      const node = document.createElement('div');
+      node.className = 'player-node opponent-node';
+      node.style.top = top + '%';
+      node.style.left = left + '%';
+
+      const numSpan = document.createElement('span');
+      numSpan.className = 'player-num-span';
+      numSpan.innerText = num;
+      node.appendChild(numSpan);
+
+      attachDragEvents(node);
+      pitch.appendChild(node);
+    }
+
+    /* CREAZIONE PALLONE DA CALCIO */
+    function createBallNode(top, left) {
+      const node = document.createElement('div');
+      node.className = 'player-node ball-node';
+      node.style.top = top + '%';
+      node.style.left = left + '%';
+      node.innerText = '⚽';
+
+      attachDragEvents(node);
+      pitch.appendChild(node);
+    }
+
+    /* UTILITY PER RENDERE I ELEMENTI TRASCINABILI TRAMITE TOUCH/MOUSE */
+    function attachDragEvents(node, onMoveCallback) {
+      let isDragging = false;
+      const startDrag = () => { isDragging = true; };
+      const stopDrag = () => { isDragging = false; };
+      const moveDrag = (e) => {
+        if (!isDragging) return;
+        const rect = pitch.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        let x = clientX - rect.left;
+        let y = clientY - rect.top;
+        x = Math.max(21, Math.min(x, rect.width - 21));
+        y = Math.max(21, Math.min(y, rect.height - 21));
+
+        const topPct = (y / rect.height) * 100;
+        const leftPct = (x / rect.width) * 100;
+
+        node.style.left = leftPct + '%';
+        node.style.top = topPct + '%';
+
+        if (onMoveCallback) onMoveCallback(topPct, leftPct);
+      };
+
+      node.addEventListener('mousedown', startDrag);
+      node.addEventListener('touchstart', startDrag);
+      document.addEventListener('mousemove', moveDrag);
+      document.addEventListener('touchmove', moveDrag);
+      document.addEventListener('mouseup', stopDrag);
+      document.addEventListener('touchend', stopDrag);
+    }
+
+    /* TRASCINAMENTO ELEMENTI DALLA PANCHINA AVVERSARI SUL CAMPO */
+    function handleOpponentDrag(e, num) {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'OPPONENT', num: num }));
+    }
+
+    function handleBallDrag(e) {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'BALL' }));
+    }
+
     function handleCaptainDrag(e, type) {
       e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'CAPTAIN', badge: type }));
     }
 
+    /* RILASCIO AVVERSARIO O PALLONE DIRETTAMENTE SUL CAMPO */
+    pitch.addEventListener('dragover', (e) => e.preventDefault());
+    pitch.addEventListener('drop', (e) => {
+      if (e.target.classList.contains('player-node')) return; // Gestito dallo specifico nodo
+      const rawData = e.dataTransfer.getData('text/plain');
+      if (!rawData) return;
+      
+      const data = JSON.parse(rawData);
+      const rect = pitch.getBoundingClientRect();
+      const leftPct = ((e.clientX - rect.left) / rect.width) * 100;
+      const topPct = ((e.clientY - rect.top) / rect.height) * 100;
+
+      if (data.type === 'OPPONENT') {
+        createOpponentNode(topPct, leftPct, data.num);
+      } else if (data.type === 'BALL') {
+        createBallNode(topPct, leftPct);
+      }
+    });
+
     function updateUsedPlayersState() {
-      const activeIds = Array.from(document.querySelectorAll('.player-node'))
-        .map(n => n.dataset.playerId)
-        .filter(Boolean);
+      const activeIds = currentTeamNodes.map(n => n.playerId).filter(Boolean);
 
       document.querySelectorAll('.player-item').forEach(item => {
         if (activeIds.includes(item.dataset.id)) {
@@ -821,18 +1056,15 @@
         return;
       }
 
-      const nodes = Array.from(document.querySelectorAll('.player-node')).map(node => ({
-        top: parseFloat(node.style.top),
-        left: parseFloat(node.style.left),
-        num: node.querySelector('.player-num-span').innerText || '',
-        name: node.querySelector('.player-label').innerText || '',
-        capt: node.querySelector('.captain-badge') ? node.querySelector('.captain-badge').innerText : '',
-        playerId: node.dataset.playerId || ''
-      }));
-
       const isWhite = pitch.classList.contains('white-pitch');
 
-      const matchData = { id: Date.now(), date, opponent, nodes, isWhite };
+      const matchData = { 
+        id: Date.now(), 
+        date, 
+        opponent, 
+        nodes: currentTeamNodes, 
+        isWhite 
+      };
       
       const existingIdx = matchHistory.findIndex(m => m.date === date && m.opponent === opponent);
       if (existingIdx >= 0) {
@@ -888,13 +1120,8 @@
         pitch.classList.remove('white-pitch');
       }
 
-      document.querySelectorAll('.player-node').forEach(node => node.remove());
-      match.nodes.forEach(p => {
-        const playerObj = roster.find(r => r.id === p.playerId);
-        const role = playerObj ? playerObj.role : '';
-        createPlayerNode(p.top, p.left, p.num, p.name, role, p.capt);
-      });
-      updateUsedPlayersState();
+      currentTeamNodes = match.nodes || [];
+      renderPitchState();
     }
 
     renderRoster();
