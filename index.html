@@ -23,6 +23,10 @@
       --role-d: #2ecc71;
       --role-c: #3498db;
       --role-a: #e74c3c;
+
+      /* Colore di default per gli avversari (Celeste) */
+      --opp-color-bg: radial-gradient(circle at 30% 30%, #60a5fa, #2563eb);
+      --opp-color-text: #ffffff;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -282,7 +286,6 @@
       z-index: 5;
     }
 
-    /* Area Piccola: ~10% altezza mezza / 5% intera */
     .penalty-area-small {
       position: absolute;
       top: 0;
@@ -293,7 +296,6 @@
       border-top: none;
     }
 
-    /* Area Grande Bassa e Proporzionata: ~31% altezza mezza / 15.7% intera */
     .penalty-area-big {
       position: absolute;
       top: 0;
@@ -304,7 +306,6 @@
       border-top: none;
     }
 
-    /* Dischetto Rigore */
     .penalty-spot {
       position: absolute;
       top: 20.8%;
@@ -316,7 +317,6 @@
       border-radius: 50%;
     }
 
-    /* Cerchio di centrocampo */
     .center-circle {
       position: absolute;
       bottom: -14.1%;
@@ -387,7 +387,6 @@
       display: none;
     }
 
-    /* ADATTAMENTO SCALA CAMPO INTERO */
     .pitch.full-pitch .penalty-area-small { height: 5.2%; }
     .pitch.full-pitch .penalty-area-big { height: 15.6%; }
     .pitch.full-pitch .penalty-spot { top: 10.4%; }
@@ -441,8 +440,8 @@
     }
 
     .player-node.opponent-node {
-      background: radial-gradient(circle at 30% 30%, #60a5fa, var(--accent-blue)) !important;
-      color: #fff !important;
+      background: var(--opp-color-bg) !important;
+      color: var(--opp-color-text) !important;
       border-color: #ffffff;
     }
 
@@ -506,6 +505,38 @@
       border: 1px solid #fff;
     }
 
+    /* CONTROLLI AVVERSARIO */
+    .opp-color-picker-container {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .opp-color-picker-container label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .opp-color-picker-container select {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border-tech);
+      color: var(--text-main);
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+    
+    .opp-color-picker-container select:focus {
+      border-color: var(--accent-red);
+    }
+
     .opponents-bench {
       display: flex;
       flex-wrap: wrap;
@@ -520,7 +551,8 @@
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #60a5fa, var(--accent-blue));
+      background: var(--opp-color-bg);
+      color: var(--opp-color-text);
       border: 2px solid #fff;
       display: flex;
       align-items: center;
@@ -529,6 +561,7 @@
       user-select: none;
       font-weight: bold;
       font-size: 12px;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     .ball-bench-item {
@@ -672,6 +705,18 @@
       <!-- PANNELLO AVVERSARI -->
       <div id="opponentsMenu" style="display: none;">
         <div class="panel-header">Panchina Avversari</div>
+        
+        <!-- SELETTORE COLORE AVVERSARIO -->
+        <div class="opp-color-picker-container">
+          <label for="oppColorSelect">Colore Avversari:</label>
+          <select id="oppColorSelect" onchange="changeOpponentColor(this.value)">
+            <option value="celeste" selected>Celeste</option>
+            <option value="giallo">Giallo</option>
+            <option value="verde">Verde Evidenziatore</option>
+            <option value="rosso">Rosso</option>
+          </select>
+        </div>
+
         <div class="opponents-bench">
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '1')">1</div>
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '2')">2</div>
@@ -756,6 +801,31 @@
       'C': 'var(--role-c)',
       'A': 'var(--role-a)'
     };
+
+    const oppColorThemes = {
+      'celeste': {
+        bg: 'radial-gradient(circle at 30% 30%, #60a5fa, #2563eb)',
+        text: '#ffffff'
+      },
+      'giallo': {
+        bg: 'radial-gradient(circle at 30% 30%, #facc15, #eab308)',
+        text: '#000000'
+      },
+      'verde': {
+        bg: 'radial-gradient(circle at 30% 30%, #a3e635, #65a30d)',
+        text: '#000000'
+      },
+      'rosso': {
+        bg: 'radial-gradient(circle at 30% 30%, #f87171, #dc2626)',
+        text: '#ffffff'
+      }
+    };
+
+    function changeOpponentColor(colorKey) {
+      const theme = oppColorThemes[colorKey] || oppColorThemes['celeste'];
+      document.documentElement.style.setProperty('--opp-color-bg', theme.bg);
+      document.documentElement.style.setProperty('--opp-color-text', theme.text);
+    }
 
     const formations = {
       '4-3-3': [
@@ -1138,6 +1208,7 @@
       }
 
       const isWhite = pitch.classList.contains('white-pitch');
+      const oppColor = document.getElementById('oppColorSelect').value;
 
       const matchData = { 
         id: Date.now(), 
@@ -1147,7 +1218,8 @@
         oppositeNodes: currentOppositeNodes,
         opponentNodes: currentOpponentNodes,
         ballNode: currentBallNode,
-        isWhite 
+        isWhite,
+        oppColor
       };
       
       const existingIdx = matchHistory.findIndex(m => m.date === date && m.opponent === opponent);
@@ -1214,6 +1286,11 @@
         pitch.classList.remove('white-pitch');
       }
 
+      if (match.oppColor) {
+        document.getElementById('oppColorSelect').value = match.oppColor;
+        changeOpponentColor(match.oppColor);
+      }
+
       currentTeamNodes = match.nodes || [];
       currentOppositeNodes = match.oppositeNodes || [];
       currentOpponentNodes = match.opponentNodes || [];
@@ -1225,6 +1302,7 @@
     renderRoster();
     updateHistorySelect();
     setFormation('4-3-3');
+    changeOpponentColor('celeste');
     document.getElementById('matchDate').valueAsDate = new Date();
   </script>
 </body>
