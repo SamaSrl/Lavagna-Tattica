@@ -26,6 +26,8 @@
 
       --opp-color-bg: radial-gradient(circle at 30% 30%, #60a5fa, #2563eb);
       --opp-color-text: #ffffff;
+
+      --ball-img-url: url('https://media.istockphoto.com/id/1328014521/photo/soccer-ball-isolated-on-white.jpg?s=612x612&w=0&k=20&c=6N9C7fD2GZlB1zO-1x5yR7h4ZpP5hZ5H3fX1_gXg8mQ=');
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -472,9 +474,12 @@
     }
 
     .player-node.ball-node {
-      background: #ffffff !important;
-      border: 2px solid #000 !important;
-      font-size: 18px;
+      background-image: var(--ball-img-url) !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      border: none !important;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
     }
 
     .player-node.drag-over {
@@ -593,14 +598,12 @@
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      background: #ffffff;
-      border: 2px solid #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background-image: var(--ball-img-url);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       cursor: grab;
       user-select: none;
-      font-size: 16px;
     }
 
     .add-player-form { display: flex; gap: 6px; }
@@ -767,7 +770,7 @@
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '9')">9</div>
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '10')">10</div>
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '11')">11</div>
-          <div class="ball-bench-item" draggable="true" ondragstart="handleBallDrag(event)">⚽</div>
+          <div class="ball-bench-item" draggable="true" ondragstart="handleBallDrag(event)"></div>
         </div>
       </div>
     </aside>
@@ -829,7 +832,6 @@
     let currentTeamNodes = []; 
     let activeOppTab = 'uomo'; // 'uomo', 'piuUno', 'reparto'
 
-    // Struttura dati per le 3 contrapposizioni indipendenti
     let oppData = {
       uomo: { teamNodes: [], opponentNodes: [], ballNode: null },
       piuUno: { teamNodes: [], opponentNodes: [], ballNode: null },
@@ -919,10 +921,9 @@
         btnText.innerText = '◄ Formazione';
         formMenu.style.display = 'none';
         oppMenu.style.display = 'block';
-        rolesPanel.style.display = 'none'; // Nasconde il pannello Cap/Vice
+        rolesPanel.style.display = 'none';
         pitch.classList.add('full-pitch');
         
-        // Se la contrapposizione corrente è vuota, la specchiamo dalla formazione base
         ['uomo', 'piuUno', 'reparto'].forEach(tab => {
           if (!oppData[tab].teamNodes || oppData[tab].teamNodes.length === 0) {
             syncOppositeNodesForTab(tab);
@@ -987,7 +988,6 @@
         playerId: ''
       }));
 
-      // Resetta ed allinea tutte le contrapposizioni al cambio di modulo
       ['uomo', 'piuUno', 'reparto'].forEach(tab => {
         syncOppositeNodesForTab(tab);
       });
@@ -1047,7 +1047,6 @@
       if (!name) label.style.display = 'none';
       node.appendChild(label);
 
-      // Mostra Capitano e Vice SOLO se NON siamo in Contrapposizione
       if (capt && !isOpposite) {
         const captDiv = document.createElement('div');
         captDiv.className = 'captain-badge';
@@ -1077,7 +1076,6 @@
 
         const data = JSON.parse(rawData);
 
-        // Se siamo in contrapposizione, ignoriamo il drag&drop del Capitano/Vice
         if (data.type === 'CAPTAIN') {
           if (isOpposite) return; 
 
@@ -1145,7 +1143,6 @@
       node.className = 'player-node ball-node';
       node.style.top = top + '%';
       node.style.left = left + '%';
-      node.innerText = '⚽';
 
       attachDragEvents(node, (topPct, leftPct) => {
         oppData[activeOppTab].ballNode = { top: topPct, left: leftPct };
@@ -1306,7 +1303,7 @@
         date, 
         opponent, 
         nodes: currentTeamNodes,
-        oppData: oppData, // Salva la struttura completa delle 3 contrapposizioni
+        oppData: oppData,
         isWhite,
         oppColor
       };
@@ -1381,8 +1378,7 @@
       }
 
       currentTeamNodes = match.nodes || [];
-      
-      // Carica i dati salvati delle contrapposizioni (o gestisce la retrocompatibilità)
+
       if (match.oppData) {
         oppData = match.oppData;
       } else {
