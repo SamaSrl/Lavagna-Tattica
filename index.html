@@ -64,7 +64,6 @@
       align-items: center;
       justify-content: center;
       padding: 2px;
-      overflow: hidden;
     }
 
     .logo-frame img { width: 100%; height: 100%; object-fit: contain; }
@@ -222,11 +221,11 @@
 
     .opp-tab-btn {
       flex: 1;
-      padding: 6px 4px;
+      padding: 6px 2px;
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
@@ -486,13 +485,6 @@
       z-index: 12;
     }
 
-    .player-node.ball-node img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-    }
-
     .player-node.drag-over {
       scale: 1.25;
       box-shadow: 0 0 20px #10b981;
@@ -621,13 +613,6 @@
       justify-content: center;
     }
 
-    .ball-bench-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-    }
-
     .add-player-form { display: flex; gap: 6px; }
     .add-player-form input, .add-player-form select {
       padding: 8px;
@@ -712,6 +697,7 @@
 </head>
 <body>
 
+  <!-- HEADER -->
   <header>
     <div class="header-brand">
       <div class="logo-frame">
@@ -724,6 +710,7 @@
       </div>
     </div>
 
+    <!-- MATCH & STORICO -->
     <div class="match-panel">
       <select id="historySelect" onchange="loadMatchFromHistory(this.value)">
         <option value="">-- Carica da Storico --</option>
@@ -738,11 +725,13 @@
 
   <div class="main-container">
 
+    <!-- BARRA LATERALE SINISTRA -->
     <aside class="sidebar-left">
       <button class="btn-nav-mode" id="btnToggleMode" onclick="toggleViewMode()">
         <span id="navBtnText">Contrapposizione</span> ➔
       </button>
 
+      <!-- PANNELLO MODULI -->
       <div id="formationMenu">
         <div class="panel-header">Moduli</div>
         <button class="formation-btn" onclick="setFormation('4-3-3')">4 - 3 - 3 <span>►</span></button>
@@ -752,6 +741,7 @@
         <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3 <span>►</span></button>
       </div>
 
+      <!-- PANNELLO AVVERSARI E TAB CONTRAPPOSIZIONI -->
       <div id="opponentsMenu" style="display: none;">
         <div class="panel-header">Contrapposizioni</div>
         
@@ -759,6 +749,7 @@
           <button class="opp-tab-btn active" id="tab-uomo" onclick="switchOppTab('uomo')">Uomo su Uomo</button>
           <button class="opp-tab-btn" id="tab-piuUno" onclick="switchOppTab('piuUno')">+1</button>
           <button class="opp-tab-btn" id="tab-reparto" onclick="switchOppTab('reparto')">Reparto</button>
+          <button class="opp-tab-btn" id="tab-libera" onclick="switchOppTab('libera')">Libera</button>
         </div>
 
         <div class="panel-header">Panchina Avversari</div>
@@ -790,6 +781,7 @@
       </div>
     </aside>
 
+    <!-- AREA CAMPO DA GIOCO -->
     <main class="pitch-container" id="pitchContainer">
       <div class="pitch-controls">
         <button class="btn-print" onclick="window.print()">🖨️ STAMPA / PDF</button>
@@ -811,6 +803,7 @@
       </div>
     </main>
 
+    <!-- ROSTER GIOCATORI -->
     <aside class="sidebar-right">
       <div id="rolesPanelContainer">
         <div class="panel-header">Gradi & Ruoli</div>
@@ -838,8 +831,7 @@
   </div>
 
   <script>
-    // SVG pallone da calcio inline via Data URI per garantire il caricamento costante
-    const ballSvgContent = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+const ballSvgContent = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <radialGradient id="ballShine" cx="35%" cy="30%" r="75%">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
@@ -867,405 +859,574 @@
   <circle cx="50" cy="50" r="46" fill="url(#ballShine)"/>
 </svg>`;
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const ballContainer = document.getElementById("ballBenchContainer");
-      if (ballContainer) {
-        ballContainer.innerHTML = ballSvgContent;
-      }
-      updateHistoryDropdown();
-      renderRoster();
-    });
+    document.getElementById('ballBenchContainer').innerHTML = ballSvgContent;
 
-    let isOpponentView = false;
-    let players = JSON.parse(localStorage.getItem("tactics_roster")) || [
-      { id: 'p1', name: 'Buffon', num: 1, role: 'P' },
-      { id: 'p2', name: 'Zambrotta', num: 2, role: 'D' },
-      { id: 'p3', name: 'Cannavaro', num: 5, role: 'D' },
-      { id: 'p4', name: 'Nesta', num: 13, role: 'D' },
-      { id: 'p5', name: 'Grosso', num: 3, role: 'D' },
-      { id: 'p6', name: 'Gattuso', num: 8, role: 'C' },
-      { id: 'p7', name: 'Pirlo', num: 21, role: 'C' },
-      { id: 'p8', name: 'Perrotta', num: 20, role: 'C' },
-      { id: 'p9', name: 'Camoranesi', num: 16, role: 'C' },
-      { id: 'p10', name: 'Totti', num: 10, role: 'A' },
-      { id: 'p11', name: 'Toni', num: 9, role: 'A' }
-    ];
+    const pitch = document.getElementById('pitch');
+    let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
+    let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
+
+    let currentTeamNodes = []; 
+    let activeOppTab = 'uomo';
+
+    let oppData = {
+      uomo: { teamNodes: [], opponentNodes: [], ballNode: null },
+      piuUno: { teamNodes: [], opponentNodes: [], ballNode: null },
+      reparto: { teamNodes: [], opponentNodes: [], ballNode: null },
+      libera: { teamNodes: [], opponentNodes: [], ballNode: null }
+    };
+
+    let isOppositeMode = false;
+
+    const roleColors = {
+      'P': 'var(--role-p)',
+      'D': 'var(--role-d)',
+      'C': 'var(--role-c)',
+      'A': 'var(--role-a)'
+    };
+
+    const oppColorThemes = {
+      'celeste': { bg: 'radial-gradient(circle at 30% 30%, #60a5fa, #2563eb)', text: '#ffffff' },
+      'giallo': { bg: 'radial-gradient(circle at 30% 30%, #facc15, #eab308)', text: '#000000' },
+      'verde': { bg: 'radial-gradient(circle at 30% 30%, #a3e635, #65a30d)', text: '#000000' },
+      'rosso': { bg: 'radial-gradient(circle at 30% 30%, #f87171, #dc2626)', text: '#ffffff' }
+    };
+
+    function changeOpponentColor(colorKey) {
+      const theme = oppColorThemes[colorKey] || oppColorThemes['celeste'];
+      document.documentElement.style.setProperty('--opp-color-bg', theme.bg);
+      document.documentElement.style.setProperty('--opp-color-text', theme.text);
+    }
 
     const formations = {
       '4-3-3': [
-        { top: 88, left: 50 },
-        { top: 70, left: 15 }, { top: 73, left: 38 }, { top: 73, left: 62 }, { top: 70, left: 85 },
-        { top: 48, left: 30 }, { top: 52, left: 50 }, { top: 48, left: 70 },
-        { top: 22, left: 20 }, { top: 18, left: 50 }, { top: 22, left: 80 }
+        {top: 10, left: 50},
+        {top: 25, left: 15}, {top: 22, left: 38}, {top: 22, left: 62}, {top: 25, left: 85},
+        {top: 50, left: 30}, {top: 45, left: 50}, {top: 50, left: 70},
+        {top: 80, left: 20}, {top: 85, left: 50}, {top: 80, left: 80}
       ],
       '4-4-2': [
-        { top: 88, left: 50 },
-        { top: 70, left: 15 }, { top: 73, left: 38 }, { top: 73, left: 62 }, { top: 70, left: 85 },
-        { top: 45, left: 15 }, { top: 48, left: 38 }, { top: 48, left: 62 }, { top: 45, left: 85 },
-        { top: 20, left: 35 }, { top: 20, left: 65 }
+        {top: 10, left: 50},
+        {top: 25, left: 15}, {top: 22, left: 38}, {top: 22, left: 62}, {top: 25, left: 85},
+        {top: 52, left: 15}, {top: 50, left: 38}, {top: 50, left: 62}, {top: 52, left: 85},
+        {top: 80, left: 35}, {top: 80, left: 65}
       ],
       '3-5-2': [
-        { top: 88, left: 50 },
-        { top: 73, left: 25 }, { top: 75, left: 50 }, { top: 73, left: 75 },
-        { top: 48, left: 12 }, { top: 52, left: 33 }, { top: 55, left: 50 }, { top: 52, left: 67 }, { top: 48, left: 88 },
-        { top: 20, left: 35 }, { top: 20, left: 65 }
+        {top: 10, left: 50},
+        {top: 22, left: 25}, {top: 20, left: 50}, {top: 22, left: 75},
+        {top: 55, left: 10}, {top: 48, left: 33}, {top: 45, left: 50}, {top: 48, left: 67}, {top: 55, left: 90},
+        {top: 80, left: 35}, {top: 80, left: 65}
       ],
       '4-2-3-1': [
-        { top: 88, left: 50 },
-        { top: 70, left: 15 }, { top: 73, left: 38 }, { top: 73, left: 62 }, { top: 70, left: 85 },
-        { top: 54, left: 35 }, { top: 54, left: 65 },
-        { top: 34, left: 20 }, { top: 32, left: 50 }, { top: 34, left: 80 },
-        { top: 16, left: 50 }
+        {top: 10, left: 50},
+        {top: 25, left: 15}, {top: 22, left: 38}, {top: 22, left: 62}, {top: 25, left: 85},
+        {top: 42, left: 35}, {top: 42, left: 65},
+        {top: 65, left: 20}, {top: 65, left: 50}, {top: 65, left: 80},
+        {top: 85, left: 50}
       ],
       '3-4-3': [
-        { top: 88, left: 50 },
-        { top: 73, left: 25 }, { top: 75, left: 50 }, { top: 73, left: 75 },
-        { top: 48, left: 15 }, { top: 50, left: 38 }, { top: 50, left: 62 }, { top: 48, left: 85 },
-        { top: 22, left: 20 }, { top: 18, left: 50 }, { top: 22, left: 80 }
+        {top: 10, left: 50},
+        {top: 22, left: 25}, {top: 20, left: 50}, {top: 22, left: 75},
+        {top: 50, left: 15}, {top: 48, left: 38}, {top: 48, left: 62}, {top: 50, left: 85},
+        {top: 80, left: 20}, {top: 85, left: 50}, {top: 80, left: 80}
       ]
     };
 
-    function renderRoster() {
-      const list = document.getElementById("playerList");
-      list.innerHTML = "";
-      players.forEach(p => {
-        const li = document.createElement("li");
-        li.className = `player-item role-${p.role}`;
-        li.id = `roster-${p.id}`;
-        li.draggable = true;
-        li.innerHTML = `<div><span class="num">${p.num}</span> <strong>${p.name}</strong></div>
-                        <button class="btn-del-player" onclick="removePlayer('${p.id}')">✕</button>`;
-        li.ondragstart = (e) => e.dataTransfer.setData("text/plain", JSON.stringify({ type: 'roster', id: p.id }));
-        list.appendChild(li);
-      });
-      localStorage.setItem("tactics_roster", JSON.stringify(players));
-    }
-
-    document.getElementById("playerForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const name = document.getElementById("pName").value.trim();
-      const num = parseInt(document.getElementById("pNum").value);
-      const role = document.getElementById("pRole").value;
-      if (!name || isNaN(num)) return;
-      
-      const newPlayer = { id: 'p_' + Date.now(), name, num, role };
-      players.push(newPlayer);
-      renderRoster();
-      document.getElementById("pName").value = "";
-      document.getElementById("pNum").value = "";
-    });
-
-    function removePlayer(id) {
-      players = players.filter(p => p.id !== id);
-      renderRoster();
-    }
-
-    function setFormation(formKey) {
-      const pitch = document.getElementById("pitch");
-      pitch.querySelectorAll(".player-node:not(.opponent-node):not(.ball-node)").forEach(n => n.remove());
-      
-      const coords = formations[formKey];
-      const activePlayers = players.slice(0, 11);
-
-      coords.forEach((c, idx) => {
-        const p = activePlayers[idx] || { id: 'dummy_' + idx, name: 'P' + (idx + 1), num: idx + 1 };
-        createPlayerNode(pitch, c.left, c.top, p);
-      });
-    }
-
-    function createPlayerNode(pitch, left, top, player) {
-      const node = document.createElement("div");
-      node.className = "player-node";
-      node.style.left = left + "%";
-      node.style.top = top + "%";
-      node.id = "node_" + player.id;
-      
-      node.innerHTML = `<span class="player-num-span">${player.num}</span>
-                        <div class="player-label">${player.name}</div>`;
-
-      makeDraggable(node, pitch);
-      pitch.appendChild(node);
-    }
-
-    function makeDraggable(elmnt, container) {
-      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      elmnt.onmousedown = dragMouseDown;
-      elmnt.ontouchstart = dragTouchStart;
-
-      function dragMouseDown(e) {
-        e.preventDefault();
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-      }
-
-      function elementDrag(e) {
-        e.preventDefault();
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-
-        let newTop = ((elmnt.offsetTop - pos2) / container.clientHeight) * 100;
-        let newLeft = ((elmnt.offsetLeft - pos1) / container.clientWidth) * 100;
-
-        elmnt.style.top = Math.max(2, Math.min(98, newTop)) + "%";
-        elmnt.style.left = Math.max(2, Math.min(98, newLeft)) + "%";
-      }
-
-      function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
-      }
-
-      function dragTouchStart(e) {
-        const touch = e.touches[0];
-        pos3 = touch.clientX;
-        pos4 = touch.clientY;
-        document.ontouchend = closeTouchElement;
-        document.ontouchmove = elementTouchMove;
-      }
-
-      function elementTouchMove(e) {
-        const touch = e.touches[0];
-        pos1 = pos3 - touch.clientX;
-        pos2 = pos4 - touch.clientY;
-        pos3 = touch.clientX;
-        pos4 = touch.clientY;
-
-        let newTop = ((elmnt.offsetTop - pos2) / container.clientHeight) * 100;
-        let newLeft = ((elmnt.offsetLeft - pos1) / container.clientWidth) * 100;
-
-        elmnt.style.top = Math.max(2, Math.min(98, newTop)) + "%";
-        elmnt.style.left = Math.max(2, Math.min(98, newLeft)) + "%";
-      }
-
-      function closeTouchElement() {
-        document.ontouchend = null;
-        document.ontouchmove = null;
-      }
-    }
-
-    const pitch = document.getElementById("pitch");
-    pitch.ondragover = (e) => e.preventDefault();
-    pitch.ondrop = (e) => {
-      e.preventDefault();
-      const rect = pitch.getBoundingClientRect();
-      const left = ((e.clientX - rect.left) / rect.width) * 100;
-      const top = ((e.clientY - rect.top) / rect.height) * 100;
-
-      const dataStr = e.dataTransfer.getData("text/plain");
-      if (!dataStr) return;
-      const data = JSON.parse(dataStr);
-
-      if (data.type === 'roster') {
-        const p = players.find(x => x.id === data.id);
-        if (p) createPlayerNode(pitch, left, top, p);
-      } else if (data.type === 'opponent') {
-        createOpponentNode(pitch, left, top, data.num);
-      } else if (data.type === 'ball') {
-        createBallNode(pitch, left, top);
-      } else if (data.type === 'captain') {
-        assignCaptain(e.target, data.role);
-      }
-    };
-
-    function createOpponentNode(pitch, left, top, num) {
-      const node = document.createElement("div");
-      node.className = "player-node opponent-node";
-      node.style.left = left + "%";
-      node.style.top = top + "%";
-      node.innerHTML = `<span class="player-num-span">${num}</span>`;
-      makeDraggable(node, pitch);
-      pitch.appendChild(node);
-    }
-
-    function createBallNode(pitch, left, top) {
-      const existingBall = pitch.querySelector(".ball-node");
-      if (existingBall) existingBall.remove();
-
-      const node = document.createElement("div");
-      node.className = "player-node ball-node";
-      node.style.left = left + "%";
-      node.style.top = top + "%";
-      node.innerHTML = ballSvgContent;
-      makeDraggable(node, pitch);
-      pitch.appendChild(node);
-    }
-
-    function assignCaptain(target, role) {
-      const pNode = target.closest(".player-node");
-      if (!pNode || pNode.classList.contains("opponent-node") || pNode.classList.contains("ball-node")) return;
-      
-      let badge = pNode.querySelector(".captain-badge");
-      if (!badge) {
-        badge = document.createElement("div");
-        badge.className = "captain-badge";
-        pNode.appendChild(badge);
-      }
-      badge.textContent = role;
-    }
-
-    function handleOpponentDrag(e, num) {
-      e.dataTransfer.setData("text/plain", JSON.stringify({ type: 'opponent', num }));
-    }
-
-    function handleBallDrag(e) {
-      e.dataTransfer.setData("text/plain", JSON.stringify({ type: 'ball' }));
-    }
-
-    function handleCaptainDrag(e, role) {
-      e.dataTransfer.setData("text/plain", JSON.stringify({ type: 'captain', role }));
+    function togglePitchBg() {
+      pitch.classList.toggle('white-pitch');
     }
 
     function toggleViewMode() {
-      isOpponentView = !isOpponentView;
-      const pitchEl = document.getElementById("pitch");
-      const formationMenu = document.getElementById("formationMenu");
-      const opponentsMenu = document.getElementById("opponentsMenu");
-      const navBtnText = document.getElementById("navBtnText");
-      const printSubTitle = document.getElementById("printSubTitle");
+      isOppositeMode = !isOppositeMode;
+      const btnText = document.getElementById('navBtnText');
+      const formMenu = document.getElementById('formationMenu');
+      const oppMenu = document.getElementById('opponentsMenu');
+      const rolesPanel = document.getElementById('rolesPanelContainer');
 
-      if (isOpponentView) {
-        pitchEl.classList.add("full-pitch");
-        formationMenu.style.display = "none";
-        opponentsMenu.style.display = "block";
-        navBtnText.textContent = "Modulo Singolo";
-        printSubTitle.textContent = "Analisi Contrapposizione";
+      if (isOppositeMode) {
+        btnText.innerText = '◄ Formazione';
+        formMenu.style.display = 'none';
+        oppMenu.style.display = 'block';
+        rolesPanel.style.display = 'none';
+        pitch.classList.add('full-pitch');
+        
+        ['uomo', 'piuUno', 'reparto', 'libera'].forEach(tab => {
+          if (!oppData[tab].teamNodes || oppData[tab].teamNodes.length === 0) {
+            syncOppositeNodesForTab(tab);
+          }
+        });
+
       } else {
-        pitchEl.classList.remove("full-pitch");
-        formationMenu.style.display = "block";
-        opponentsMenu.style.display = "none";
-        navBtnText.textContent = "Contrapposizione";
-        printSubTitle.textContent = "Formazione Principale";
+        btnText.innerText = 'Contrapposizione';
+        formMenu.style.display = 'block';
+        oppMenu.style.display = 'none';
+        rolesPanel.style.display = 'block';
+        pitch.classList.remove('full-pitch');
+      }
+      updatePrintTitle();
+      renderPitchState();
+    }
+
+    function updatePrintTitle() {
+      const printTitle = document.getElementById('printSubTitle');
+      if (!isOppositeMode) {
+        printTitle.innerText = "Formazione Principale";
+      } else {
+        const labels = { 'uomo': 'Uomo su Uomo', 'piuUno': '+1', 'reparto': 'Reparto', 'libera': 'Libera' };
+        printTitle.innerText = "Contrapposizione - " + labels[activeOppTab];
       }
     }
 
-    function switchOppTab(tabType) {
-      document.querySelectorAll(".opp-tab-btn").forEach(b => b.classList.remove("active"));
-      document.getElementById(`tab-${tabType}`).classList.add("active");
-    }
-
-    function changeOpponentColor(color) {
-      const root = document.documentElement;
-      if (color === 'celeste') {
-        root.style.setProperty('--opp-color-bg', 'radial-gradient(circle at 30% 30%, #60a5fa, #2563eb)');
-        root.style.setProperty('--opp-color-text', '#ffffff');
-      } else if (color === 'giallo') {
-        root.style.setProperty('--opp-color-bg', 'radial-gradient(circle at 30% 30%, #fef08a, #eab308)');
-        root.style.setProperty('--opp-color-text', '#000000');
-      } else if (color === 'verde') {
-        root.style.setProperty('--opp-color-bg', 'radial-gradient(circle at 30% 30%, #86efac, #22c55e)');
-        root.style.setProperty('--opp-color-text', '#000000');
-      } else if (color === 'rosso') {
-        root.style.setProperty('--opp-color-bg', 'radial-gradient(circle at 30% 30%, #fca5a5, #dc2626)');
-        root.style.setProperty('--opp-color-text', '#ffffff');
+    function switchOppTab(tabKey) {
+      activeOppTab = tabKey;
+      document.querySelectorAll('.opp-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${tabKey}`).classList.add('active');
+      
+      if (!oppData[activeOppTab].teamNodes || oppData[activeOppTab].teamNodes.length === 0) {
+        syncOppositeNodesForTab(activeOppTab);
       }
+
+      updatePrintTitle();
+      renderPitchState();
     }
 
-    function togglePitchBg() {
-      document.getElementById("pitch").classList.toggle("white-pitch");
+    function syncOppositeNodesForTab(tabKey) {
+      oppData[tabKey].teamNodes = currentTeamNodes.map(p => ({
+        top: 100 - (p.top * 0.5),
+        left: 100 - p.left,
+        num: p.num,
+        name: p.name,
+        role: p.role,
+        playerId: p.playerId
+      }));
     }
 
-    // STORICO MATCH
+    function setFormation(fmt) {
+      const config = formations[fmt] || formations['4-3-3'];
+      
+      currentTeamNodes = config.map(pos => ({
+        top: pos.top,
+        left: pos.left,
+        num: '',
+        name: '',
+        role: '',
+        capt: '',
+        playerId: ''
+      }));
+
+      ['uomo', 'piuUno', 'reparto', 'libera'].forEach(tab => {
+        syncOppositeNodesForTab(tab);
+      });
+
+      renderPitchState();
+    }
+
+    function renderPitchState() {
+      pitch.querySelectorAll('.player-node').forEach(node => node.remove());
+
+      if (!isOppositeMode) {
+        currentTeamNodes.forEach((p, idx) => {
+          createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx, false);
+        });
+      } else {
+        const currentOpp = oppData[activeOppTab];
+
+        currentOpp.teamNodes.forEach((p, idx) => {
+          createPlayerNode(p.top, p.left, p.num, p.name, p.role, '', p.playerId, idx, true);
+        });
+
+        currentOpp.opponentNodes.forEach((p, idx) => {
+          createOpponentNode(p.top, p.left, p.num, idx);
+        });
+
+        if (currentOpp.ballNode) {
+          createBallNode(currentOpp.ballNode.top, currentOpp.ballNode.left);
+        }
+      }
+
+      updateUsedPlayersState();
+    }
+
+    function createPlayerNode(top, left, num = '', name = '', role = '', capt = '', playerId = '', index = 0, isOpposite = false) {
+      const node = document.createElement('div');
+      node.className = 'player-node';
+      node.style.top = top + '%';
+      node.style.left = left + '%';
+
+      if (isOpposite) {
+        node.classList.add('bicolor');
+      } else {
+        if (role && roleColors[role]) {
+          node.style.background = roleColors[role];
+          node.style.color = '#000';
+        }
+      }
+
+      const numSpan = document.createElement('span');
+      numSpan.className = 'player-num-span';
+      numSpan.innerText = num;
+      node.appendChild(numSpan);
+
+      const label = document.createElement('div');
+      label.className = 'player-label';
+      label.innerText = name;
+      if (!name) label.style.display = 'none';
+      node.appendChild(label);
+
+      if (capt && !isOpposite) {
+        const captDiv = document.createElement('div');
+        captDiv.className = 'captain-badge';
+        captDiv.innerText = capt;
+        node.appendChild(captDiv);
+      }
+
+      if (playerId) node.dataset.playerId = playerId;
+
+      attachDragEvents(node, (topPct, leftPct) => {
+        if (isOpposite) {
+          oppData[activeOppTab].teamNodes[index].top = topPct;
+          oppData[activeOppTab].teamNodes[index].left = leftPct;
+        } else {
+          currentTeamNodes[index].top = topPct;
+          currentTeamNodes[index].left = leftPct;
+        }
+      }, 19);
+
+      node.addEventListener('dragover', (e) => { e.preventDefault(); node.classList.add('drag-over'); });
+      node.addEventListener('dragleave', () => node.classList.remove('drag-over'));
+      node.addEventListener('drop', (e) => {
+        e.preventDefault();
+        node.classList.remove('drag-over');
+        const rawData = e.dataTransfer.getData('text/plain');
+        if (!rawData) return;
+
+        const data = JSON.parse(rawData);
+
+        if (data.type === 'CAPTAIN') {
+          if (isOpposite) return; 
+
+          let badge = node.querySelector('.captain-badge');
+          if (!badge) {
+            badge = document.createElement('div');
+            badge.className = 'captain-badge';
+            node.appendChild(badge);
+          }
+          badge.innerText = data.badge;
+          currentTeamNodes[index].capt = data.badge;
+          return;
+        }
+
+        numSpan.innerText = data.num;
+        label.innerText = data.name;
+        label.style.display = 'block';
+
+        if (!isOpposite && roleColors[data.role]) {
+          node.style.background = roleColors[data.role];
+          node.style.color = '#000';
+        }
+
+        node.dataset.playerId = data.id;
+
+        if (isOpposite) {
+          oppData[activeOppTab].teamNodes[index].num = data.num;
+          oppData[activeOppTab].teamNodes[index].name = data.name;
+          oppData[activeOppTab].teamNodes[index].role = data.role;
+          oppData[activeOppTab].teamNodes[index].playerId = data.id;
+        } else {
+          currentTeamNodes[index].num = data.num;
+          currentTeamNodes[index].name = data.name;
+          currentTeamNodes[index].role = data.role;
+          currentTeamNodes[index].playerId = data.id;
+        }
+
+        updateUsedPlayersState();
+      });
+
+      pitch.appendChild(node);
+    }
+
+    function createOpponentNode(top, left, num, index) {
+      const node = document.createElement('div');
+      node.className = 'player-node opponent-node';
+      node.style.top = top + '%';
+      node.style.left = left + '%';
+
+      const numSpan = document.createElement('span');
+      numSpan.className = 'player-num-span';
+      numSpan.innerText = num;
+      node.appendChild(numSpan);
+
+      attachDragEvents(node, (topPct, leftPct) => {
+        oppData[activeOppTab].opponentNodes[index].top = topPct;
+        oppData[activeOppTab].opponentNodes[index].left = leftPct;
+      }, 19);
+
+      pitch.appendChild(node);
+    }
+
+    function createBallNode(top, left) {
+      const node = document.createElement('div');
+      node.className = 'player-node ball-node';
+      node.style.top = top + '%';
+      node.style.left = left + '%';
+      node.innerHTML = ballSvgContent;
+
+      attachDragEvents(node, (topPct, leftPct) => {
+        oppData[activeOppTab].ballNode = { top: topPct, left: leftPct };
+      }, 9.5);
+
+      pitch.appendChild(node);
+    }
+
+    function attachDragEvents(node, onMoveCallback, nodeRadius = 19) {
+      let isDragging = false;
+      const startDrag = () => { isDragging = true; };
+      const stopDrag = () => { isDragging = false; };
+      const moveDrag = (e) => {
+        if (!isDragging) return;
+        const rect = pitch.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        let x = clientX - rect.left;
+        let y = clientY - rect.top;
+        x = Math.max(nodeRadius, Math.min(x, rect.width - nodeRadius));
+        y = Math.max(nodeRadius, Math.min(y, rect.height - nodeRadius));
+
+        const topPct = (y / rect.height) * 100;
+        const leftPct = (x / rect.width) * 100;
+
+        node.style.left = leftPct + '%';
+        node.style.top = topPct + '%';
+
+        if (onMoveCallback) onMoveCallback(topPct, leftPct);
+      };
+
+      node.addEventListener('mousedown', startDrag);
+      node.addEventListener('touchstart', startDrag);
+      document.addEventListener('mousemove', moveDrag);
+      document.addEventListener('touchmove', moveDrag);
+      document.addEventListener('mouseup', stopDrag);
+      document.addEventListener('touchend', stopDrag);
+    }
+
+    function handleOpponentDrag(e, num) {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'OPPONENT', num: num }));
+    }
+
+    function handleBallDrag(e) {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'BALL' }));
+    }
+
+    function handleCaptainDrag(e, type) {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'CAPTAIN', badge: type }));
+    }
+
+    pitch.addEventListener('dragover', (e) => e.preventDefault());
+    pitch.addEventListener('drop', (e) => {
+      if (e.target.classList.contains('player-node')) return;
+      const rawData = e.dataTransfer.getData('text/plain');
+      if (!rawData) return;
+      
+      const data = JSON.parse(rawData);
+      const rect = pitch.getBoundingClientRect();
+      const leftPct = ((e.clientX - rect.left) / rect.width) * 100;
+      const topPct = ((e.clientY - rect.top) / rect.height) * 100;
+
+      if (data.type === 'OPPONENT') {
+        const newOpp = { top: topPct, left: leftPct, num: data.num };
+        oppData[activeOppTab].opponentNodes.push(newOpp);
+        createOpponentNode(topPct, leftPct, data.num, oppData[activeOppTab].opponentNodes.length - 1);
+      } else if (data.type === 'BALL') {
+        oppData[activeOppTab].ballNode = { top: topPct, left: leftPct };
+        pitch.querySelectorAll('.ball-node').forEach(b => b.remove());
+        createBallNode(topPct, leftPct);
+      }
+    });
+
+    function updateUsedPlayersState() {
+      const activeArr = isOppositeMode ? oppData[activeOppTab].teamNodes : currentTeamNodes;
+      const activeIds = activeArr ? activeArr.map(n => n.playerId).filter(Boolean) : [];
+
+      document.querySelectorAll('.player-item').forEach(item => {
+        if (activeIds.includes(item.dataset.id)) {
+          item.classList.add('used');
+          item.draggable = false;
+        } else {
+          item.classList.remove('used');
+          item.draggable = true;
+        }
+      });
+    }
+
+    function renderRoster() {
+      const list = document.getElementById('playerList');
+      list.innerHTML = '';
+      roster.forEach((player, idx) => {
+        if (!player.id) player.id = 'p_' + Date.now() + '_' + idx;
+
+        const li = document.createElement('li');
+        li.className = `player-item role-${player.role}`;
+        li.dataset.id = player.id;
+        li.draggable = true;
+        li.innerHTML = `
+          <span><span class="num">${player.role} #${player.num}</span>${player.name}</span>
+          <button class="btn-del-player" onclick="deletePlayer('${player.id}')">✕</button>
+        `;
+
+        li.addEventListener('dragstart', (e) => {
+          if (li.classList.contains('used')) {
+            e.preventDefault();
+            return;
+          }
+          e.dataTransfer.setData('text/plain', JSON.stringify(player));
+        });
+
+        list.appendChild(li);
+      });
+      localStorage.setItem('teamRoster', JSON.stringify(roster));
+      updateUsedPlayersState();
+    }
+
+    document.getElementById('playerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById('pName');
+      const numInput = document.getElementById('pNum');
+      const roleInput = document.getElementById('pRole');
+
+      const newPlayer = {
+        id: 'p_' + Date.now(),
+        name: nameInput.value,
+        num: numInput.value,
+        role: roleInput.value
+      };
+
+      roster.push(newPlayer);
+      renderRoster();
+
+      nameInput.value = '';
+      numInput.value = '';
+    });
+
+    function deletePlayer(id) {
+      roster = roster.filter(p => p.id !== id);
+      renderRoster();
+    }
+
     function saveCurrentMatch() {
-      const date = document.getElementById("matchDate").value;
-      const opp = document.getElementById("opponentName").value.trim();
-      if (!date || !opp) {
-        alert("Inserisci data e nome dell'avversario per salvare!");
+      const date = document.getElementById('matchDate').value;
+      const opponent = document.getElementById('opponentName').value;
+
+      if (!date || !opponent) {
+        alert('Inserisci sia la Data che l\'Avversario per salvare!');
         return;
       }
 
-      const matchId = `${date}_${opp}`;
-      const pitchNodes = Array.from(document.querySelectorAll(".player-node")).map(node => {
-        return {
-          id: node.id,
-          className: node.className,
-          left: node.style.left,
-          top: node.style.top,
-          html: node.innerHTML
-        };
-      });
+      const isWhite = pitch.classList.contains('white-pitch');
+      const oppColor = document.getElementById('oppColorSelect').value;
 
-      const matchData = {
-        id: matchId,
-        date,
-        opp,
-        isOpponentView,
-        nodes: pitchNodes
+      const matchData = { 
+        id: Date.now(), 
+        date, 
+        opponent, 
+        nodes: currentTeamNodes,
+        oppData: oppData,
+        isWhite,
+        oppColor
       };
+      
+      const existingIdx = matchHistory.findIndex(m => m.date === date && m.opponent === opponent);
+      if (existingIdx >= 0) {
+        matchHistory[existingIdx] = matchData;
+      } else {
+        matchHistory.push(matchData);
+      }
 
-      let history = JSON.parse(localStorage.getItem("tactics_history")) || {};
-      history[matchId] = matchData;
-      localStorage.setItem("tactics_history", JSON.stringify(history));
-      updateHistoryDropdown();
-      alert("Partita salvata con successo!");
+      localStorage.setItem('matchHistory', JSON.stringify(matchHistory));
+      updateHistorySelect();
+      alert('Match salvato nello storico!');
     }
 
-    function updateHistoryDropdown() {
-      const select = document.getElementById("historySelect");
+    function copyCurrentMatch() {
+      const opponentInput = document.getElementById('opponentName');
+      if (!opponentInput.value) {
+        opponentInput.value = "Copia";
+      } else {
+        opponentInput.value += " (Copia)";
+      }
+      saveCurrentMatch();
+    }
+
+    function deleteCurrentMatch() {
+      const select = document.getElementById('historySelect');
+      const id = select.value;
+
+      if (!id) {
+        alert('Seleziona prima una partita dallo storico per poterla eliminare.');
+        return;
+      }
+
+      if (confirm('Sei sicuro di voler eliminare questa partita dallo storico?')) {
+        matchHistory = matchHistory.filter(m => m.id != id);
+        localStorage.setItem('matchHistory', JSON.stringify(matchHistory));
+        updateHistorySelect();
+        alert('Partita eliminata dallo storico!');
+      }
+    }
+
+    function updateHistorySelect() {
+      const select = document.getElementById('historySelect');
       select.innerHTML = '<option value="">-- Carica da Storico --</option>';
-      const history = JSON.parse(localStorage.getItem("tactics_history")) || {};
-      
-      Object.keys(history).forEach(key => {
-        const m = history[key];
-        const opt = document.createElement("option");
+      matchHistory.forEach(m => {
+        const opt = document.createElement('option');
         opt.value = m.id;
-        opt.textContent = `${m.date} vs ${m.opp}`;
+        opt.innerText = `${m.date} - vs ${m.opponent}`;
         select.appendChild(opt);
       });
     }
 
-    function loadMatchFromHistory(matchId) {
-      if (!matchId) return;
-      const history = JSON.parse(localStorage.getItem("tactics_history")) || {};
-      const match = history[matchId];
+    function loadMatchFromHistory(id) {
+      if (!id) return;
+      const match = matchHistory.find(m => m.id == id);
       if (!match) return;
 
-      document.getElementById("matchDate").value = match.date;
-      document.getElementById("opponentName").value = match.opp;
+      document.getElementById('matchDate').value = match.date;
+      document.getElementById('opponentName').value = match.opponent;
 
-      if (match.isOpponentView !== isOpponentView) {
-        toggleViewMode();
+      if (match.isWhite) {
+        pitch.classList.add('white-pitch');
+      } else {
+        pitch.classList.remove('white-pitch');
       }
 
-      const pitch = document.getElementById("pitch");
-      pitch.querySelectorAll(".player-node").forEach(n => n.remove());
-
-      match.nodes.forEach(nData => {
-        const node = document.createElement("div");
-        node.id = nData.id;
-        node.className = nData.className;
-        node.style.left = nData.left;
-        node.style.top = nData.top;
-        node.innerHTML = nData.html;
-        makeDraggable(node, pitch);
-        pitch.appendChild(node);
-      });
-    }
-
-    function copyCurrentMatch() {
-      document.getElementById("matchDate").value = "";
-      document.getElementById("opponentName").value = "";
-      document.getElementById("historySelect").value = "";
-      alert("Copia creata. Modifica la data/avversario e clicca 'SALVA'.");
-    }
-
-    function deleteCurrentMatch() {
-      const select = document.getElementById("historySelect");
-      const matchId = select.value;
-      if (!matchId) return;
-
-      if (confirm("Sei sicuro di voler eliminare questa partita dallo storico?")) {
-        let history = JSON.parse(localStorage.getItem("tactics_history")) || {};
-        delete history[matchId];
-        localStorage.setItem("tactics_history", JSON.stringify(history));
-        updateHistoryDropdown();
-        document.getElementById("matchDate").value = "";
-        document.getElementById("opponentName").value = "";
+      if (match.oppColor) {
+        document.getElementById('oppColorSelect').value = match.oppColor;
+        changeOpponentColor(match.oppColor);
       }
+
+      currentTeamNodes = match.nodes || [];
+
+      if (match.oppData) {
+        oppData = match.oppData;
+        if (!oppData.libera) {
+          oppData.libera = { teamNodes: [], opponentNodes: [], ballNode: null };
+        }
+      } else {
+        oppData = {
+          uomo: { teamNodes: match.oppositeNodes || [], opponentNodes: match.opponentNodes || [], ballNode: match.ballNode || null },
+          piuUno: { teamNodes: [], opponentNodes: [], ballNode: null },
+          reparto: { teamNodes: [], opponentNodes: [], ballNode: null },
+          libera: { teamNodes: [], opponentNodes: [], ballNode: null }
+        };
+      }
+
+      renderPitchState();
     }
+
+    renderRoster();
+    updateHistorySelect();
+    setFormation('4-3-3');
+    changeOpponentColor('celeste');
+    document.getElementById('matchDate').valueAsDate = new Date();
   </script>
 </body>
 </html>
