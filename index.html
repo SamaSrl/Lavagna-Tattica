@@ -16,7 +16,7 @@
       --text-main: #f1f5f9;
       --text-muted: #94a3b8;
       --pitch-bg: radial-gradient(circle at 50% 50%, #153e2b 0%, #0f2b1d 100%);
-      --pitch-lines: rgba(255, 255, 255, 0.7);
+      --pitch-lines: rgba(255, 255, 255, 0.8);
       --border-tech: rgba(255, 255, 255, 0.08);
 
       --role-p: #f1c40f;
@@ -218,7 +218,7 @@
       position: relative;
     }
 
-    /* VISTA MEZZO CAMPO (DEFAULT) */
+    /* CONTENITORE CAMPO */
     .pitch {
       width: 100%;
       max-width: 520px;
@@ -233,7 +233,6 @@
       transition: all 0.3s ease;
     }
 
-    /* VISTA CAMPO INTERO (PER CONTRAPPOSIZIONE) */
     .pitch.full-pitch {
       border-bottom: 2px solid var(--pitch-lines) !important;
       border-radius: 12px !important;
@@ -270,12 +269,13 @@
       box-shadow: 0 0 12px var(--accent-red-glow);
     }
 
-    /* PORTE E AREE DI RIGORE SUPERIORI ED INFERIORI */
+    /* TRACCIATI PROPORZIONATI E LUNETTA AREA DI RIGORE */
+    /* MEZZA VISTA: Altezza campo = 52.5m nominali */
     .goal-frame {
       position: absolute;
       top: -2px;
-      left: 40%;
-      width: 20%;
+      left: 38.8%;
+      width: 22.4%;
       height: 12px;
       border: 2px solid var(--pitch-lines);
       border-top: none;
@@ -283,16 +283,73 @@
       z-index: 5;
     }
 
-    .penalty-area { position: absolute; top: 0; left: 18%; width: 64%; height: 26%; border: 1px solid var(--pitch-lines); border-top: none; }
-    .goal-area { position: absolute; top: 0; left: 34%; width: 32%; height: 10%; border: 1px solid var(--pitch-lines); border-top: none; }
-    .center-circle { position: absolute; bottom: -70px; left: 50%; transform: translateX(-50%); width: 140px; height: 140px; border: 1px solid var(--pitch-lines); border-radius: 50%; }
+    /* Area Piccola: Proporzione reale FIFA (~10.5% altezza mezza / 5.2% intera) */
+    .penalty-area-small {
+      position: absolute;
+      top: 0;
+      left: 35.9%;
+      width: 28.2%;
+      height: 10.5%;
+      border: 1.5px solid var(--pitch-lines);
+      border-top: none;
+    }
 
-    /* RIFINITURE CAMPO INTERO */
+    /* Area Grande: Proporzione reale FIFA (~31.4% altezza mezza / 15.7% intera) */
+    .penalty-area-big {
+      position: absolute;
+      top: 0;
+      left: 18.9%;
+      width: 62.2%;
+      height: 31.4%;
+      border: 1.5px solid var(--pitch-lines);
+      border-top: none;
+    }
+
+    /* Dischetto Rigore (11m dal fondo) */
+    .penalty-spot {
+      position: absolute;
+      top: 20.9%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      background: var(--pitch-lines);
+      border-radius: 50%;
+    }
+
+    /* Lunetta dell'Area (Arco di 9.15m dal dischetto) */
+    .penalty-arc {
+      position: absolute;
+      top: 20.9%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 28.2%;
+      height: 0;
+      padding-bottom: 28.2%;
+      border: 1.5px solid var(--pitch-lines);
+      border-radius: 50%;
+      clip-path: inset(62% 0 0 0); /* Mostra solo l'arco che fuoriesce dall'area */
+    }
+
+    /* Cerchio di centrocampo */
+    .center-circle {
+      position: absolute;
+      bottom: -14.1%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 28.2%;
+      height: 0;
+      padding-bottom: 28.2%;
+      border: 1.5px solid var(--pitch-lines);
+      border-radius: 50%;
+    }
+
+    /* ELEMENTI PER CAMPO INTERO */
     .goal-frame-bottom {
       position: absolute;
       bottom: -2px;
-      left: 40%;
-      width: 20%;
+      left: 38.8%;
+      width: 22.4%;
       height: 12px;
       border: 2px solid var(--pitch-lines);
       border-bottom: none;
@@ -300,21 +357,84 @@
       z-index: 5;
       display: none;
     }
-    .penalty-area-bottom { position: absolute; bottom: 0; left: 18%; width: 64%; height: 26%; border: 1px solid var(--pitch-lines); border-bottom: none; display: none; }
-    .goal-area-bottom { position: absolute; bottom: 0; left: 34%; width: 32%; height: 10%; border: 1px solid var(--pitch-lines); border-bottom: none; display: none; }
-    .center-line { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: var(--pitch-lines); display: none; }
 
-    .pitch.full-pitch .goal-frame-bottom,
-    .pitch.full-pitch .penalty-area-bottom,
-    .pitch.full-pitch .goal-area-bottom,
-    .pitch.full-pitch .center-line {
-      display: block;
+    .penalty-area-small-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 35.9%;
+      width: 28.2%;
+      height: 5.25%;
+      border: 1.5px solid var(--pitch-lines);
+      border-bottom: none;
+      display: none;
     }
 
+    .penalty-area-big-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 18.9%;
+      width: 62.2%;
+      height: 15.7%;
+      border: 1.5px solid var(--pitch-lines);
+      border-bottom: none;
+      display: none;
+    }
+
+    .penalty-spot-bottom {
+      position: absolute;
+      bottom: 10.45%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      background: var(--pitch-lines);
+      border-radius: 50%;
+      display: none;
+    }
+
+    .penalty-arc-bottom {
+      position: absolute;
+      bottom: 10.45%;
+      left: 50%;
+      transform: translate(-50%, 50%);
+      width: 28.2%;
+      height: 0;
+      padding-bottom: 28.2%;
+      border: 1.5px solid var(--pitch-lines);
+      border-radius: 50%;
+      clip-path: inset(0 0 62% 0);
+      display: none;
+    }
+
+    .center-line {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 1.5px;
+      background: var(--pitch-lines);
+      display: none;
+    }
+
+    /* DATTILOGRAFIA E SCALE QUANDO CAMPO INTERO */
+    .pitch.full-pitch .penalty-area-small { height: 5.25%; }
+    .pitch.full-pitch .penalty-area-big { height: 15.7%; }
+    .pitch.full-pitch .penalty-spot { top: 10.45%; }
+    .pitch.full-pitch .penalty-arc { top: 10.45%; }
     .pitch.full-pitch .center-circle {
       top: 50%;
       bottom: auto;
       transform: translate(-50%, -50%);
+      clip-path: none;
+    }
+
+    .pitch.full-pitch .goal-frame-bottom,
+    .pitch.full-pitch .penalty-area-small-bottom,
+    .pitch.full-pitch .penalty-area-big-bottom,
+    .pitch.full-pitch .penalty-spot-bottom,
+    .pitch.full-pitch .penalty-arc-bottom,
+    .pitch.full-pitch .center-line {
+      display: block;
     }
 
     .pitch.white-pitch {
@@ -324,8 +444,8 @@
 
     /* PALLINI GIOCATORE */
     .player-node {
-      width: 42px;
-      height: 42px;
+      width: 38px;
+      height: 38px;
       background: radial-gradient(circle at 30% 30%, #ff4d6d, var(--accent-red));
       color: white;
       border: 2px solid rgba(255,255,255,0.9);
@@ -336,35 +456,32 @@
       justify-content: center;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
-      font-size: 15px;
+      font-size: 14px;
       cursor: grab;
       user-select: none;
       transform: translate(-50%, -50%);
       box-shadow: 0 4px 12px rgba(0,0,0,0.6);
       z-index: 10;
       touch-action: none;
-      transition: top 0.3s ease, left 0.3s ease, background 0.3s ease;
+      transition: top 0.2s ease, left 0.2s ease, background 0.3s ease;
     }
 
-    /* PALLINI ROSSONERI (METÀ ROSSO METÀ NERO) */
     .player-node.bicolor {
       background: linear-gradient(135deg, #ff002b 50%, #000000 50%) !important;
       color: #ffffff !important;
       border-color: #ffffff !important;
     }
 
-    /* PALLINI AVVERSARI (BLU) */
     .player-node.opponent-node {
       background: radial-gradient(circle at 30% 30%, #60a5fa, var(--accent-blue)) !important;
       color: #fff !important;
       border-color: #ffffff;
     }
 
-    /* PALLONE DA CALCIO */
     .player-node.ball-node {
       background: #ffffff !important;
       border: 2px solid #000 !important;
-      font-size: 20px;
+      font-size: 18px;
     }
 
     .player-node.drag-over {
@@ -377,14 +494,14 @@
 
     .player-label {
       position: absolute;
-      bottom: -20px;
+      bottom: -18px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.9);
       color: #fff;
       padding: 2px 6px;
       border-radius: 4px;
-      font-size: 11px;
+      font-size: 10px;
       white-space: nowrap;
       border: 1px solid var(--border-tech);
       font-family: 'Inter', sans-serif;
@@ -393,11 +510,11 @@
 
     .captain-badge {
       position: absolute;
-      top: -6px;
-      right: -6px;
+      top: -5px;
+      right: -5px;
       background: #f1c40f;
       color: #000;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 900;
       padding: 2px 4px;
       border-radius: 50%;
@@ -407,11 +524,7 @@
       pointer-events: none;
     }
 
-    .captain-drag-container {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
+    .captain-drag-container { display: flex; gap: 10px; margin-bottom: 10px; }
 
     .captain-item {
       padding: 6px 12px;
@@ -425,7 +538,6 @@
       border: 1px solid #fff;
     }
 
-    /* PANCHINA AVVERSARI (DA 1 A 11 + PALLONE) */
     .opponents-bench {
       display: flex;
       flex-wrap: wrap;
@@ -437,8 +549,8 @@
     }
 
     .opp-bench-item {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 30%, #60a5fa, var(--accent-blue));
       border: 2px solid #fff;
@@ -452,8 +564,8 @@
     }
 
     .ball-bench-item {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       background: #ffffff;
       border: 2px solid #000;
@@ -462,7 +574,7 @@
       justify-content: center;
       cursor: grab;
       user-select: none;
-      font-size: 18px;
+      font-size: 16px;
     }
 
     .add-player-form { display: flex; gap: 6px; }
@@ -504,11 +616,7 @@
       transition: all 0.2s ease;
     }
 
-    .player-item.used {
-      opacity: 0.3;
-      filter: grayscale(100%);
-      cursor: not-allowed;
-    }
+    .player-item.used { opacity: 0.3; filter: grayscale(100%); cursor: not-allowed; }
 
     .player-item .num {
       font-family: 'JetBrains Mono', monospace;
@@ -528,9 +636,7 @@
     .player-item.role-C { border-left: 4px solid var(--role-c); border-right: 4px solid var(--role-c); }
     .player-item.role-A { border-left: 4px solid var(--role-a); border-right: 4px solid var(--role-a); }
 
-    .btn-del-player {
-      background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px;
-    }
+    .btn-del-player { background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; }
     .btn-del-player:hover { color: var(--accent-red); }
 
     @media print {
@@ -595,7 +701,7 @@
         <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3 <span>►</span></button>
       </div>
 
-      <!-- PANNELLO AVVERSARI (DA 1 A 11 + PALLONE) -->
+      <!-- PANNELLO AVVERSARI -->
       <div id="opponentsMenu" style="display: none;">
         <div class="panel-header">Panchina Avversari</div>
         <div class="opponents-bench">
@@ -622,15 +728,21 @@
         <button class="btn-color-pitch" onclick="togglePitchBg()">🎨 SFONDO VERDE / BIANCO</button>
       </div>
       <div class="pitch" id="pitch">
+        <!-- PORTA E AREE SUPERIORI -->
         <div class="goal-frame"></div>
-        <div class="penalty-area"></div>
-        <div class="goal-area"></div>
+        <div class="penalty-area-small"></div>
+        <div class="penalty-area-big"></div>
+        <div class="penalty-spot"></div>
+        <div class="penalty-arc"></div>
+
         <div class="center-circle"></div>
-        
-        <!-- TRACCIATI PER CAMPO INTERO -->
+
+        <!-- LINEE PER CAMPO INTERO -->
         <div class="center-line"></div>
-        <div class="goal-area-bottom"></div>
-        <div class="penalty-area-bottom"></div>
+        <div class="penalty-arc-bottom"></div>
+        <div class="penalty-spot-bottom"></div>
+        <div class="penalty-area-big-bottom"></div>
+        <div class="penalty-area-small-bottom"></div>
         <div class="goal-frame-bottom"></div>
       </div>
     </main>
@@ -665,7 +777,6 @@
     let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
     let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
 
-    // VETTORI DISTINTI PER FORMAZIONE E CONTRAPPOSIZIONE
     let currentTeamNodes = []; 
     let currentOppositeNodes = []; 
     let currentOpponentNodes = [];
@@ -680,6 +791,7 @@
       'A': 'var(--role-a)'
     };
 
+    // MODULI CON COORDINATE PERCENTUALI ESATTE RISPETTO A 1 METÀ CAMPO (0% fondo, 100% centrocampo)
     const formations = {
       '4-3-3': [
         {top: 10, left: 50},
@@ -718,7 +830,6 @@
       pitch.classList.toggle('white-pitch');
     }
 
-    /* CAMBIO TRA FORMAZIONE E CONTRAPPOSIZIONE */
     function toggleViewMode() {
       isOppositeMode = !isOppositeMode;
       const btnText = document.getElementById('navBtnText');
@@ -740,11 +851,11 @@
       renderPitchState();
     }
 
-    /* CALCOLA E RIBALTA I NODI DELLA SQUADRA SULLA METÀ CAMPO INFERIORE (CONTRAPPOSIZIONE) */
+    /* Mantiene le proporzioni perfette trasferendo la formazione al campo intero */
     function syncOppositeNodes() {
       currentOppositeNodes = currentTeamNodes.map(p => ({
-        top: 100 - (p.top * 0.45), // Calcola la posizione ribaltata in basso
-        left: 100 - p.left,
+        top: 100 - (p.top * 0.5), // scala del 50% per stare esattamente nella metà inferiore
+        left: 100 - p.left,       // ribalta lato sinistro/destro per specchiare il campo
         num: p.num,
         name: p.name,
         role: p.role,
@@ -770,27 +881,22 @@
       renderPitchState();
     }
 
-    /* RENDERING DEL CAMPO */
     function renderPitchState() {
       pitch.querySelectorAll('.player-node').forEach(node => node.remove());
 
       if (!isOppositeMode) {
-        // VISTA FORMAZIONE
         currentTeamNodes.forEach((p, idx) => {
           createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx, false);
         });
       } else {
-        // VISTA CONTRAPPOSIZIONE (TITOLARI ROSSONERI RIBALTATI)
         currentOppositeNodes.forEach((p, idx) => {
           createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx, true);
         });
 
-        // AVVERSARI
         currentOpponentNodes.forEach((p, idx) => {
           createOpponentNode(p.top, p.left, p.num, idx);
         });
 
-        // PALLONE
         if (currentBallNode) {
           createBallNode(currentBallNode.top, currentBallNode.left);
         }
@@ -799,7 +905,6 @@
       updateUsedPlayersState();
     }
 
-    /* NODO GIOCATORE TITOLARE */
     function createPlayerNode(top, left, num = '', name = '', role = '', capt = '', playerId = '', index = 0, isOpposite = false) {
       const node = document.createElement('div');
       node.className = 'player-node';
@@ -807,7 +912,7 @@
       node.style.left = left + '%';
 
       if (isOpposite) {
-        node.classList.add('bicolor'); // ROSSONERO
+        node.classList.add('bicolor');
       } else {
         if (role && roleColors[role]) {
           node.style.background = roleColors[role];
@@ -891,7 +996,6 @@
       pitch.appendChild(node);
     }
 
-    /* NODO GIOCATORE AVVERSARIO */
     function createOpponentNode(top, left, num, index) {
       const node = document.createElement('div');
       node.className = 'player-node opponent-node';
@@ -911,7 +1015,6 @@
       pitch.appendChild(node);
     }
 
-    /* NODO PALLONE DA CALCIO */
     function createBallNode(top, left) {
       const node = document.createElement('div');
       node.className = 'player-node ball-node';
@@ -938,8 +1041,8 @@
 
         let x = clientX - rect.left;
         let y = clientY - rect.top;
-        x = Math.max(21, Math.min(x, rect.width - 21));
-        y = Math.max(21, Math.min(y, rect.height - 21));
+        x = Math.max(19, Math.min(x, rect.width - 19));
+        y = Math.max(19, Math.min(y, rect.height - 19));
 
         const topPct = (y / rect.height) * 100;
         const leftPct = (x / rect.width) * 100;
@@ -1061,7 +1164,6 @@
       renderRoster();
     }
 
-    /* SALVA FORMAZIONE */
     function saveCurrentMatch() {
       const date = document.getElementById('matchDate').value;
       const opponent = document.getElementById('opponentName').value;
@@ -1096,7 +1198,6 @@
       alert('Match salvato nello storico!');
     }
 
-    /* COPIA / DUPLICA FORMAZIONE */
     function copyCurrentMatch() {
       const opponentInput = document.getElementById('opponentName');
       if (!opponentInput.value) {
