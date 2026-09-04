@@ -842,37 +842,33 @@
   <script>
     const ballSvgContent = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- Riflesso per dare un minimo di volume alla pedina -->
     <radialGradient id="ballShine" cx="35%" cy="30%" r="75%">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
       <stop offset="45%" stop-color="#ffffff" stop-opacity="0"/>
       <stop offset="100%" stop-color="#000000" stop-opacity="0.12"/>
     </radialGradient>
 
-    <!-- Un pentagono esterno + la cucitura che lo lega al centro: si ripete 5 volte -->
     <g id="ballUnit">
       <line x1="50" y1="35" x2="50" y2="29" stroke="#000000" stroke-width="2.4" stroke-linecap="round"/>
       <polygon points="50,29 37.64,20.02 42.36,5.48 57.64,5.48 62.36,20.02" fill="#000000"/>
     </g>
   </defs>
 
-  <!-- Bordo esterno -->
-  <circle cx="50" cy="50" r="48" fill="#000000"/>
-  <!-- Faccia bianca -->
-  <circle cx="50" cy="50" r="46" fill="#ffffff"/>
+  <!-- Tutto il pallone è qui dentro: cambia solo "0.5" per rimpicciolirlo o ingrandirlo -->
+  <g transform="scale(0.5)" transform-origin="50 50">
+    <circle cx="50" cy="50" r="48" fill="#000000"/>
+    <circle cx="50" cy="50" r="46" fill="#ffffff"/>
 
-  <!-- Pentagono centrale -->
-  <polygon points="50,35 64.27,45.36 58.82,62.14 41.18,62.14 35.73,45.36" fill="#000000"/>
+    <polygon points="50,35 64.27,45.36 58.82,62.14 41.18,62.14 35.73,45.36" fill="#000000"/>
 
-  <!-- 5 copie ruotate di 72°: garantiscono la simmetria perfetta -->
-  <use href="#ballUnit" transform="rotate(0 50 50)"/>
-  <use href="#ballUnit" transform="rotate(72 50 50)"/>
-  <use href="#ballUnit" transform="rotate(144 50 50)"/>
-  <use href="#ballUnit" transform="rotate(216 50 50)"/>
-  <use href="#ballUnit" transform="rotate(288 50 50)"/>
+    <use href="#ballUnit" transform="rotate(0 50 50)"/>
+    <use href="#ballUnit" transform="rotate(72 50 50)"/>
+    <use href="#ballUnit" transform="rotate(144 50 50)"/>
+    <use href="#ballUnit" transform="rotate(216 50 50)"/>
+    <use href="#ballUnit" transform="rotate(288 50 50)"/>
 
-  <!-- Effetto sferico -->
-  <circle cx="50" cy="50" r="46" fill="url(#ballShine)"/>
+    <circle cx="50" cy="50" r="46" fill="url(#ballShine)"/>
+  </g>
 </svg>`;
     document.getElementById('ballBenchContainer').innerHTML = ballSvgContent;
 
