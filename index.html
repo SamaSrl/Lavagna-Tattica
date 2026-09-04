@@ -85,7 +85,7 @@
     .match-panel {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       background: rgba(255, 255, 255, 0.03);
       padding: 6px 12px;
       border-radius: 10px;
@@ -101,28 +101,30 @@
       font-size: 12px;
     }
 
-    .match-panel input[type="text"] { width: 140px; }
+    .match-panel input[type="text"] { width: 130px; }
     .match-panel input:focus, .match-panel select:focus { border-color: var(--accent-red); outline: none; }
 
-    .btn-save-match {
+    .btn-save-match, .btn-copy-match {
       background: var(--accent-red);
       color: white;
       border: none;
-      padding: 6px 12px;
+      padding: 6px 10px;
       border-radius: 6px;
       font-weight: 700;
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
       box-shadow: 0 0 8px var(--accent-red-glow);
       transition: 0.2s;
     }
+    .btn-copy-match { background: #d97706; box-shadow: none; }
     .btn-save-match:hover { background: #ff4d6d; }
+    .btn-copy-match:hover { background: #f59e0b; }
 
     .btn-delete-match {
       background: #333;
       color: #ff4d6d;
       border: 1px solid #ff4d6d;
-      padding: 6px 10px;
+      padding: 6px 8px;
       border-radius: 6px;
       font-weight: 700;
       font-size: 12px;
@@ -161,7 +163,6 @@
       justify-content: space-between;
     }
 
-    /* PULSANTE NAVIGAZIONE VISTE */
     .btn-nav-mode {
       width: 100%;
       padding: 10px;
@@ -217,6 +218,7 @@
       position: relative;
     }
 
+    /* VISTA MEZZO CAMPO (DEFAULT) */
     .pitch {
       width: 100%;
       max-width: 520px;
@@ -228,7 +230,13 @@
       position: relative;
       overflow: hidden;
       box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
+    }
+
+    /* VISTA CAMPO INTERO (PER CONTRAPPOSIZIONE) */
+    .pitch.full-pitch {
+      border-bottom: 2px solid var(--pitch-lines) !important;
+      border-radius: 12px !important;
     }
 
     .pitch-controls {
@@ -262,6 +270,7 @@
       box-shadow: 0 0 12px var(--accent-red-glow);
     }
 
+    /* PORTE E AREE DI RIGORE SUPERIORI ED INFERIORI */
     .goal-frame {
       position: absolute;
       top: -2px;
@@ -278,11 +287,42 @@
     .goal-area { position: absolute; top: 0; left: 34%; width: 32%; height: 10%; border: 1px solid var(--pitch-lines); border-top: none; }
     .center-circle { position: absolute; bottom: -70px; left: 50%; transform: translateX(-50%); width: 140px; height: 140px; border: 1px solid var(--pitch-lines); border-radius: 50%; }
 
+    /* RIFINITURE CAMPO INTERO */
+    .goal-frame-bottom {
+      position: absolute;
+      bottom: -2px;
+      left: 40%;
+      width: 20%;
+      height: 12px;
+      border: 2px solid var(--pitch-lines);
+      border-bottom: none;
+      background: rgba(255, 255, 255, 0.15);
+      z-index: 5;
+      display: none;
+    }
+    .penalty-area-bottom { position: absolute; bottom: 0; left: 18%; width: 64%; height: 26%; border: 1px solid var(--pitch-lines); border-bottom: none; display: none; }
+    .goal-area-bottom { position: absolute; bottom: 0; left: 34%; width: 32%; height: 10%; border: 1px solid var(--pitch-lines); border-bottom: none; display: none; }
+    .center-line { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: var(--pitch-lines); display: none; }
+
+    .pitch.full-pitch .goal-frame-bottom,
+    .pitch.full-pitch .penalty-area-bottom,
+    .pitch.full-pitch .goal-area-bottom,
+    .pitch.full-pitch .center-line {
+      display: block;
+    }
+
+    .pitch.full-pitch .center-circle {
+      top: 50%;
+      bottom: auto;
+      transform: translate(-50%, -50%);
+    }
+
     .pitch.white-pitch {
       background: #ffffff !important;
       --pitch-lines: #111111;
     }
 
+    /* PALLINI GIOCATORE */
     .player-node {
       width: 42px;
       height: 42px;
@@ -303,13 +343,14 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.6);
       z-index: 10;
       touch-action: none;
-      transition: top 0.4s ease, left 0.4s ease, background 0.3s ease;
+      transition: top 0.3s ease, left 0.3s ease, background 0.3s ease;
     }
 
-    /* STILE BICOLORE PER CONTRAPPOSIZIONE (METÀ ROSSO METÀ BIANCO) */
+    /* PALLINI ROSSONERI (METÀ ROSSO METÀ NERO) */
     .player-node.bicolor {
-      background: linear-gradient(135deg, var(--accent-red) 50%, #ffffff 50%) !important;
-      color: #000 !important;
+      background: linear-gradient(135deg, #ff002b 50%, #000000 50%) !important;
+      color: #ffffff !important;
+      border-color: #ffffff !important;
     }
 
     /* PALLINI AVVERSARI (BLU) */
@@ -384,11 +425,11 @@
       border: 1px solid #fff;
     }
 
-    /* RAGGRUPPAMENTO PANCHINA AVVERSARI */
+    /* PANCHINA AVVERSARI (DA 1 A 11 + PALLONE) */
     .opponents-bench {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       background: rgba(0,0,0,0.3);
       padding: 10px;
       border-radius: 8px;
@@ -396,8 +437,8 @@
     }
 
     .opp-bench-item {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 30%, #60a5fa, var(--accent-blue));
       border: 2px solid #fff;
@@ -411,8 +452,8 @@
     }
 
     .ball-bench-item {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       background: #ffffff;
       border: 2px solid #000;
@@ -493,98 +534,25 @@
     .btn-del-player:hover { color: var(--accent-red); }
 
     @media print {
-      @page {
-        size: A4 portrait;
-        margin: 5mm;
-      }
-
-      * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
-
-      body {
-        background: white !important;
-        color: black !important;
-        height: 100vh !important;
-        overflow: hidden !important;
-      }
-
-      .sidebar-left, 
-      .sidebar-right, 
-      .pitch-controls, 
-      #historySelect, 
-      .btn-save-match, 
-      .btn-delete-match,
-      .brand-titles span { 
-        display: none !important; 
-      }
-
-      header {
-        background: white !important;
-        color: black !important;
-        border-bottom: 2px solid #000 !important;
-        box-shadow: none !important;
-        padding: 5px 0 !important;
-      }
-
-      .logo-frame {
-        border: 1px solid #000 !important;
-        box-shadow: none !important;
-      }
-
-      .brand-titles h1 {
-        -webkit-text-fill-color: black !important;
-        font-size: 22px !important;
-      }
-
-      .match-panel {
-        background: none !important;
-        border: none !important;
-        padding: 0 !important;
-      }
-
-      .match-panel input {
-        background: none !important;
-        border: none !important;
-        color: black !important;
-        font-size: 16px !important;
-        font-weight: bold !important;
-        padding: 0 !important;
-      }
-
-      .main-container {
-        padding: 10px 0 0 0 !important;
-        justify-content: center !important;
-        height: 90vh !important;
-      }
-
-      .pitch-container {
-        background: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-      }
-
-      .pitch {
-        width: 100% !important;
-        max-width: 680px !important;
-        height: 95% !important;
-        border: 3px solid var(--pitch-lines) !important;
-        box-shadow: none !important;
-      }
-
-      .player-label {
-        background: #000000 !important;
-        color: #ffffff !important;
-        border: 1px solid #ffffff !important;
-      }
+      @page { size: A4 portrait; margin: 5mm; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body { background: white !important; color: black !important; height: 100vh !important; overflow: hidden !important; }
+      .sidebar-left, .sidebar-right, .pitch-controls, #historySelect, .btn-save-match, .btn-copy-match, .btn-delete-match, .brand-titles span { display: none !important; }
+      header { background: white !important; color: black !important; border-bottom: 2px solid #000 !important; box-shadow: none !important; padding: 5px 0 !important; }
+      .logo-frame { border: 1px solid #000 !important; box-shadow: none !important; }
+      .brand-titles h1 { -webkit-text-fill-color: black !important; font-size: 22px !important; }
+      .match-panel { background: none !important; border: none !important; padding: 0 !important; }
+      .match-panel input { background: none !important; border: none !important; color: black !important; font-size: 16px !important; font-weight: bold !important; padding: 0 !important; }
+      .main-container { padding: 10px 0 0 0 !important; justify-content: center !important; height: 90vh !important; }
+      .pitch-container { background: none !important; box-shadow: none !important; padding: 0 !important; width: 100% !important; height: 100% !important; }
+      .pitch { width: 100% !important; max-width: 680px !important; height: 95% !important; border: 3px solid var(--pitch-lines) !important; box-shadow: none !important; }
+      .player-label { background: #000000 !important; color: #ffffff !important; border: 1px solid #ffffff !important; }
     }
   </style>
 </head>
 <body>
 
+  <!-- HEADER -->
   <header>
     <div class="header-brand">
       <div class="logo-frame">
@@ -596,24 +564,28 @@
       </div>
     </div>
 
+    <!-- MATCH & STORICO -->
     <div class="match-panel">
       <select id="historySelect" onchange="loadMatchFromHistory(this.value)">
         <option value="">-- Carica da Storico --</option>
       </select>
       <input type="date" id="matchDate">
       <input type="text" id="opponentName" placeholder="Avversario...">
-      <button class="btn-save-match" onclick="saveCurrentMatch()">SALVA MATCH</button>
-      <button class="btn-delete-match" onclick="deleteCurrentMatch()" title="Elimina partita dallo storico">🗑️</button>
+      <button class="btn-save-match" onclick="saveCurrentMatch()">SALVA</button>
+      <button class="btn-copy-match" onclick="copyCurrentMatch()" title="Copia come nuova formazione">COPIA</button>
+      <button class="btn-delete-match" onclick="deleteCurrentMatch()" title="Elimina dallo storico">🗑️</button>
     </div>
   </header>
 
   <div class="main-container">
 
+    <!-- BARRA LATERALE SINISTRA -->
     <aside class="sidebar-left">
       <button class="btn-nav-mode" id="btnToggleMode" onclick="toggleViewMode()">
         <span id="navBtnText">Contrapposizione</span> ➔
       </button>
 
+      <!-- PANNELLO MODULI -->
       <div id="formationMenu">
         <div class="panel-header">Moduli</div>
         <button class="formation-btn" onclick="setFormation('4-3-3')">4 - 3 - 3 <span>►</span></button>
@@ -623,6 +595,7 @@
         <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3 <span>►</span></button>
       </div>
 
+      <!-- PANNELLO AVVERSARI (DA 1 A 11 + PALLONE) -->
       <div id="opponentsMenu" style="display: none;">
         <div class="panel-header">Panchina Avversari</div>
         <div class="opponents-bench">
@@ -636,11 +609,13 @@
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '8')">8</div>
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '9')">9</div>
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '10')">10</div>
+          <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '11')">11</div>
           <div class="ball-bench-item" draggable="true" ondragstart="handleBallDrag(event)">⚽</div>
         </div>
       </div>
     </aside>
 
+    <!-- AREA CAMPO DA GIOCO -->
     <main class="pitch-container" id="pitchContainer">
       <div class="pitch-controls">
         <button class="btn-print" onclick="window.print()">🖨️ STAMPA / PDF</button>
@@ -651,9 +626,16 @@
         <div class="penalty-area"></div>
         <div class="goal-area"></div>
         <div class="center-circle"></div>
+        
+        <!-- TRACCIATI PER CAMPO INTERO -->
+        <div class="center-line"></div>
+        <div class="goal-area-bottom"></div>
+        <div class="penalty-area-bottom"></div>
+        <div class="goal-frame-bottom"></div>
       </div>
     </main>
 
+    <!-- ROSTER GIOCATORI -->
     <aside class="sidebar-right">
       <div class="panel-header">Gradi & Ruoli</div>
       <div class="captain-drag-container">
@@ -683,9 +665,12 @@
     let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
     let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
 
-    // STATO CORRENTE DEL VETTORE POSIZIONI GIOCATORI DELLA SQUADRA
+    // VETTORI DISTINTI PER FORMAZIONE E CONTRAPPOSIZIONE
     let currentTeamNodes = []; 
-    let currentFormationKey = '4-3-3';
+    let currentOppositeNodes = []; 
+    let currentOpponentNodes = [];
+    let currentBallNode = null;
+
     let isOppositeMode = false;
 
     const roleColors = {
@@ -733,7 +718,7 @@
       pitch.classList.toggle('white-pitch');
     }
 
-    /* GESTIONE CAMBIO VISTA (FORMAZIONE <-> CONTRAPPOSIZIONE) */
+    /* CAMBIO TRA FORMAZIONE E CONTRAPPOSIZIONE */
     function toggleViewMode() {
       isOppositeMode = !isOppositeMode;
       const btnText = document.getElementById('navBtnText');
@@ -744,16 +729,31 @@
         btnText.innerText = '◄ Formazione';
         formMenu.style.display = 'none';
         oppMenu.style.display = 'block';
+        pitch.classList.add('full-pitch');
+        syncOppositeNodes();
       } else {
         btnText.innerText = 'Contrapposizione';
         formMenu.style.display = 'block';
         oppMenu.style.display = 'none';
+        pitch.classList.remove('full-pitch');
       }
       renderPitchState();
     }
 
+    /* CALCOLA E RIBALTA I NODI DELLA SQUADRA SULLA METÀ CAMPO INFERIORE (CONTRAPPOSIZIONE) */
+    function syncOppositeNodes() {
+      currentOppositeNodes = currentTeamNodes.map(p => ({
+        top: 100 - (p.top * 0.45), // Calcola la posizione ribaltata in basso
+        left: 100 - p.left,
+        num: p.num,
+        name: p.name,
+        role: p.role,
+        capt: p.capt,
+        playerId: p.playerId
+      }));
+    }
+
     function setFormation(fmt) {
-      currentFormationKey = fmt;
       const config = formations[fmt] || formations['4-3-3'];
       
       currentTeamNodes = config.map(pos => ({
@@ -766,49 +766,48 @@
         playerId: ''
       }));
 
+      if (isOppositeMode) syncOppositeNodes();
       renderPitchState();
     }
 
-    /* RENDERING SINCRONIZZATO DEL CAMPO IN BASE ALLA VISTA CORRENTE */
+    /* RENDERING DEL CAMPO */
     function renderPitchState() {
-      // Memorizza temporaneamente eventuali pallini avversari e pallone se presenti sul campo
-      const oppNodesData = Array.from(document.querySelectorAll('.player-node.opponent-node')).map(node => ({
-        top: parseFloat(node.style.top),
-        left: parseFloat(node.style.left),
-        num: node.querySelector('.player-num-span').innerText
-      }));
-
-      const ballNodeData = Array.from(document.querySelectorAll('.player-node.ball-node')).map(node => ({
-        top: parseFloat(node.style.top),
-        left: parseFloat(node.style.left)
-      }));
-
       pitch.querySelectorAll('.player-node').forEach(node => node.remove());
 
-      // Renderizza i giocatori della propria squadra
-      currentTeamNodes.forEach((p, idx) => {
-        createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx);
-      });
+      if (!isOppositeMode) {
+        // VISTA FORMAZIONE
+        currentTeamNodes.forEach((p, idx) => {
+          createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx, false);
+        });
+      } else {
+        // VISTA CONTRAPPOSIZIONE (TITOLARI ROSSONERI RIBALTATI)
+        currentOppositeNodes.forEach((p, idx) => {
+          createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx, true);
+        });
 
-      // Ripristina o renderizza avversari e pallone in modalità contrapposizione
-      if (isOppositeMode) {
-        oppNodesData.forEach(p => createOpponentNode(p.top, p.left, p.num));
-        ballNodeData.forEach(p => createBallNode(p.top, p.left));
+        // AVVERSARI
+        currentOpponentNodes.forEach((p, idx) => {
+          createOpponentNode(p.top, p.left, p.num, idx);
+        });
+
+        // PALLONE
+        if (currentBallNode) {
+          createBallNode(currentBallNode.top, currentBallNode.left);
+        }
       }
 
       updateUsedPlayersState();
     }
 
-    /* CREAZIONE PALLINI SQUADRA TITOLARE */
-    function createPlayerNode(top, left, num = '', name = '', role = '', capt = '', playerId = '', index = 0) {
+    /* NODO GIOCATORE TITOLARE */
+    function createPlayerNode(top, left, num = '', name = '', role = '', capt = '', playerId = '', index = 0, isOpposite = false) {
       const node = document.createElement('div');
       node.className = 'player-node';
       node.style.top = top + '%';
       node.style.left = left + '%';
-      node.dataset.index = index;
 
-      if (isOppositeMode) {
-        node.classList.add('bicolor');
+      if (isOpposite) {
+        node.classList.add('bicolor'); // ROSSONERO
       } else {
         if (role && roleColors[role]) {
           node.style.background = roleColors[role];
@@ -836,9 +835,14 @@
 
       if (playerId) node.dataset.playerId = playerId;
 
-      attachDragEvents(node, (xPct, yPct) => {
-        currentTeamNodes[index].top = xPct;
-        currentTeamNodes[index].left = yPct;
+      attachDragEvents(node, (topPct, leftPct) => {
+        if (isOpposite) {
+          currentOppositeNodes[index].top = topPct;
+          currentOppositeNodes[index].left = leftPct;
+        } else {
+          currentTeamNodes[index].top = topPct;
+          currentTeamNodes[index].left = leftPct;
+        }
       });
 
       node.addEventListener('dragover', (e) => { e.preventDefault(); node.classList.add('drag-over'); });
@@ -859,7 +863,8 @@
             node.appendChild(badge);
           }
           badge.innerText = data.badge;
-          currentTeamNodes[index].capt = data.badge;
+          if (isOpposite) currentOppositeNodes[index].capt = data.badge;
+          else currentTeamNodes[index].capt = data.badge;
           return;
         }
 
@@ -867,18 +872,18 @@
         label.innerText = data.name;
         label.style.display = 'block';
 
-        if (!isOppositeMode && roleColors[data.role]) {
+        if (!isOpposite && roleColors[data.role]) {
           node.style.background = roleColors[data.role];
           node.style.color = '#000';
         }
 
         node.dataset.playerId = data.id;
 
-        // Aggiorna lo stato nel vettore di riferimento
-        currentTeamNodes[index].num = data.num;
-        currentTeamNodes[index].name = data.name;
-        currentTeamNodes[index].role = data.role;
-        currentTeamNodes[index].playerId = data.id;
+        const targetArr = isOpposite ? currentOppositeNodes : currentTeamNodes;
+        targetArr[index].num = data.num;
+        targetArr[index].name = data.name;
+        targetArr[index].role = data.role;
+        targetArr[index].playerId = data.id;
 
         updateUsedPlayersState();
       });
@@ -886,8 +891,8 @@
       pitch.appendChild(node);
     }
 
-    /* CREAZIONE PALLINI AVVERSARI (BLU) */
-    function createOpponentNode(top, left, num) {
+    /* NODO GIOCATORE AVVERSARIO */
+    function createOpponentNode(top, left, num, index) {
       const node = document.createElement('div');
       node.className = 'player-node opponent-node';
       node.style.top = top + '%';
@@ -898,11 +903,15 @@
       numSpan.innerText = num;
       node.appendChild(numSpan);
 
-      attachDragEvents(node);
+      attachDragEvents(node, (topPct, leftPct) => {
+        currentOpponentNodes[index].top = topPct;
+        currentOpponentNodes[index].left = leftPct;
+      });
+
       pitch.appendChild(node);
     }
 
-    /* CREAZIONE PALLONE DA CALCIO */
+    /* NODO PALLONE DA CALCIO */
     function createBallNode(top, left) {
       const node = document.createElement('div');
       node.className = 'player-node ball-node';
@@ -910,11 +919,13 @@
       node.style.left = left + '%';
       node.innerText = '⚽';
 
-      attachDragEvents(node);
+      attachDragEvents(node, (topPct, leftPct) => {
+        currentBallNode = { top: topPct, left: leftPct };
+      });
+
       pitch.appendChild(node);
     }
 
-    /* UTILITY PER RENDERE I ELEMENTI TRASCINABILI TRAMITE TOUCH/MOUSE */
     function attachDragEvents(node, onMoveCallback) {
       let isDragging = false;
       const startDrag = () => { isDragging = true; };
@@ -947,7 +958,6 @@
       document.addEventListener('touchend', stopDrag);
     }
 
-    /* TRASCINAMENTO ELEMENTI DALLA PANCHINA AVVERSARI SUL CAMPO */
     function handleOpponentDrag(e, num) {
       e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'OPPONENT', num: num }));
     }
@@ -960,10 +970,9 @@
       e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'CAPTAIN', badge: type }));
     }
 
-    /* RILASCIO AVVERSARIO O PALLONE DIRETTAMENTE SUL CAMPO */
     pitch.addEventListener('dragover', (e) => e.preventDefault());
     pitch.addEventListener('drop', (e) => {
-      if (e.target.classList.contains('player-node')) return; // Gestito dallo specifico nodo
+      if (e.target.classList.contains('player-node')) return;
       const rawData = e.dataTransfer.getData('text/plain');
       if (!rawData) return;
       
@@ -973,14 +982,19 @@
       const topPct = ((e.clientY - rect.top) / rect.height) * 100;
 
       if (data.type === 'OPPONENT') {
-        createOpponentNode(topPct, leftPct, data.num);
+        const newOpp = { top: topPct, left: leftPct, num: data.num };
+        currentOpponentNodes.push(newOpp);
+        createOpponentNode(topPct, leftPct, data.num, currentOpponentNodes.length - 1);
       } else if (data.type === 'BALL') {
+        currentBallNode = { top: topPct, left: leftPct };
+        pitch.querySelectorAll('.ball-node').forEach(b => b.remove());
         createBallNode(topPct, leftPct);
       }
     });
 
     function updateUsedPlayersState() {
-      const activeIds = currentTeamNodes.map(n => n.playerId).filter(Boolean);
+      const activeArr = isOppositeMode ? currentOppositeNodes : currentTeamNodes;
+      const activeIds = activeArr.map(n => n.playerId).filter(Boolean);
 
       document.querySelectorAll('.player-item').forEach(item => {
         if (activeIds.includes(item.dataset.id)) {
@@ -1047,6 +1061,7 @@
       renderRoster();
     }
 
+    /* SALVA FORMAZIONE */
     function saveCurrentMatch() {
       const date = document.getElementById('matchDate').value;
       const opponent = document.getElementById('opponentName').value;
@@ -1062,7 +1077,10 @@
         id: Date.now(), 
         date, 
         opponent, 
-        nodes: currentTeamNodes, 
+        nodes: currentTeamNodes,
+        oppositeNodes: currentOppositeNodes,
+        opponentNodes: currentOpponentNodes,
+        ballNode: currentBallNode,
         isWhite 
       };
       
@@ -1076,6 +1094,17 @@
       localStorage.setItem('matchHistory', JSON.stringify(matchHistory));
       updateHistorySelect();
       alert('Match salvato nello storico!');
+    }
+
+    /* COPIA / DUPLICA FORMAZIONE */
+    function copyCurrentMatch() {
+      const opponentInput = document.getElementById('opponentName');
+      if (!opponentInput.value) {
+        opponentInput.value = "Copia";
+      } else {
+        opponentInput.value += " (Copia)";
+      }
+      saveCurrentMatch();
     }
 
     function deleteCurrentMatch() {
@@ -1121,6 +1150,10 @@
       }
 
       currentTeamNodes = match.nodes || [];
+      currentOppositeNodes = match.oppositeNodes || [];
+      currentOpponentNodes = match.opponentNodes || [];
+      currentBallNode = match.ballNode || null;
+
       renderPitchState();
     }
 
