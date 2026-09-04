@@ -24,7 +24,6 @@
       --role-c: #3498db;
       --role-a: #e74c3c;
 
-      /* Colore di default per gli avversari (Celeste) */
       --opp-color-bg: radial-gradient(circle at 30% 30%, #60a5fa, #2563eb);
       --opp-color-text: #ffffff;
     }
@@ -210,6 +209,37 @@
       border-color: var(--accent-red);
     }
 
+    /* TABS PER CONTRAPPOSIZIONE */
+    .opp-tabs-container {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+      background: rgba(0,0,0,0.4);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border-tech);
+    }
+
+    .opp-tab-btn {
+      flex: 1;
+      padding: 6px 4px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+      text-align: center;
+    }
+
+    .opp-tab-btn.active {
+      background: var(--accent-red);
+      color: white;
+      font-weight: 700;
+    }
+
     .pitch-container {
       flex: 1;
       display: flex;
@@ -222,7 +252,6 @@
       position: relative;
     }
 
-    /* CONTENITORE CAMPO */
     .pitch {
       width: 100%;
       max-width: 520px;
@@ -273,7 +302,6 @@
       box-shadow: 0 0 12px var(--accent-red-glow);
     }
 
-    /* TRACCIATI PROPORZIONATI SENZA LUNETTA */
     .goal-frame {
       position: absolute;
       top: -2px;
@@ -329,7 +357,6 @@
       border-radius: 50%;
     }
 
-    /* ELEMENTI PER CAMPO INTERO */
     .goal-frame-bottom {
       position: absolute;
       bottom: -2px;
@@ -409,7 +436,6 @@
       --pitch-lines: #111111;
     }
 
-    /* PALLINI GIOCATORE */
     .player-node {
       width: 38px;
       height: 38px;
@@ -505,7 +531,6 @@
       border: 1px solid #fff;
     }
 
-    /* CONTROLLI AVVERSARIO */
     .opp-color-picker-container {
       margin-bottom: 10px;
       display: flex;
@@ -640,6 +665,8 @@
     .btn-del-player { background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; }
     .btn-del-player:hover { color: var(--accent-red); }
 
+    .print-title { display: none; }
+
     @media print {
       @page { size: A4 portrait; margin: 5mm; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -647,7 +674,8 @@
       .sidebar-left, .sidebar-right, .pitch-controls, #historySelect, .btn-save-match, .btn-copy-match, .btn-delete-match, .brand-titles span { display: none !important; }
       header { background: white !important; color: black !important; border-bottom: 2px solid #000 !important; box-shadow: none !important; padding: 5px 0 !important; }
       .logo-frame { border: 1px solid #000 !important; box-shadow: none !important; }
-      .brand-titles h1 { -webkit-text-fill-color: black !important; font-size: 22px !important; }
+      .brand-titles h1 { -webkit-text-fill-color: black !important; font-size: 20px !important; }
+      .print-title { display: block !important; font-size: 14px; font-weight: 800; text-transform: uppercase; margin-top: 4px; color: #000; }
       .match-panel { background: none !important; border: none !important; padding: 0 !important; }
       .match-panel input { background: none !important; border: none !important; color: black !important; font-size: 16px !important; font-weight: bold !important; padding: 0 !important; }
       .main-container { padding: 10px 0 0 0 !important; justify-content: center !important; height: 90vh !important; }
@@ -668,6 +696,7 @@
       <div class="brand-titles">
         <h1>TACTICAL LAB</h1>
         <span>Match Analysis Suite</span>
+        <div class="print-title" id="printSubTitle">Formazione Principale</div>
       </div>
     </div>
 
@@ -702,10 +731,19 @@
         <button class="formation-btn" onclick="setFormation('3-4-3')">3 - 4 - 3 <span>►</span></button>
       </div>
 
-      <!-- PANNELLO AVVERSARI -->
+      <!-- PANNELLO AVVERSARI E TAB CONTRAPPOSIZIONI -->
       <div id="opponentsMenu" style="display: none;">
-        <div class="panel-header">Panchina Avversari</div>
+        <div class="panel-header">Contrapposizioni</div>
         
+        <!-- SUB-TABS PER LE 3 CONTRAPPOSIZIONI -->
+        <div class="opp-tabs-container">
+          <button class="opp-tab-btn active" id="tab-uomo" onclick="switchOppTab('uomo')">Uomo su Uomo</button>
+          <button class="opp-tab-btn" id="tab-piuUno" onclick="switchOppTab('piuUno')">+1</button>
+          <button class="opp-tab-btn" id="tab-reparto" onclick="switchOppTab('reparto')">Reparto</button>
+        </div>
+
+        <div class="panel-header">Panchina Avversari</div>
+
         <!-- SELETTORE COLORE AVVERSARIO -->
         <div class="opp-color-picker-container">
           <label for="oppColorSelect">Colore Avversari:</label>
@@ -741,7 +779,6 @@
         <button class="btn-color-pitch" onclick="togglePitchBg()">🎨 SFONDO VERDE / BIANCO</button>
       </div>
       <div class="pitch" id="pitch">
-        <!-- PORTA E AREE SUPERIORI -->
         <div class="goal-frame"></div>
         <div class="penalty-area-small"></div>
         <div class="penalty-area-big"></div>
@@ -749,7 +786,6 @@
 
         <div class="center-circle"></div>
 
-        <!-- LINEE PER CAMPO INTERO -->
         <div class="center-line"></div>
         <div class="penalty-spot-bottom"></div>
         <div class="penalty-area-big-bottom"></div>
@@ -760,10 +796,12 @@
 
     <!-- ROSTER GIOCATORI -->
     <aside class="sidebar-right">
-      <div class="panel-header">Gradi & Ruoli</div>
-      <div class="captain-drag-container">
-        <div class="captain-item" draggable="true" ondragstart="handleCaptainDrag(event, 'C')">🎖️ CAP (C)</div>
-        <div class="captain-item" draggable="true" ondragstart="handleCaptainDrag(event, 'VC')">🎖️ VICE (VC)</div>
+      <div id="rolesPanelContainer">
+        <div class="panel-header">Gradi & Ruoli</div>
+        <div class="captain-drag-container">
+          <div class="captain-item" draggable="true" ondragstart="handleCaptainDrag(event, 'C')">🎖️ CAP (C)</div>
+          <div class="captain-item" draggable="true" ondragstart="handleCaptainDrag(event, 'VC')">🎖️ VICE (VC)</div>
+        </div>
       </div>
 
       <div class="panel-header">Rosa Giocatori</div>
@@ -789,9 +827,14 @@
     let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
 
     let currentTeamNodes = []; 
-    let currentOppositeNodes = []; 
-    let currentOpponentNodes = [];
-    let currentBallNode = null;
+    let activeOppTab = 'uomo'; // 'uomo', 'piuUno', 'reparto'
+
+    // Struttura dati per le 3 contrapposizioni indipendenti
+    let oppData = {
+      uomo: { teamNodes: [], opponentNodes: [], ballNode: null },
+      piuUno: { teamNodes: [], opponentNodes: [], ballNode: null },
+      reparto: { teamNodes: [], opponentNodes: [], ballNode: null }
+    };
 
     let isOppositeMode = false;
 
@@ -870,30 +913,63 @@
       const btnText = document.getElementById('navBtnText');
       const formMenu = document.getElementById('formationMenu');
       const oppMenu = document.getElementById('opponentsMenu');
+      const rolesPanel = document.getElementById('rolesPanelContainer');
 
       if (isOppositeMode) {
         btnText.innerText = '◄ Formazione';
         formMenu.style.display = 'none';
         oppMenu.style.display = 'block';
+        rolesPanel.style.display = 'none'; // Nasconde il pannello Cap/Vice
         pitch.classList.add('full-pitch');
-        syncOppositeNodes();
+        
+        // Se la contrapposizione corrente è vuota, la specchiamo dalla formazione base
+        ['uomo', 'piuUno', 'reparto'].forEach(tab => {
+          if (!oppData[tab].teamNodes || oppData[tab].teamNodes.length === 0) {
+            syncOppositeNodesForTab(tab);
+          }
+        });
+
       } else {
         btnText.innerText = 'Contrapposizione';
         formMenu.style.display = 'block';
         oppMenu.style.display = 'none';
+        rolesPanel.style.display = 'block';
         pitch.classList.remove('full-pitch');
       }
+      updatePrintTitle();
       renderPitchState();
     }
 
-    function syncOppositeNodes() {
-      currentOppositeNodes = currentTeamNodes.map(p => ({
+    function updatePrintTitle() {
+      const printTitle = document.getElementById('printSubTitle');
+      if (!isOppositeMode) {
+        printTitle.innerText = "Formazione Principale";
+      } else {
+        const labels = { 'uomo': 'Uomo su Uomo', 'piuUno': '+1', 'reparto': 'Reparto' };
+        printTitle.innerText = "Contrapposizione - " + labels[activeOppTab];
+      }
+    }
+
+    function switchOppTab(tabKey) {
+      activeOppTab = tabKey;
+      document.querySelectorAll('.opp-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${tabKey}`).classList.add('active');
+      
+      if (!oppData[activeOppTab].teamNodes || oppData[activeOppTab].teamNodes.length === 0) {
+        syncOppositeNodesForTab(activeOppTab);
+      }
+
+      updatePrintTitle();
+      renderPitchState();
+    }
+
+    function syncOppositeNodesForTab(tabKey) {
+      oppData[tabKey].teamNodes = currentTeamNodes.map(p => ({
         top: 100 - (p.top * 0.5),
         left: 100 - p.left,
         num: p.num,
         name: p.name,
         role: p.role,
-        capt: p.capt,
         playerId: p.playerId
       }));
     }
@@ -911,7 +987,11 @@
         playerId: ''
       }));
 
-      if (isOppositeMode) syncOppositeNodes();
+      // Resetta ed allinea tutte le contrapposizioni al cambio di modulo
+      ['uomo', 'piuUno', 'reparto'].forEach(tab => {
+        syncOppositeNodesForTab(tab);
+      });
+
       renderPitchState();
     }
 
@@ -923,16 +1003,18 @@
           createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx, false);
         });
       } else {
-        currentOppositeNodes.forEach((p, idx) => {
-          createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx, true);
+        const currentOpp = oppData[activeOppTab];
+
+        currentOpp.teamNodes.forEach((p, idx) => {
+          createPlayerNode(p.top, p.left, p.num, p.name, p.role, '', p.playerId, idx, true);
         });
 
-        currentOpponentNodes.forEach((p, idx) => {
+        currentOpp.opponentNodes.forEach((p, idx) => {
           createOpponentNode(p.top, p.left, p.num, idx);
         });
 
-        if (currentBallNode) {
-          createBallNode(currentBallNode.top, currentBallNode.left);
+        if (currentOpp.ballNode) {
+          createBallNode(currentOpp.ballNode.top, currentOpp.ballNode.left);
         }
       }
 
@@ -965,7 +1047,8 @@
       if (!name) label.style.display = 'none';
       node.appendChild(label);
 
-      if (capt) {
+      // Mostra Capitano e Vice SOLO se NON siamo in Contrapposizione
+      if (capt && !isOpposite) {
         const captDiv = document.createElement('div');
         captDiv.className = 'captain-badge';
         captDiv.innerText = capt;
@@ -976,8 +1059,8 @@
 
       attachDragEvents(node, (topPct, leftPct) => {
         if (isOpposite) {
-          currentOppositeNodes[index].top = topPct;
-          currentOppositeNodes[index].left = leftPct;
+          oppData[activeOppTab].teamNodes[index].top = topPct;
+          oppData[activeOppTab].teamNodes[index].left = leftPct;
         } else {
           currentTeamNodes[index].top = topPct;
           currentTeamNodes[index].left = leftPct;
@@ -994,7 +1077,10 @@
 
         const data = JSON.parse(rawData);
 
+        // Se siamo in contrapposizione, ignoriamo il drag&drop del Capitano/Vice
         if (data.type === 'CAPTAIN') {
+          if (isOpposite) return; 
+
           let badge = node.querySelector('.captain-badge');
           if (!badge) {
             badge = document.createElement('div');
@@ -1002,8 +1088,7 @@
             node.appendChild(badge);
           }
           badge.innerText = data.badge;
-          if (isOpposite) currentOppositeNodes[index].capt = data.badge;
-          else currentTeamNodes[index].capt = data.badge;
+          currentTeamNodes[index].capt = data.badge;
           return;
         }
 
@@ -1018,11 +1103,17 @@
 
         node.dataset.playerId = data.id;
 
-        const targetArr = isOpposite ? currentOppositeNodes : currentTeamNodes;
-        targetArr[index].num = data.num;
-        targetArr[index].name = data.name;
-        targetArr[index].role = data.role;
-        targetArr[index].playerId = data.id;
+        if (isOpposite) {
+          oppData[activeOppTab].teamNodes[index].num = data.num;
+          oppData[activeOppTab].teamNodes[index].name = data.name;
+          oppData[activeOppTab].teamNodes[index].role = data.role;
+          oppData[activeOppTab].teamNodes[index].playerId = data.id;
+        } else {
+          currentTeamNodes[index].num = data.num;
+          currentTeamNodes[index].name = data.name;
+          currentTeamNodes[index].role = data.role;
+          currentTeamNodes[index].playerId = data.id;
+        }
 
         updateUsedPlayersState();
       });
@@ -1042,8 +1133,8 @@
       node.appendChild(numSpan);
 
       attachDragEvents(node, (topPct, leftPct) => {
-        currentOpponentNodes[index].top = topPct;
-        currentOpponentNodes[index].left = leftPct;
+        oppData[activeOppTab].opponentNodes[index].top = topPct;
+        oppData[activeOppTab].opponentNodes[index].left = leftPct;
       });
 
       pitch.appendChild(node);
@@ -1057,7 +1148,7 @@
       node.innerText = '⚽';
 
       attachDragEvents(node, (topPct, leftPct) => {
-        currentBallNode = { top: topPct, left: leftPct };
+        oppData[activeOppTab].ballNode = { top: topPct, left: leftPct };
       });
 
       pitch.appendChild(node);
@@ -1120,18 +1211,18 @@
 
       if (data.type === 'OPPONENT') {
         const newOpp = { top: topPct, left: leftPct, num: data.num };
-        currentOpponentNodes.push(newOpp);
-        createOpponentNode(topPct, leftPct, data.num, currentOpponentNodes.length - 1);
+        oppData[activeOppTab].opponentNodes.push(newOpp);
+        createOpponentNode(topPct, leftPct, data.num, oppData[activeOppTab].opponentNodes.length - 1);
       } else if (data.type === 'BALL') {
-        currentBallNode = { top: topPct, left: leftPct };
+        oppData[activeOppTab].ballNode = { top: topPct, left: leftPct };
         pitch.querySelectorAll('.ball-node').forEach(b => b.remove());
         createBallNode(topPct, leftPct);
       }
     });
 
     function updateUsedPlayersState() {
-      const activeArr = isOppositeMode ? currentOppositeNodes : currentTeamNodes;
-      const activeIds = activeArr.map(n => n.playerId).filter(Boolean);
+      const activeArr = isOppositeMode ? oppData[activeOppTab].teamNodes : currentTeamNodes;
+      const activeIds = activeArr ? activeArr.map(n => n.playerId).filter(Boolean) : [];
 
       document.querySelectorAll('.player-item').forEach(item => {
         if (activeIds.includes(item.dataset.id)) {
@@ -1215,9 +1306,7 @@
         date, 
         opponent, 
         nodes: currentTeamNodes,
-        oppositeNodes: currentOppositeNodes,
-        opponentNodes: currentOpponentNodes,
-        ballNode: currentBallNode,
+        oppData: oppData, // Salva la struttura completa delle 3 contrapposizioni
         isWhite,
         oppColor
       };
@@ -1292,9 +1381,17 @@
       }
 
       currentTeamNodes = match.nodes || [];
-      currentOppositeNodes = match.oppositeNodes || [];
-      currentOpponentNodes = match.opponentNodes || [];
-      currentBallNode = match.ballNode || null;
+      
+      // Carica i dati salvati delle contrapposizioni (o gestisce la retrocompatibilità)
+      if (match.oppData) {
+        oppData = match.oppData;
+      } else {
+        oppData = {
+          uomo: { teamNodes: match.oppositeNodes || [], opponentNodes: match.opponentNodes || [], ballNode: match.ballNode || null },
+          piuUno: { teamNodes: [], opponentNodes: [], ballNode: null },
+          reparto: { teamNodes: [], opponentNodes: [], ballNode: null }
+        };
+      }
 
       renderPitchState();
     }
