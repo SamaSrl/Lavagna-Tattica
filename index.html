@@ -269,66 +269,51 @@
       box-shadow: 0 0 12px var(--accent-red-glow);
     }
 
-    /* TRACCIATI PROPORZIONATI E LUNETTA AREA DI RIGORE */
-    /* MEZZA VISTA: Altezza campo = 52.5m nominali */
+    /* TRACCIATI PROPORZIONATI SENZA LUNETTA */
     .goal-frame {
       position: absolute;
       top: -2px;
       left: 38.8%;
       width: 22.4%;
-      height: 12px;
+      height: 10px;
       border: 2px solid var(--pitch-lines);
       border-top: none;
       background: rgba(255, 255, 255, 0.15);
       z-index: 5;
     }
 
-    /* Area Piccola: Proporzione reale FIFA (~10.5% altezza mezza / 5.2% intera) */
+    /* Area Piccola: ~10% altezza mezza / 5% intera */
     .penalty-area-small {
       position: absolute;
       top: 0;
       left: 35.9%;
       width: 28.2%;
-      height: 10.5%;
+      height: 10.4%;
       border: 1.5px solid var(--pitch-lines);
       border-top: none;
     }
 
-    /* Area Grande: Proporzione reale FIFA (~31.4% altezza mezza / 15.7% intera) */
+    /* Area Grande Bassa e Proporzionata: ~31% altezza mezza / 15.7% intera */
     .penalty-area-big {
       position: absolute;
       top: 0;
       left: 18.9%;
       width: 62.2%;
-      height: 31.4%;
+      height: 31.2%;
       border: 1.5px solid var(--pitch-lines);
       border-top: none;
     }
 
-    /* Dischetto Rigore (11m dal fondo) */
+    /* Dischetto Rigore */
     .penalty-spot {
       position: absolute;
-      top: 20.9%;
+      top: 20.8%;
       left: 50%;
       transform: translateX(-50%);
       width: 4px;
       height: 4px;
       background: var(--pitch-lines);
       border-radius: 50%;
-    }
-
-    /* Lunetta dell'Area (Arco di 9.15m dal dischetto) */
-    .penalty-arc {
-      position: absolute;
-      top: 20.9%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 28.2%;
-      height: 0;
-      padding-bottom: 28.2%;
-      border: 1.5px solid var(--pitch-lines);
-      border-radius: 50%;
-      clip-path: inset(62% 0 0 0); /* Mostra solo l'arco che fuoriesce dall'area */
     }
 
     /* Cerchio di centrocampo */
@@ -350,7 +335,7 @@
       bottom: -2px;
       left: 38.8%;
       width: 22.4%;
-      height: 12px;
+      height: 10px;
       border: 2px solid var(--pitch-lines);
       border-bottom: none;
       background: rgba(255, 255, 255, 0.15);
@@ -363,7 +348,7 @@
       bottom: 0;
       left: 35.9%;
       width: 28.2%;
-      height: 5.25%;
+      height: 5.2%;
       border: 1.5px solid var(--pitch-lines);
       border-bottom: none;
       display: none;
@@ -374,7 +359,7 @@
       bottom: 0;
       left: 18.9%;
       width: 62.2%;
-      height: 15.7%;
+      height: 15.6%;
       border: 1.5px solid var(--pitch-lines);
       border-bottom: none;
       display: none;
@@ -382,27 +367,13 @@
 
     .penalty-spot-bottom {
       position: absolute;
-      bottom: 10.45%;
+      bottom: 10.4%;
       left: 50%;
       transform: translateX(-50%);
       width: 4px;
       height: 4px;
       background: var(--pitch-lines);
       border-radius: 50%;
-      display: none;
-    }
-
-    .penalty-arc-bottom {
-      position: absolute;
-      bottom: 10.45%;
-      left: 50%;
-      transform: translate(-50%, 50%);
-      width: 28.2%;
-      height: 0;
-      padding-bottom: 28.2%;
-      border: 1.5px solid var(--pitch-lines);
-      border-radius: 50%;
-      clip-path: inset(0 0 62% 0);
       display: none;
     }
 
@@ -416,23 +387,20 @@
       display: none;
     }
 
-    /* DATTILOGRAFIA E SCALE QUANDO CAMPO INTERO */
-    .pitch.full-pitch .penalty-area-small { height: 5.25%; }
-    .pitch.full-pitch .penalty-area-big { height: 15.7%; }
-    .pitch.full-pitch .penalty-spot { top: 10.45%; }
-    .pitch.full-pitch .penalty-arc { top: 10.45%; }
+    /* ADATTAMENTO SCALA CAMPO INTERO */
+    .pitch.full-pitch .penalty-area-small { height: 5.2%; }
+    .pitch.full-pitch .penalty-area-big { height: 15.6%; }
+    .pitch.full-pitch .penalty-spot { top: 10.4%; }
     .pitch.full-pitch .center-circle {
       top: 50%;
       bottom: auto;
       transform: translate(-50%, -50%);
-      clip-path: none;
     }
 
     .pitch.full-pitch .goal-frame-bottom,
     .pitch.full-pitch .penalty-area-small-bottom,
     .pitch.full-pitch .penalty-area-big-bottom,
     .pitch.full-pitch .penalty-spot-bottom,
-    .pitch.full-pitch .penalty-arc-bottom,
     .pitch.full-pitch .center-line {
       display: block;
     }
@@ -733,13 +701,11 @@
         <div class="penalty-area-small"></div>
         <div class="penalty-area-big"></div>
         <div class="penalty-spot"></div>
-        <div class="penalty-arc"></div>
 
         <div class="center-circle"></div>
 
         <!-- LINEE PER CAMPO INTERO -->
         <div class="center-line"></div>
-        <div class="penalty-arc-bottom"></div>
         <div class="penalty-spot-bottom"></div>
         <div class="penalty-area-big-bottom"></div>
         <div class="penalty-area-small-bottom"></div>
@@ -791,7 +757,6 @@
       'A': 'var(--role-a)'
     };
 
-    // MODULI CON COORDINATE PERCENTUALI ESATTE RISPETTO A 1 METÀ CAMPO (0% fondo, 100% centrocampo)
     const formations = {
       '4-3-3': [
         {top: 10, left: 50},
@@ -851,11 +816,10 @@
       renderPitchState();
     }
 
-    /* Mantiene le proporzioni perfette trasferendo la formazione al campo intero */
     function syncOppositeNodes() {
       currentOppositeNodes = currentTeamNodes.map(p => ({
-        top: 100 - (p.top * 0.5), // scala del 50% per stare esattamente nella metà inferiore
-        left: 100 - p.left,       // ribalta lato sinistro/destro per specchiare il campo
+        top: 100 - (p.top * 0.5),
+        left: 100 - p.left,
         num: p.num,
         name: p.name,
         role: p.role,
