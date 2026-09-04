@@ -841,20 +841,28 @@
 
   <script>
     const ballSvgContent = `
-      <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#000000" stroke-width="4"/>
-        <polygon points="50,25 65,36 59,54 41,54 35,36" fill="#000000"/>
-        <polygon points="50,2 38,11 44,25 56,25 62,11" fill="#000000"/>
-        <polygon points="2,38 11,50 25,44 25,32 11,26" fill="#000000"/>
-        <polygon points="98,38 89,50 75,44 75,32 89,26" fill="#000000"/>
-        <polygon points="25,75 37,89 50,98 63,89 75,75" fill="#000000"/>
-        <polygon points="50,25 35,36 25,32 25,18 38,11" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-        <polygon points="50,25 65,36 75,32 75,18 62,11" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-        <polygon points="65,36 59,54 75,60 85,50 75,32" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-        <polygon points="59,54 41,54 45,70 55,70" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-        <polygon points="41,54 35,36 25,32 15,50 25,60" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-      </svg>
-    `;
+  <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <!-- Bordo esterno e sfondo bianco -->
+    <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#000000" stroke-width="4"/>
+    
+    <!-- Pentagono centrale nero -->
+    <polygon points="50,38 61,46 57,59 43,59 39,46" fill="#000000"/>
+    
+    <!-- Linee nere radiali verso l'esterno -->
+    <line x1="50" y1="38" x2="50" y2="18" stroke="#000000" stroke-width="3"/>
+    <line x1="61" y1="46" x2="79" y2="39" stroke="#000000" stroke-width="3"/>
+    <line x1="57" y1="59" x2="71" y2="76" stroke="#000000" stroke-width="3"/>
+    <line x1="43" y1="59" x2="29" y2="76" stroke="#000000" stroke-width="3"/>
+    <line x1="39" y1="46" x2="21" y2="39" stroke="#000000" stroke-width="3"/>
+
+    <!-- Dettagli neri ai bordi (patch perimetrali) -->
+    <polygon points="41,18 59,18 50,4" fill="#000000"/>
+    <polygon points="79,39 88,24 94,42" fill="#000000"/>
+    <polygon points="71,76 88,71 77,88" fill="#000000"/>
+    <polygon points="29,76 23,88 12,71" fill="#000000"/>
+    <polygon points="21,39 6,42 12,24" fill="#000000"/>
+  </svg>
+`;
 
     document.getElementById('ballBenchContainer').innerHTML = ballSvgContent;
 
