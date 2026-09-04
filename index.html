@@ -26,8 +26,6 @@
 
       --opp-color-bg: radial-gradient(circle at 30% 30%, #60a5fa, #2563eb);
       --opp-color-text: #ffffff;
-
-      --ball-img-url: url('https://media.istockphoto.com/id/1328014521/photo/soccer-ball-isolated-on-white.jpg?s=612x612&w=0&k=20&c=6N9C7fD2GZlB1zO-1x5yR7h4ZpP5hZ5H3fX1_gXg8mQ=');
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -211,7 +209,6 @@
       border-color: var(--accent-red);
     }
 
-    /* TABS PER CONTRAPPOSIZIONE */
     .opp-tabs-container {
       display: flex;
       gap: 4px;
@@ -474,12 +471,18 @@
     }
 
     .player-node.ball-node {
-      background-image: var(--ball-img-url) !important;
-      background-size: cover !important;
-      background-position: center !important;
-      background-repeat: no-repeat !important;
+      background: transparent !important;
       border: none !important;
       box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+      border-radius: 50%;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .player-node.ball-node svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     .player-node.drag-over {
@@ -598,12 +601,16 @@
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      background-image: var(--ball-img-url);
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
       cursor: grab;
       user-select: none;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .ball-bench-item svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     .add-player-form { display: flex; gap: 6px; }
@@ -770,7 +777,7 @@
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '9')">9</div>
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '10')">10</div>
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '11')">11</div>
-          <div class="ball-bench-item" draggable="true" ondragstart="handleBallDrag(event)"></div>
+          <div class="ball-bench-item" draggable="true" ondragstart="handleBallDrag(event)" id="ballBenchContainer"></div>
         </div>
       </div>
     </aside>
@@ -825,12 +832,32 @@
   </div>
 
   <script>
+    const ballSvgContent = `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#111" stroke-width="2"/>
+        <polygon points="50,32 64,42 59,58 41,58 36,42" fill="#111111"/>
+        <polygon points="50,2 38,12 43,26 57,26 62,12" fill="#ffffff" stroke="#111" stroke-width="2"/>
+        <polygon points="50,32 36,42 22,34 26,18 43,26" fill="#ffffff" stroke="#111" stroke-width="2"/>
+        <polygon points="50,32 64,42 78,34 74,18 57,26" fill="#ffffff" stroke="#111" stroke-width="2"/>
+        <polygon points="64,42 59,58 74,68 86,56 78,34" fill="#ffffff" stroke="#111" stroke-width="2"/>
+        <polygon points="59,58 41,58 46,76 54,76" fill="#ffffff" stroke="#111" stroke-width="2"/>
+        <polygon points="41,58 36,42 22,34 14,56 26,68" fill="#ffffff" stroke="#111" stroke-width="2"/>
+        <polygon points="26,18 22,34 14,56 2,42 8,24" fill="#111111"/>
+        <polygon points="74,18 78,34 86,56 98,42 92,24" fill="#111111"/>
+        <polygon points="26,68 41,58 46,76 34,92 18,84" fill="#111111"/>
+        <polygon points="74,68 59,58 54,76 66,92 82,84" fill="#111111"/>
+        <polygon points="46,76 54,76 50,98" fill="#ffffff" stroke="#111" stroke-width="2"/>
+      </svg>
+    `;
+
+    document.getElementById('ballBenchContainer').innerHTML = ballSvgContent;
+
     const pitch = document.getElementById('pitch');
     let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
     let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
 
     let currentTeamNodes = []; 
-    let activeOppTab = 'uomo'; // 'uomo', 'piuUno', 'reparto'
+    let activeOppTab = 'uomo';
 
     let oppData = {
       uomo: { teamNodes: [], opponentNodes: [], ballNode: null },
@@ -848,22 +875,10 @@
     };
 
     const oppColorThemes = {
-      'celeste': {
-        bg: 'radial-gradient(circle at 30% 30%, #60a5fa, #2563eb)',
-        text: '#ffffff'
-      },
-      'giallo': {
-        bg: 'radial-gradient(circle at 30% 30%, #facc15, #eab308)',
-        text: '#000000'
-      },
-      'verde': {
-        bg: 'radial-gradient(circle at 30% 30%, #a3e635, #65a30d)',
-        text: '#000000'
-      },
-      'rosso': {
-        bg: 'radial-gradient(circle at 30% 30%, #f87171, #dc2626)',
-        text: '#ffffff'
-      }
+      'celeste': { bg: 'radial-gradient(circle at 30% 30%, #60a5fa, #2563eb)', text: '#ffffff' },
+      'giallo': { bg: 'radial-gradient(circle at 30% 30%, #facc15, #eab308)', text: '#000000' },
+      'verde': { bg: 'radial-gradient(circle at 30% 30%, #a3e635, #65a30d)', text: '#000000' },
+      'rosso': { bg: 'radial-gradient(circle at 30% 30%, #f87171, #dc2626)', text: '#ffffff' }
     };
 
     function changeOpponentColor(colorKey) {
@@ -1143,6 +1158,7 @@
       node.className = 'player-node ball-node';
       node.style.top = top + '%';
       node.style.left = left + '%';
+      node.innerHTML = ballSvgContent;
 
       attachDragEvents(node, (topPct, leftPct) => {
         oppData[activeOppTab].ballNode = { top: topPct, left: leftPct };
