@@ -221,11 +221,11 @@
 
     .opp-tab-btn {
       flex: 1;
-      padding: 6px 2px;
+      padding: 6px 4px;
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
@@ -470,6 +470,7 @@
       border-color: #ffffff;
     }
 
+    /* PEDINA DELLA PALLA RIMPICCILITA ALLA METÀ (19px) */
     .player-node.ball-node {
       width: 19px !important;
       height: 19px !important;
@@ -598,6 +599,7 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
+    /* PALLA NELLA PANCHINA RIDOTTA A 19px */
     .ball-bench-item {
       width: 19px;
       height: 19px;
@@ -749,7 +751,6 @@
           <button class="opp-tab-btn active" id="tab-uomo" onclick="switchOppTab('uomo')">Uomo su Uomo</button>
           <button class="opp-tab-btn" id="tab-piuUno" onclick="switchOppTab('piuUno')">+1</button>
           <button class="opp-tab-btn" id="tab-reparto" onclick="switchOppTab('reparto')">Reparto</button>
-          <button class="opp-tab-btn" id="tab-libera" onclick="switchOppTab('libera')">Libera</button>
         </div>
 
         <div class="panel-header">Panchina Avversari</div>
@@ -871,8 +872,7 @@ const ballSvgContent = `<svg viewBox="0 0 100 100" width="100%" height="100%" xm
     let oppData = {
       uomo: { teamNodes: [], opponentNodes: [], ballNode: null },
       piuUno: { teamNodes: [], opponentNodes: [], ballNode: null },
-      reparto: { teamNodes: [], opponentNodes: [], ballNode: null },
-      libera: { teamNodes: [], opponentNodes: [], ballNode: null }
+      reparto: { teamNodes: [], opponentNodes: [], ballNode: null }
     };
 
     let isOppositeMode = false;
@@ -949,7 +949,7 @@ const ballSvgContent = `<svg viewBox="0 0 100 100" width="100%" height="100%" xm
         rolesPanel.style.display = 'none';
         pitch.classList.add('full-pitch');
         
-        ['uomo', 'piuUno', 'reparto', 'libera'].forEach(tab => {
+        ['uomo', 'piuUno', 'reparto'].forEach(tab => {
           if (!oppData[tab].teamNodes || oppData[tab].teamNodes.length === 0) {
             syncOppositeNodesForTab(tab);
           }
@@ -971,7 +971,7 @@ const ballSvgContent = `<svg viewBox="0 0 100 100" width="100%" height="100%" xm
       if (!isOppositeMode) {
         printTitle.innerText = "Formazione Principale";
       } else {
-        const labels = { 'uomo': 'Uomo su Uomo', 'piuUno': '+1', 'reparto': 'Reparto', 'libera': 'Libera' };
+        const labels = { 'uomo': 'Uomo su Uomo', 'piuUno': '+1', 'reparto': 'Reparto' };
         printTitle.innerText = "Contrapposizione - " + labels[activeOppTab];
       }
     }
@@ -1013,7 +1013,7 @@ const ballSvgContent = `<svg viewBox="0 0 100 100" width="100%" height="100%" xm
         playerId: ''
       }));
 
-      ['uomo', 'piuUno', 'reparto', 'libera'].forEach(tab => {
+      ['uomo', 'piuUno', 'reparto'].forEach(tab => {
         syncOppositeNodesForTab(tab);
       });
 
@@ -1407,15 +1407,11 @@ const ballSvgContent = `<svg viewBox="0 0 100 100" width="100%" height="100%" xm
 
       if (match.oppData) {
         oppData = match.oppData;
-        if (!oppData.libera) {
-          oppData.libera = { teamNodes: [], opponentNodes: [], ballNode: null };
-        }
       } else {
         oppData = {
           uomo: { teamNodes: match.oppositeNodes || [], opponentNodes: match.opponentNodes || [], ballNode: match.ballNode || null },
           piuUno: { teamNodes: [], opponentNodes: [], ballNode: null },
-          reparto: { teamNodes: [], opponentNodes: [], ballNode: null },
-          libera: { teamNodes: [], opponentNodes: [], ballNode: null }
+          reparto: { teamNodes: [], opponentNodes: [], ballNode: null }
         };
       }
 
