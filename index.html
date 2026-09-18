@@ -149,12 +149,12 @@
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
     }
 
-    .sidebar-left { width: 270px; }
+    .sidebar-left { width: 280px; }
     .sidebar-right { width: 350px; gap: 12px; }
 
     .panel-header {
       font-family: 'Orbitron', sans-serif;
-      font-size: 12px;
+      font-size: 11px;
       letter-spacing: 1.5px;
       color: var(--text-muted);
       text-transform: uppercase;
@@ -187,8 +187,8 @@
 
     .formation-btn {
       width: 100%;
-      padding: 10px 14px;
-      margin-bottom: 8px;
+      padding: 9px 12px;
+      margin-bottom: 6px;
       background: rgba(255, 255, 255, 0.02);
       color: var(--text-main);
       border: 1px solid var(--border-tech);
@@ -196,7 +196,7 @@
       cursor: pointer;
       font-family: 'JetBrains Mono', monospace;
       font-weight: 500;
-      font-size: 13px;
+      font-size: 12px;
       text-align: left;
       display: flex;
       justify-content: space-between;
@@ -210,7 +210,8 @@
     }
 
     .opp-tabs-container {
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 4px;
       margin-bottom: 12px;
       background: rgba(0,0,0,0.4);
@@ -220,12 +221,11 @@
     }
 
     .opp-tab-btn {
-      flex: 1;
-      padding: 6px 4px;
+      padding: 6px 2px;
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
@@ -525,18 +525,29 @@
       pointer-events: none;
     }
 
-    .captain-drag-container { display: flex; gap: 10px; margin-bottom: 10px; }
+    .captain-drag-container { display: flex; gap: 8px; margin-bottom: 10px; }
 
     .captain-item {
-      padding: 6px 12px;
+      padding: 6px 10px;
       background: #f1c40f;
       color: #000;
       font-weight: 800;
-      font-size: 12px;
+      font-size: 11px;
       border-radius: 6px;
       cursor: grab;
       user-select: none;
       border: 1px solid #fff;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dblclick-hint {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: -6px;
+      margin-bottom: 10px;
+      font-style: italic;
     }
 
     .opp-color-picker-container {
@@ -731,8 +742,15 @@
         <span id="navBtnText">Contrapposizione</span> ➔
       </button>
 
-      <!-- PANNELLO MODULI -->
+      <!-- PANNELLO MODULI E COSTRUZIONE -->
       <div id="formationMenu">
+        <div class="panel-header">Schede Squadra</div>
+        <div class="opp-tabs-container" style="grid-template-columns: 1fr; margin-bottom: 8px;">
+          <button class="opp-tab-btn active" id="tab-main-base" onclick="switchMainTab('base')">Formazione Base</button>
+          <button class="opp-tab-btn" id="tab-main-costruzione1" onclick="switchMainTab('costruzione1')">Costruzione 1</button>
+          <button class="opp-tab-btn" id="tab-main-costruzione2" onclick="switchMainTab('costruzione2')">Costruzione 2</button>
+        </div>
+
         <div class="panel-header">Moduli</div>
         <button class="formation-btn" onclick="setFormation('4-3-3')">4 - 3 - 3 <span>►</span></button>
         <button class="formation-btn" onclick="setFormation('4-4-2')">4 - 4 - 2 <span>►</span></button>
@@ -746,10 +764,12 @@
         <div class="panel-header">Contrapposizioni</div>
         
         <div class="opp-tabs-container">
-          <button class="opp-tab-btn active" id="tab-uomo" onclick="switchOppTab('uomo')">Uomo su Uomo</button>
+          <button class="opp-tab-btn active" id="tab-uomo" onclick="switchOppTab('uomo')">Uomo/Uomo</button>
           <button class="opp-tab-btn" id="tab-piuUno" onclick="switchOppTab('piuUno')">+1</button>
           <button class="opp-tab-btn" id="tab-reparto" onclick="switchOppTab('reparto')">Reparto</button>
           <button class="opp-tab-btn" id="tab-libera" onclick="switchOppTab('libera')">Libera</button>
+          <button class="opp-tab-btn" id="tab-costruzione1" onclick="switchOppTab('costruzione1')">Costruzione 1</button>
+          <button class="opp-tab-btn" id="tab-costruzione2" onclick="switchOppTab('costruzione2')">Costruzione 2</button>
         </div>
 
         <div class="panel-header">Panchina Avversari</div>
@@ -811,6 +831,7 @@
           <div class="captain-item" draggable="true" ondragstart="handleCaptainDrag(event, 'C')">🎖️ CAP (C)</div>
           <div class="captain-item" draggable="true" ondragstart="handleCaptainDrag(event, 'VC')">🎖️ VICE (VC)</div>
         </div>
+        <div class="dblclick-hint">💡 Fai doppio click sulla pedina per togliere il ruolo (C/VC)</div>
       </div>
 
       <div class="panel-header">Rosa Giocatori</div>
@@ -865,14 +886,21 @@
     let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
     let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
 
-    let currentTeamNodes = []; 
-    let activeOppTab = 'uomo';
+    let activeMainTab = 'base';
+    let mainData = {
+      base: [],
+      costruzione1: [],
+      costruzione2: []
+    };
 
+    let activeOppTab = 'uomo';
     let oppData = {
       uomo: { teamNodes: [], opponentNodes: [], ballNode: null },
       piuUno: { teamNodes: [], opponentNodes: [], ballNode: null },
       reparto: { teamNodes: [], opponentNodes: [], ballNode: null },
-      libera: { teamNodes: [], opponentNodes: [], ballNode: null }
+      libera: { teamNodes: [], opponentNodes: [], ballNode: null },
+      costruzione1: { teamNodes: [], opponentNodes: [], ballNode: null },
+      costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null }
     };
 
     let isOppositeMode = false;
@@ -949,7 +977,7 @@
         rolesPanel.style.display = 'none';
         pitch.classList.add('full-pitch');
         
-        ['uomo', 'piuUno', 'reparto', 'libera'].forEach(tab => {
+        Object.keys(oppData).forEach(tab => {
           if (!oppData[tab].teamNodes || oppData[tab].teamNodes.length === 0) {
             syncOppositeNodesForTab(tab);
           }
@@ -969,16 +997,37 @@
     function updatePrintTitle() {
       const printTitle = document.getElementById('printSubTitle');
       if (!isOppositeMode) {
-        printTitle.innerText = "Formazione Principale";
+        const labels = { 'base': 'Formazione Base', 'costruzione1': 'Costruzione 1', 'costruzione2': 'Costruzione 2' };
+        printTitle.innerText = labels[activeMainTab];
       } else {
-        const labels = { 'uomo': 'Uomo su Uomo', 'piuUno': '+1', 'reparto': 'Reparto', 'libera': 'Libera' };
+        const labels = { 
+          'uomo': 'Uomo su Uomo', 
+          'piuUno': '+1', 
+          'reparto': 'Reparto', 
+          'libera': 'Libera',
+          'costruzione1': 'Costruzione 1',
+          'costruzione2': 'Costruzione 2'
+        };
         printTitle.innerText = "Contrapposizione - " + labels[activeOppTab];
       }
     }
 
+    function switchMainTab(tabKey) {
+      activeMainTab = tabKey;
+      document.querySelectorAll('#formationMenu .opp-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-main-${tabKey}`).classList.add('active');
+
+      if (!mainData[activeMainTab] || mainData[activeMainTab].length === 0) {
+        mainData[activeMainTab] = JSON.parse(JSON.stringify(mainData['base']));
+      }
+
+      updatePrintTitle();
+      renderPitchState();
+    }
+
     function switchOppTab(tabKey) {
       activeOppTab = tabKey;
-      document.querySelectorAll('.opp-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('#opponentsMenu .opp-tab-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById(`tab-${tabKey}`).classList.add('active');
       
       if (!oppData[activeOppTab].teamNodes || oppData[activeOppTab].teamNodes.length === 0) {
@@ -990,7 +1039,8 @@
     }
 
     function syncOppositeNodesForTab(tabKey) {
-      oppData[tabKey].teamNodes = currentTeamNodes.map(p => ({
+      const sourceNodes = (mainData[activeMainTab] && mainData[activeMainTab].length > 0) ? mainData[activeMainTab] : mainData['base'];
+      oppData[tabKey].teamNodes = sourceNodes.map(p => ({
         top: 100 - (p.top * 0.5),
         left: 100 - p.left,
         num: p.num,
@@ -1003,7 +1053,7 @@
     function setFormation(fmt) {
       const config = formations[fmt] || formations['4-3-3'];
       
-      currentTeamNodes = config.map(pos => ({
+      const newNodes = config.map(pos => ({
         top: pos.top,
         left: pos.left,
         num: '',
@@ -1013,7 +1063,9 @@
         playerId: ''
       }));
 
-      ['uomo', 'piuUno', 'reparto', 'libera'].forEach(tab => {
+      mainData[activeMainTab] = newNodes;
+
+      Object.keys(oppData).forEach(tab => {
         syncOppositeNodesForTab(tab);
       });
 
@@ -1024,6 +1076,7 @@
       pitch.querySelectorAll('.player-node').forEach(node => node.remove());
 
       if (!isOppositeMode) {
+        const currentTeamNodes = mainData[activeMainTab] || [];
         currentTeamNodes.forEach((p, idx) => {
           createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx, false);
         });
@@ -1081,13 +1134,23 @@
 
       if (playerId) node.dataset.playerId = playerId;
 
+      // Doppio click per rimuovere il ruolo di Capitano/Vicecapitano
+      node.addEventListener('dblclick', () => {
+        if (isOpposite) return;
+        if (mainData[activeMainTab][index].capt) {
+          mainData[activeMainTab][index].capt = '';
+          const badge = node.querySelector('.captain-badge');
+          if (badge) badge.remove();
+        }
+      });
+
       attachDragEvents(node, (topPct, leftPct) => {
         if (isOpposite) {
           oppData[activeOppTab].teamNodes[index].top = topPct;
           oppData[activeOppTab].teamNodes[index].left = leftPct;
         } else {
-          currentTeamNodes[index].top = topPct;
-          currentTeamNodes[index].left = leftPct;
+          mainData[activeMainTab][index].top = topPct;
+          mainData[activeMainTab][index].left = leftPct;
         }
       }, 19);
 
@@ -1111,7 +1174,7 @@
             node.appendChild(badge);
           }
           badge.innerText = data.badge;
-          currentTeamNodes[index].capt = data.badge;
+          mainData[activeMainTab][index].capt = data.badge;
           return;
         }
 
@@ -1132,10 +1195,10 @@
           oppData[activeOppTab].teamNodes[index].role = data.role;
           oppData[activeOppTab].teamNodes[index].playerId = data.id;
         } else {
-          currentTeamNodes[index].num = data.num;
-          currentTeamNodes[index].name = data.name;
-          currentTeamNodes[index].role = data.role;
-          currentTeamNodes[index].playerId = data.id;
+          mainData[activeMainTab][index].num = data.num;
+          mainData[activeMainTab][index].name = data.name;
+          mainData[activeMainTab][index].role = data.role;
+          mainData[activeMainTab][index].playerId = data.id;
         }
 
         updateUsedPlayersState();
@@ -1244,7 +1307,7 @@
     });
 
     function updateUsedPlayersState() {
-      const activeArr = isOppositeMode ? oppData[activeOppTab].teamNodes : currentTeamNodes;
+      const activeArr = isOppositeMode ? oppData[activeOppTab].teamNodes : mainData[activeMainTab];
       const activeIds = activeArr ? activeArr.map(n => n.playerId).filter(Boolean) : [];
 
       document.querySelectorAll('.player-item').forEach(item => {
@@ -1328,7 +1391,7 @@
         id: Date.now(), 
         date, 
         opponent, 
-        nodes: currentTeamNodes,
+        mainData: mainData,
         oppData: oppData,
         isWhite,
         oppColor
@@ -1403,19 +1466,29 @@
         changeOpponentColor(match.oppColor);
       }
 
-      currentTeamNodes = match.nodes || [];
+      if (match.mainData) {
+        mainData = match.mainData;
+      } else if (match.nodes) {
+        mainData = {
+          base: match.nodes,
+          costruzione1: JSON.parse(JSON.stringify(match.nodes)),
+          costruzione2: JSON.parse(JSON.stringify(match.nodes))
+        };
+      }
 
       if (match.oppData) {
         oppData = match.oppData;
-        if (!oppData.libera) {
-          oppData.libera = { teamNodes: [], opponentNodes: [], ballNode: null };
-        }
+        if (!oppData.libera) oppData.libera = { teamNodes: [], opponentNodes: [], ballNode: null };
+        if (!oppData.costruzione1) oppData.costruzione1 = { teamNodes: [], opponentNodes: [], ballNode: null };
+        if (!oppData.costruzione2) oppData.costruzione2 = { teamNodes: [], opponentNodes: [], ballNode: null };
       } else {
         oppData = {
           uomo: { teamNodes: match.oppositeNodes || [], opponentNodes: match.opponentNodes || [], ballNode: match.ballNode || null },
           piuUno: { teamNodes: [], opponentNodes: [], ballNode: null },
           reparto: { teamNodes: [], opponentNodes: [], ballNode: null },
-          libera: { teamNodes: [], opponentNodes: [], ballNode: null }
+          libera: { teamNodes: [], opponentNodes: [], ballNode: null },
+          costruzione1: { teamNodes: [], opponentNodes: [], ballNode: null },
+          costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null }
         };
       }
 
