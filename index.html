@@ -149,7 +149,7 @@
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
     }
 
-    .sidebar-left { width: 280px; }
+    .sidebar-left { width: 280px; overflow-y: auto; }
     .sidebar-right { width: 350px; gap: 12px; }
 
     .panel-header {
@@ -301,6 +301,7 @@
       box-shadow: 0 0 12px var(--accent-red-glow);
     }
 
+    /* AREA DI RIGORE PICCOLA UNIFORMATA */
     .goal-frame {
       position: absolute;
       top: -2px;
@@ -318,7 +319,7 @@
       top: 0;
       left: 35.9%;
       width: 28.2%;
-      height: 10.4%;
+      height: 5.2%;
       border: 1.5px solid var(--pitch-lines);
       border-top: none;
     }
@@ -328,14 +329,14 @@
       top: 0;
       left: 18.9%;
       width: 62.2%;
-      height: 31.2%;
+      height: 15.6%;
       border: 1.5px solid var(--pitch-lines);
       border-top: none;
     }
 
     .penalty-spot {
       position: absolute;
-      top: 20.8%;
+      top: 10.4%;
       left: 50%;
       transform: translateX(-50%);
       width: 4px;
@@ -413,9 +414,6 @@
       display: none;
     }
 
-    .pitch.full-pitch .penalty-area-small { height: 5.2%; }
-    .pitch.full-pitch .penalty-area-big { height: 15.6%; }
-    .pitch.full-pitch .penalty-spot { top: 10.4%; }
     .pitch.full-pitch .center-circle {
       top: 50%;
       bottom: auto;
@@ -433,6 +431,47 @@
     .pitch.white-pitch {
       background: #ffffff !important;
       --pitch-lines: #111111;
+    }
+
+    /* SVG LAYER PER FRECCE */
+    .arrows-svg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 8;
+    }
+
+    .arrows-svg-layer * {
+      pointer-events: visiblePainted;
+    }
+
+    .arrow-path {
+      stroke: #f59e0b;
+      stroke-width: 3.5;
+      stroke-dasharray: 6 4;
+      fill: none;
+      cursor: pointer;
+      transition: stroke 0.2s;
+    }
+
+    .arrow-path:hover, .arrow-path.selected {
+      stroke: #ff2a4b;
+      stroke-width: 4.5;
+    }
+
+    .control-handle {
+      fill: #ffffff;
+      stroke: #000000;
+      stroke-width: 1.5;
+      cursor: pointer;
+      z-index: 20;
+    }
+
+    .control-handle.handle-cp {
+      fill: #f59e0b;
     }
 
     .player-node {
@@ -549,6 +588,51 @@
       margin-bottom: 10px;
       font-style: italic;
     }
+
+    .arrow-tools-container {
+      background: rgba(0,0,0,0.3);
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-tech);
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-arrow-tool {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-tech);
+      color: var(--text-main);
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .btn-arrow-tool.active {
+      background: var(--accent-red);
+      border-color: var(--accent-red);
+      box-shadow: 0 0 10px var(--accent-red-glow);
+    }
+
+    .btn-clear-arrows {
+      background: #333;
+      border: 1px solid #555;
+      color: #fff;
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 10px;
+      text-align: center;
+    }
+    .btn-clear-arrows:hover { background: #555; }
 
     .opp-color-picker-container {
       margin-bottom: 10px;
@@ -703,6 +787,7 @@
       .pitch-container { background: none !important; box-shadow: none !important; padding: 0 !important; width: 100% !important; height: 100% !important; }
       .pitch { width: 100% !important; max-width: 680px !important; height: 95% !important; border: 3px solid var(--pitch-lines) !important; box-shadow: none !important; }
       .player-label { background: #000000 !important; color: #ffffff !important; border: 1px solid #ffffff !important; }
+      .control-handle { display: none !important; }
     }
   </style>
 </head>
@@ -798,6 +883,19 @@
           <div class="opp-bench-item" draggable="true" ondragstart="handleOpponentDrag(event, '11')">11</div>
           <div class="ball-bench-item" draggable="true" ondragstart="handleBallDrag(event)" id="ballBenchContainer"></div>
         </div>
+
+        <!-- STRUMENTO FRECCE PER LE USCITE -->
+        <div class="panel-header" style="margin-top: 15px;">Frecce Uscite</div>
+        <div class="arrow-tools-container">
+          <button class="btn-arrow-tool" id="btnDrawArrow" onclick="toggleArrowDrawMode()">
+            <span>↗️</span> Disegna Freccia Uscita
+          </button>
+          <div style="font-size: 10px; color: var(--text-muted); text-align: center;">
+            Clicca e trascina sul campo per tracciare. Trascina i pallini bianchi/gialli per curvare o spostare.
+          </div>
+          <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella Frecce della scheda</button>
+        </div>
+
       </div>
     </aside>
 
@@ -820,6 +918,18 @@
         <div class="penalty-area-big-bottom"></div>
         <div class="penalty-area-small-bottom"></div>
         <div class="goal-frame-bottom"></div>
+
+        <!-- SVG LAYER PER DISEGNO E RENDERING FRECCE -->
+        <svg class="arrows-svg-layer" id="arrowsSvg">
+          <defs>
+            <marker id="arrowhead" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b" />
+            </marker>
+            <marker id="arrowhead-selected" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#ff2a4b" />
+            </marker>
+          </defs>
+        </svg>
       </div>
     </main>
 
@@ -883,6 +993,7 @@
     document.getElementById('ballBenchContainer').innerHTML = ballSvgContent;
 
     const pitch = document.getElementById('pitch');
+    const arrowsSvg = document.getElementById('arrowsSvg');
     let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
     let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
 
@@ -895,15 +1006,17 @@
 
     let activeOppTab = 'uomo';
     let oppData = {
-      uomo: { teamNodes: [], opponentNodes: [], ballNode: null },
-      piuUno: { teamNodes: [], opponentNodes: [], ballNode: null },
-      reparto: { teamNodes: [], opponentNodes: [], ballNode: null },
-      libera: { teamNodes: [], opponentNodes: [], ballNode: null },
-      costruzione1: { teamNodes: [], opponentNodes: [], ballNode: null },
-      costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null }
+      uomo: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
+      piuUno: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
+      reparto: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
+      libera: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
+      costruzione1: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
+      costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] }
     };
 
     let isOppositeMode = false;
+    let isDrawingArrowMode = false;
+    let selectedArrowIndex = -1;
 
     const roleColors = {
       'P': 'var(--role-p)',
@@ -989,6 +1102,7 @@
         oppMenu.style.display = 'none';
         rolesPanel.style.display = 'block';
         pitch.classList.remove('full-pitch');
+        if (isDrawingArrowMode) toggleArrowDrawMode();
       }
       updatePrintTitle();
       renderPitchState();
@@ -1027,6 +1141,7 @@
 
     function switchOppTab(tabKey) {
       activeOppTab = tabKey;
+      selectedArrowIndex = -1;
       document.querySelectorAll('#opponentsMenu .opp-tab-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById(`tab-${tabKey}`).classList.add('active');
       
@@ -1072,6 +1187,185 @@
       renderPitchState();
     }
 
+    /* GESTIONE FRECCE DI USCITA CON CURVA DI BEZIER QUATRATICA */
+    function toggleArrowDrawMode() {
+      isDrawingArrowMode = !isDrawingArrowMode;
+      const btn = document.getElementById('btnDrawArrow');
+      if (isDrawingArrowMode) {
+        btn.classList.add('active');
+        pitch.style.cursor = 'crosshair';
+      } else {
+        btn.classList.remove('active');
+        pitch.style.cursor = 'default';
+      }
+    }
+
+    function clearCurrentTabArrows() {
+      if (confirm('Vuoi cancellare tutte le frecce in questa scheda?')) {
+        oppData[activeOppTab].arrows = [];
+        selectedArrowIndex = -1;
+        renderPitchState();
+      }
+    }
+
+    // EVENTI DI CREAZIONE FRECCIA SUL CAMPO
+    let isCreatingArrow = false;
+    let tempArrow = null;
+
+    pitch.addEventListener('mousedown', (e) => {
+      if (!isOppositeMode || !isDrawingArrowMode) return;
+      if (e.target.classList.contains('player-node') || e.target.classList.contains('control-handle')) return;
+
+      const rect = pitch.getBoundingClientRect();
+      const startX = ((e.clientX - rect.left) / rect.width) * 100;
+      const startY = ((e.clientY - rect.top) / rect.height) * 100;
+
+      isCreatingArrow = true;
+      tempArrow = {
+        x1: startX, y1: startY,
+        cx: startX, cy: startY,
+        x2: startX, y2: startY
+      };
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isCreatingArrow || !tempArrow) return;
+      const rect = pitch.getBoundingClientRect();
+      const curX = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+      const curY = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+
+      tempArrow.x2 = curX;
+      tempArrow.y2 = curY;
+      tempArrow.cx = (tempArrow.x1 + curX) / 2;
+      tempArrow.cy = (tempArrow.y1 + curY) / 2;
+
+      renderPitchArrows(true);
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isCreatingArrow && tempArrow) {
+        isCreatingArrow = false;
+        // Salva solo se la freccia ha una lunghezza minima
+        const dist = Math.hypot(tempArrow.x2 - tempArrow.x1, tempArrow.y2 - tempArrow.y1);
+        if (dist > 3) {
+          if (!oppData[activeOppTab].arrows) oppData[activeOppTab].arrows = [];
+          oppData[activeOppTab].arrows.push(tempArrow);
+          selectedArrowIndex = oppData[activeOppTab].arrows.length - 1;
+        }
+        tempArrow = null;
+        toggleArrowDrawMode(); // Disattiva la modalità dopo aver completato il tracciamento
+        renderPitchState();
+      }
+    });
+
+    function renderPitchArrows(showTemp = false) {
+      // Pulisce il layer SVG mantenendo solo i defs (marker)
+      const defs = arrowsSvg.querySelector('defs');
+      arrowsSvg.innerHTML = '';
+      arrowsSvg.appendChild(defs);
+
+      if (!isOppositeMode) return;
+
+      const currentArrows = oppData[activeOppTab].arrows || [];
+
+      currentArrows.forEach((arr, idx) => {
+        drawSvgBezierArrow(arr, idx === selectedArrowIndex, idx);
+      });
+
+      if (showTemp && tempArrow) {
+        drawSvgBezierArrow(tempArrow, true, -1, true);
+      }
+    }
+
+    function drawSvgBezierArrow(arr, isSelected, index, isTemp = false) {
+      const rect = pitch.getBoundingClientRect();
+      
+      const px1 = (arr.x1 / 100) * rect.width;
+      const py1 = (arr.y1 / 100) * rect.height;
+      const pcx = (arr.cx / 100) * rect.width;
+      const pcy = (arr.cy / 100) * rect.height;
+      const px2 = (arr.x2 / 100) * rect.width;
+      const py2 = (arr.y2 / 100) * rect.height;
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${px1} ${py1} Q ${pcx} ${pcy} ${px2} ${py2}`);
+      path.setAttribute('class', `arrow-path ${isSelected ? 'selected' : ''}`);
+      path.setAttribute('marker-end', isSelected ? 'url(#arrowhead-selected)' : 'url(#arrowhead)');
+
+      if (!isTemp) {
+        path.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectedArrowIndex = index;
+          renderPitchState();
+        });
+      }
+
+      arrowsSvg.appendChild(path);
+
+      // Disegna i punti di controllo se la freccia è selezionata
+      if (isSelected && !isTemp) {
+        createControlHandle(px1, py1, (nx, ny) => {
+          arr.x1 = nx; arr.y1 = ny;
+          renderPitchState();
+        });
+
+        createControlHandle(pcx, pcy, (nx, ny) => {
+          arr.cx = nx; arr.cy = ny;
+          renderPitchState();
+        }, true);
+
+        createControlHandle(px2, py2, (nx, ny) => {
+          arr.x2 = nx; arr.y2 = ny;
+          renderPitchState();
+        });
+      }
+    }
+
+    function createControlHandle(px, py, onMove, isCP = false) {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', px);
+      circle.setAttribute('cy', py);
+      circle.setAttribute('r', isCP ? 6 : 5);
+      circle.setAttribute('class', `control-handle ${isCP ? 'handle-cp' : ''}`);
+
+      let dragging = false;
+
+      const start = (e) => {
+        e.stopPropagation();
+        dragging = true;
+      };
+
+      const move = (e) => {
+        if (!dragging) return;
+        const rect = pitch.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        const nx = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+        const ny = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
+
+        onMove(nx, ny);
+      };
+
+      const stop = () => { dragging = false; };
+
+      circle.addEventListener('mousedown', start);
+      circle.addEventListener('touchstart', start);
+      document.addEventListener('mousemove', move);
+      document.addEventListener('touchmove', move);
+      document.addEventListener('mouseup', stop);
+      document.addEventListener('touchend', stop);
+
+      arrowsSvg.appendChild(circle);
+    }
+
+    // Cliccando sul campo deseleziona la freccia
+    pitch.addEventListener('click', (e) => {
+      if (e.target.classList.contains('arrow-path') || e.target.classList.contains('control-handle')) return;
+      selectedArrowIndex = -1;
+      renderPitchState();
+    });
+
     function renderPitchState() {
       pitch.querySelectorAll('.player-node').forEach(node => node.remove());
 
@@ -1096,6 +1390,7 @@
         }
       }
 
+      renderPitchArrows();
       updateUsedPlayersState();
     }
 
@@ -1478,17 +1773,17 @@
 
       if (match.oppData) {
         oppData = match.oppData;
-        if (!oppData.libera) oppData.libera = { teamNodes: [], opponentNodes: [], ballNode: null };
-        if (!oppData.costruzione1) oppData.costruzione1 = { teamNodes: [], opponentNodes: [], ballNode: null };
-        if (!oppData.costruzione2) oppData.costruzione2 = { teamNodes: [], opponentNodes: [], ballNode: null };
+        Object.keys(oppData).forEach(k => {
+          if (!oppData[k].arrows) oppData[k].arrows = [];
+        });
       } else {
         oppData = {
-          uomo: { teamNodes: match.oppositeNodes || [], opponentNodes: match.opponentNodes || [], ballNode: match.ballNode || null },
-          piuUno: { teamNodes: [], opponentNodes: [], ballNode: null },
-          reparto: { teamNodes: [], opponentNodes: [], ballNode: null },
-          libera: { teamNodes: [], opponentNodes: [], ballNode: null },
-          costruzione1: { teamNodes: [], opponentNodes: [], ballNode: null },
-          costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null }
+          uomo: { teamNodes: match.oppositeNodes || [], opponentNodes: match.opponentNodes || [], ballNode: match.ballNode || null, arrows: [] },
+          piuUno: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
+          reparto: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
+          libera: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
+          costruzione1: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
+          costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] }
         };
       }
 
