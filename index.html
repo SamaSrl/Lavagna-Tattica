@@ -891,9 +891,9 @@
             <span>↗️</span> Disegna Freccia Uscita
           </button>
           <div style="font-size: 10px; color: var(--text-muted); text-align: center;">
-            Clicca e trascina sul campo per tracciare. Trascina i pallini bianchi/gialli per curvare o spostare.
+            Clicca e trascina sul campo per tracciare. Trascina i pallini bianchi/gialli per curvare. <b>Doppio click sulla freccia per eliminarla.</b>
           </div>
-          <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella Frecce della scheda</button>
+          <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella tutte le frecce</button>
         </div>
 
       </div>
@@ -1187,7 +1187,7 @@
       renderPitchState();
     }
 
-    /* GESTIONE FRECCE DI USCITA CON CURVA DI BEZIER QUATRATICA */
+    /* GESTIONE FRECCE DI USCITA */
     function toggleArrowDrawMode() {
       isDrawingArrowMode = !isDrawingArrowMode;
       const btn = document.getElementById('btnDrawArrow');
@@ -1203,6 +1203,14 @@
     function clearCurrentTabArrows() {
       if (confirm('Vuoi cancellare tutte le frecce in questa scheda?')) {
         oppData[activeOppTab].arrows = [];
+        selectedArrowIndex = -1;
+        renderPitchState();
+      }
+    }
+
+    function deleteSingleArrow(index) {
+      if (index >= 0 && index < oppData[activeOppTab].arrows.length) {
+        oppData[activeOppTab].arrows.splice(index, 1);
         selectedArrowIndex = -1;
         renderPitchState();
       }
@@ -1245,7 +1253,6 @@
     document.addEventListener('mouseup', () => {
       if (isCreatingArrow && tempArrow) {
         isCreatingArrow = false;
-        // Salva solo se la freccia ha una lunghezza minima
         const dist = Math.hypot(tempArrow.x2 - tempArrow.x1, tempArrow.y2 - tempArrow.y1);
         if (dist > 3) {
           if (!oppData[activeOppTab].arrows) oppData[activeOppTab].arrows = [];
@@ -1253,13 +1260,12 @@
           selectedArrowIndex = oppData[activeOppTab].arrows.length - 1;
         }
         tempArrow = null;
-        toggleArrowDrawMode(); // Disattiva la modalità dopo aver completato il tracciamento
+        toggleArrowDrawMode();
         renderPitchState();
       }
     });
 
     function renderPitchArrows(showTemp = false) {
-      // Pulisce il layer SVG mantenendo solo i defs (marker)
       const defs = arrowsSvg.querySelector('defs');
       arrowsSvg.innerHTML = '';
       arrowsSvg.appendChild(defs);
@@ -1293,16 +1299,22 @@
       path.setAttribute('marker-end', isSelected ? 'url(#arrowhead-selected)' : 'url(#arrowhead)');
 
       if (!isTemp) {
+        // Selezione con singolo click
         path.addEventListener('click', (e) => {
           e.stopPropagation();
           selectedArrowIndex = index;
           renderPitchState();
         });
+
+        // MODIFICA: Eliminazione della singola freccia con doppio click
+        path.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          deleteSingleArrow(index);
+        });
       }
 
       arrowsSvg.appendChild(path);
 
-      // Disegna i punti di controllo se la freccia è selezionata
       if (isSelected && !isTemp) {
         createControlHandle(px1, py1, (nx, ny) => {
           arr.x1 = nx; arr.y1 = ny;
@@ -1359,7 +1371,6 @@
       arrowsSvg.appendChild(circle);
     }
 
-    // Cliccando sul campo deseleziona la freccia
     pitch.addEventListener('click', (e) => {
       if (e.target.classList.contains('arrow-path') || e.target.classList.contains('control-handle')) return;
       selectedArrowIndex = -1;
@@ -1429,7 +1440,6 @@
 
       if (playerId) node.dataset.playerId = playerId;
 
-      // Doppio click per rimuovere il ruolo di Capitano/Vicecapitano
       node.addEventListener('dblclick', () => {
         if (isOpposite) return;
         if (mainData[activeMainTab][index].capt) {
