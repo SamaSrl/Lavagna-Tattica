@@ -301,7 +301,6 @@
       box-shadow: 0 0 12px var(--accent-red-glow);
     }
 
-    /* AREA DI RIGORE PICCOLA UNIFORMATA */
     .goal-frame {
       position: absolute;
       top: -2px;
@@ -444,22 +443,18 @@
       z-index: 8;
     }
 
-    .arrows-svg-layer * {
-      pointer-events: visiblePainted;
-    }
-
     .arrow-path {
       stroke: #f59e0b;
-      stroke-width: 3.5;
+      stroke-width: 4;
       stroke-dasharray: 6 4;
       fill: none;
       cursor: pointer;
-      transition: stroke 0.2s;
+      pointer-events: stroke !important;
     }
 
     .arrow-path:hover, .arrow-path.selected {
       stroke: #ff2a4b;
-      stroke-width: 4.5;
+      stroke-width: 6;
     }
 
     .control-handle {
@@ -468,6 +463,7 @@
       stroke-width: 1.5;
       cursor: pointer;
       z-index: 20;
+      pointer-events: all !important;
     }
 
     .control-handle.handle-cp {
@@ -891,7 +887,7 @@
             <span>↗️</span> Disegna Freccia Uscita
           </button>
           <div style="font-size: 10px; color: var(--text-muted); text-align: center;">
-            Clicca e trascina sul campo per tracciare. Trascina i pallini bianchi/gialli per curvare. <b>Doppio click sulla freccia per eliminarla.</b>
+            Traccia la freccia sul campo. Fai <b>Doppio Click sulla freccia</b> per eliminarla.
           </div>
           <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella tutte le frecce</button>
         </div>
@@ -1299,17 +1295,23 @@
       path.setAttribute('marker-end', isSelected ? 'url(#arrowhead-selected)' : 'url(#arrowhead)');
 
       if (!isTemp) {
-        // Selezione con singolo click
+        let lastClickTime = 0;
+
+        // Rilevamento avanzato di click e doppio click
         path.addEventListener('click', (e) => {
           e.stopPropagation();
-          selectedArrowIndex = index;
-          renderPitchState();
-        });
+          const currentTime = new Date().getTime();
+          const clickLength = currentTime - lastClickTime;
 
-        // MODIFICA: Eliminazione della singola freccia con doppio click
-        path.addEventListener('dblclick', (e) => {
-          e.stopPropagation();
-          deleteSingleArrow(index);
+          if (clickLength < 300 && clickLength > 0) {
+            // Rilevato Doppio Click -> Elimina Freccia
+            deleteSingleArrow(index);
+          } else {
+            // Singolo Click -> Seleziona Freccia
+            selectedArrowIndex = index;
+            renderPitchState();
+          }
+          lastClickTime = currentTime;
         });
       }
 
