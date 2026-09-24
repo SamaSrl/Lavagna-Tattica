@@ -301,7 +301,6 @@
       box-shadow: 0 0 12px var(--accent-red-glow);
     }
 
-    /* AREA DI RIGORE PICCOLA UNIFORMATA */
     .goal-frame {
       position: absolute;
       top: -2px;
@@ -444,22 +443,18 @@
       z-index: 8;
     }
 
-    .arrows-svg-layer * {
-      pointer-events: visiblePainted;
-    }
-
     .arrow-path {
       stroke: #f59e0b;
-      stroke-width: 3.5;
+      stroke-width: 4;
       stroke-dasharray: 6 4;
       fill: none;
       cursor: pointer;
-      transition: stroke 0.2s;
+      pointer-events: stroke !important;
     }
 
     .arrow-path:hover, .arrow-path.selected {
       stroke: #ff2a4b;
-      stroke-width: 4.5;
+      stroke-width: 6;
     }
 
     .control-handle {
@@ -468,10 +463,34 @@
       stroke-width: 1.5;
       cursor: pointer;
       z-index: 20;
+      pointer-events: all !important;
     }
 
     .control-handle.handle-cp {
       fill: #f59e0b;
+    }
+
+    .arrow-delete-btn {
+      pointer-events: all !important;
+      cursor: pointer;
+    }
+
+    .arrow-delete-btn .delete-btn-bg {
+      fill: #14141a;
+      stroke: var(--accent-red);
+      stroke-width: 2;
+      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.6));
+      transition: fill 0.2s ease, stroke 0.2s ease;
+    }
+
+    .arrow-delete-btn:hover .delete-btn-bg {
+      fill: var(--accent-red);
+      stroke: #ffffff;
+    }
+
+    .arrow-delete-btn .delete-btn-icon {
+      pointer-events: none;
+      user-select: none;
     }
 
     .player-node {
@@ -787,7 +806,7 @@
       .pitch-container { background: none !important; box-shadow: none !important; padding: 0 !important; width: 100% !important; height: 100% !important; }
       .pitch { width: 100% !important; max-width: 680px !important; height: 95% !important; border: 3px solid var(--pitch-lines) !important; box-shadow: none !important; }
       .player-label { background: #000000 !important; color: #ffffff !important; border: 1px solid #ffffff !important; }
-      .control-handle { display: none !important; }
+      .control-handle, .arrow-delete-btn { display: none !important; }
     }
   </style>
 </head>
@@ -891,9 +910,9 @@
             <span>↗️</span> Disegna Freccia Uscita
           </button>
           <div style="font-size: 10px; color: var(--text-muted); text-align: center;">
-            Clicca e trascina sul campo per tracciare. Trascina i pallini bianchi/gialli per curvare o spostare.
+            Traccia la freccia sul campo. Fai <b>Doppio Click sulla freccia</b> per eliminarla.
           </div>
-          <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella Frecce della scheda</button>
+          <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella tutte le frecce</button>
         </div>
 
       </div>
@@ -1187,7 +1206,7 @@
       renderPitchState();
     }
 
-    /* GESTIONE FRECCE DI USCITA CON CURVA DI BEZIER QUATRATICA */
+    /* GESTIONE FRECCE DI USCITA */
     function toggleArrowDrawMode() {
       isDrawingArrowMode = !isDrawingArrowMode;
       const btn = document.getElementById('btnDrawArrow');
@@ -1203,6 +1222,14 @@
     function clearCurrentTabArrows() {
       if (confirm('Vuoi cancellare tutte le frecce in questa scheda?')) {
         oppData[activeOppTab].arrows = [];
+        selectedArrowIndex = -1;
+        renderPitchState();
+      }
+    }
+
+    function deleteSingleArrow(index) {
+      if (index >= 0 && index < oppData[activeOppTab].arrows.length) {
+        oppData[activeOppTab].arrows.splice(index, 1);
         selectedArrowIndex = -1;
         renderPitchState();
       }
@@ -1245,7 +1272,6 @@
     document.addEventListener('mouseup', () => {
       if (isCreatingArrow && tempArrow) {
         isCreatingArrow = false;
-        // Salva solo se la freccia ha una lunghezza minima
         const dist = Math.hypot(tempArrow.x2 - tempArrow.x1, tempArrow.y2 - tempArrow.y1);
         if (dist > 3) {
           if (!oppData[activeOppTab].arrows) oppData[activeOppTab].arrows = [];
@@ -1253,13 +1279,12 @@
           selectedArrowIndex = oppData[activeOppTab].arrows.length - 1;
         }
         tempArrow = null;
-        toggleArrowDrawMode(); // Disattiva la modalità dopo aver completato il tracciamento
+        toggleArrowDrawMode();
         renderPitchState();
       }
     });
 
     function renderPitchArrows(showTemp = false) {
-      // Pulisce il layer SVG mantenendo solo i defs (marker)
       const defs = arrowsSvg.querySelector('defs');
       arrowsSvg.innerHTML = '';
       arrowsSvg.appendChild(defs);
@@ -1293,16 +1318,28 @@
       path.setAttribute('marker-end', isSelected ? 'url(#arrowhead-selected)' : 'url(#arrowhead)');
 
       if (!isTemp) {
+        let lastClickTime = 0;
+
+        // Rilevamento avanzato di click e doppio click
         path.addEventListener('click', (e) => {
           e.stopPropagation();
-          selectedArrowIndex = index;
-          renderPitchState();
+          const currentTime = new Date().getTime();
+          const clickLength = currentTime - lastClickTime;
+
+          if (clickLength < 300 && clickLength > 0) {
+            // Rilevato Doppio Click -> Elimina Freccia
+            deleteSingleArrow(index);
+          } else {
+            // Singolo Click -> Seleziona Freccia
+            selectedArrowIndex = index;
+            renderPitchState();
+          }
+          lastClickTime = currentTime;
         });
       }
 
       arrowsSvg.appendChild(path);
 
-      // Disegna i punti di controllo se la freccia è selezionata
       if (isSelected && !isTemp) {
         createControlHandle(px1, py1, (nx, ny) => {
           arr.x1 = nx; arr.y1 = ny;
@@ -1318,6 +1355,9 @@
           arr.x2 = nx; arr.y2 = ny;
           renderPitchState();
         });
+
+        // Tastino cestino per eliminare la freccia selezionata con un click
+        createDeleteButton(px1, py1, pcx, pcy, px2, py2, index);
       }
     }
 
@@ -1359,7 +1399,52 @@
       arrowsSvg.appendChild(circle);
     }
 
-    // Cliccando sul campo deseleziona la freccia
+    function createDeleteButton(px1, py1, pcx, pcy, px2, py2, index) {
+      const rect = pitch.getBoundingClientRect();
+
+      // Punto reale sulla curva di Bézier (t = 0.5), spostato leggermente in alto
+      const midX = 0.25 * px1 + 0.5 * pcx + 0.25 * px2;
+      const midY = 0.25 * py1 + 0.5 * pcy + 0.25 * py2;
+
+      let btnX = midX;
+      let btnY = midY - 26;
+
+      // Mantiene il tastino dentro i bordi visibili del campo
+      btnX = Math.max(15, Math.min(rect.width - 15, btnX));
+      btnY = Math.max(15, Math.min(rect.height - 15, btnY));
+
+      const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      group.setAttribute('class', 'arrow-delete-btn');
+
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = 'Elimina freccia';
+      group.appendChild(title);
+
+      const bg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      bg.setAttribute('cx', btnX);
+      bg.setAttribute('cy', btnY);
+      bg.setAttribute('r', 13);
+      bg.setAttribute('class', 'delete-btn-bg');
+      group.appendChild(bg);
+
+      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      icon.setAttribute('x', btnX);
+      icon.setAttribute('y', btnY);
+      icon.setAttribute('text-anchor', 'middle');
+      icon.setAttribute('dominant-baseline', 'central');
+      icon.setAttribute('class', 'delete-btn-icon');
+      icon.setAttribute('font-size', '13');
+      icon.textContent = '🗑️';
+      group.appendChild(icon);
+
+      group.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteSingleArrow(index);
+      });
+
+      arrowsSvg.appendChild(group);
+    }
+
     pitch.addEventListener('click', (e) => {
       if (e.target.classList.contains('arrow-path') || e.target.classList.contains('control-handle')) return;
       selectedArrowIndex = -1;
@@ -1429,7 +1514,6 @@
 
       if (playerId) node.dataset.playerId = playerId;
 
-      // Doppio click per rimuovere il ruolo di Capitano/Vicecapitano
       node.addEventListener('dblclick', () => {
         if (isOpposite) return;
         if (mainData[activeMainTab][index].capt) {
