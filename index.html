@@ -445,16 +445,20 @@
 
     .arrow-path {
       stroke: #f59e0b;
-      stroke-width: 4;
+      stroke-width: 5;
       stroke-dasharray: 6 4;
       fill: none;
-      cursor: pointer;
+      cursor: grab;
       pointer-events: stroke !important;
+    }
+
+    .arrow-path:active {
+      cursor: grabbing;
     }
 
     .arrow-path:hover, .arrow-path.selected {
       stroke: #ff2a4b;
-      stroke-width: 6;
+      stroke-width: 7;
     }
 
     .control-handle {
@@ -914,7 +918,7 @@
             <span>↗️</span> Disegna Freccia Uscita
           </button>
           <div style="font-size: 10px; color: var(--text-muted); text-align: center;">
-            Traccia la freccia sul campo. Clicca la freccia per far comparire i <b>punti di controllo per trascinarla/modificarla</b>. Fai <b>Doppio Click</b> per eliminarla.
+            Traccia la freccia. Clicca e **trascina la freccia in qualsiasi punto** per spostarla intera, oppure trascina i **pallini di controllo** ai lati/centro per modellarla.
           </div>
           <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella tutte le frecce</button>
         </div>
@@ -1245,7 +1249,7 @@
 
     pitch.addEventListener('mousedown', (e) => {
       if (!isOppositeMode || !isDrawingArrowMode) return;
-      if (e.target.classList.contains('player-node') || e.target.classList.contains('control-handle')) return;
+      if (e.target.classList.contains('player-node') || e.target.classList.contains('control-handle') || e.target.classList.contains('arrow-path')) return;
 
       const rect = pitch.getBoundingClientRect();
       const startX = ((e.clientX - rect.left) / rect.width) * 100;
@@ -1323,20 +1327,58 @@
 
       if (!isTemp) {
         let lastClickTime = 0;
+        let isDraggingArrow = false;
+        let startMouseX = 0;
+        let startMouseY = 0;
+        let initialArrState = null;
 
-        // Rilevamento avanzato di click e doppio click
+        const startDrag = (e) => {
+          e.stopPropagation();
+          selectedArrowIndex = index;
+          isDraggingArrow = true;
+          startMouseX = e.touches ? e.touches[0].clientX : e.clientX;
+          startMouseY = e.touches ? e.touches[0].clientY : e.clientY;
+          initialArrState = { ...arr };
+          renderPitchState();
+        };
+
+        const moveDrag = (e) => {
+          if (!isDraggingArrow || !initialArrState) return;
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+          const deltaX = ((clientX - startMouseX) / rect.width) * 100;
+          const deltaY = ((clientY - startMouseY) / rect.height) * 100;
+
+          arr.x1 = initialArrState.x1 + deltaX;
+          arr.y1 = initialArrState.y1 + deltaY;
+          arr.cx = initialArrState.cx + deltaX;
+          arr.cy = initialArrState.cy + deltaY;
+          arr.x2 = initialArrState.x2 + deltaX;
+          arr.y2 = initialArrState.y2 + deltaY;
+
+          renderPitchState();
+        };
+
+        const stopDrag = () => {
+          isDraggingArrow = false;
+          initialArrState = null;
+        };
+
+        path.addEventListener('mousedown', startDrag);
+        path.addEventListener('touchstart', startDrag);
+        document.addEventListener('mousemove', moveDrag);
+        document.addEventListener('touchmove', moveDrag);
+        document.addEventListener('mouseup', stopDrag);
+        document.addEventListener('touchend', stopDrag);
+
         path.addEventListener('click', (e) => {
           e.stopPropagation();
           const currentTime = new Date().getTime();
           const clickLength = currentTime - lastClickTime;
 
           if (clickLength < 300 && clickLength > 0) {
-            // Rilevato Doppio Click -> Elimina Freccia
             deleteSingleArrow(index);
-          } else {
-            // Singolo Click -> Seleziona Freccia
-            selectedArrowIndex = index;
-            renderPitchState();
           }
           lastClickTime = currentTime;
         });
@@ -1345,38 +1387,32 @@
       arrowsSvg.appendChild(path);
 
       if (isSelected && !isTemp) {
-        // Punto di origine
         createControlHandle(px1, py1, (nx, ny) => {
           const dx = nx - arr.x1;
           const dy = ny - arr.y1;
           arr.x1 = nx; 
           arr.y1 = ny;
-          // Mantiene la curva proporzionale muovendo il punto di controllo insieme all'origine
           arr.cx += dx;
           arr.cy += dy;
           renderPitchState();
         });
 
-        // Punto di controllo curvatura (centrale)
         createControlHandle(pcx, pcy, (nx, ny) => {
           arr.cx = nx; 
           arr.cy = ny;
           renderPitchState();
         }, true);
 
-        // Punto finale (punta)
         createControlHandle(px2, py2, (nx, ny) => {
           const dx = nx - arr.x2;
           const dy = ny - arr.y2;
           arr.x2 = nx; 
           arr.y2 = ny;
-          // Mantiene la curva proporzionale muovendo il punto di controllo insieme alla punta
           arr.cx += dx;
           arr.cy += dy;
           renderPitchState();
         });
 
-        // Tastino cestino per eliminare la freccia selezionata con un click
         createDeleteButton(px1, py1, pcx, pcy, px2, py2, index);
       }
     }
@@ -1423,14 +1459,12 @@
     function createDeleteButton(px1, py1, pcx, pcy, px2, py2, index) {
       const rect = pitch.getBoundingClientRect();
 
-      // Punto reale sulla curva di Bézier (t = 0.5), spostato leggermente in alto
       const midX = 0.25 * px1 + 0.5 * pcx + 0.25 * px2;
       const midY = 0.25 * py1 + 0.5 * pcy + 0.25 * py2;
 
       let btnX = midX;
       let btnY = midY - 26;
 
-      // Mantiene il tastino dentro i bordi visibili del campo
       btnX = Math.max(15, Math.min(rect.width - 15, btnX));
       btnY = Math.max(15, Math.min(rect.height - 15, btnY));
 
