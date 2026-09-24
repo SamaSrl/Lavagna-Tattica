@@ -461,9 +461,13 @@
       fill: #ffffff;
       stroke: #000000;
       stroke-width: 1.5;
-      cursor: pointer;
+      cursor: grab;
       z-index: 20;
       pointer-events: all !important;
+    }
+
+    .control-handle:active {
+      cursor: grabbing;
     }
 
     .control-handle.handle-cp {
@@ -910,7 +914,7 @@
             <span>↗️</span> Disegna Freccia Uscita
           </button>
           <div style="font-size: 10px; color: var(--text-muted); text-align: center;">
-            Traccia la freccia sul campo. Fai <b>Doppio Click sulla freccia</b> per eliminarla.
+            Traccia la freccia sul campo. Clicca la freccia per far comparire i <b>punti di controllo per trascinarla/modificarla</b>. Fai <b>Doppio Click</b> per eliminarla.
           </div>
           <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella tutte le frecce</button>
         </div>
@@ -1341,18 +1345,34 @@
       arrowsSvg.appendChild(path);
 
       if (isSelected && !isTemp) {
+        // Punto di origine
         createControlHandle(px1, py1, (nx, ny) => {
-          arr.x1 = nx; arr.y1 = ny;
+          const dx = nx - arr.x1;
+          const dy = ny - arr.y1;
+          arr.x1 = nx; 
+          arr.y1 = ny;
+          // Mantiene la curva proporzionale muovendo il punto di controllo insieme all'origine
+          arr.cx += dx;
+          arr.cy += dy;
           renderPitchState();
         });
 
+        // Punto di controllo curvatura (centrale)
         createControlHandle(pcx, pcy, (nx, ny) => {
-          arr.cx = nx; arr.cy = ny;
+          arr.cx = nx; 
+          arr.cy = ny;
           renderPitchState();
         }, true);
 
+        // Punto finale (punta)
         createControlHandle(px2, py2, (nx, ny) => {
-          arr.x2 = nx; arr.y2 = ny;
+          const dx = nx - arr.x2;
+          const dy = ny - arr.y2;
+          arr.x2 = nx; 
+          arr.y2 = ny;
+          // Mantiene la curva proporzionale muovendo il punto di controllo insieme alla punta
+          arr.cx += dx;
+          arr.cy += dy;
           renderPitchState();
         });
 
@@ -1365,13 +1385,14 @@
       const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       circle.setAttribute('cx', px);
       circle.setAttribute('cy', py);
-      circle.setAttribute('r', isCP ? 6 : 5);
+      circle.setAttribute('r', isCP ? 7 : 6);
       circle.setAttribute('class', `control-handle ${isCP ? 'handle-cp' : ''}`);
 
       let dragging = false;
 
       const start = (e) => {
         e.stopPropagation();
+        e.preventDefault();
         dragging = true;
       };
 
