@@ -811,9 +811,42 @@
     .btn-del-player { background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; }
     .btn-del-player:hover { color: var(--accent-red); }
 
+    /* PALLE INATTIVE: metà campo in orizzontale (proporzioni reali 68 x 52,5 m) */
+    .pitch.full-pitch, .pitch.half-pitch-only { transition: none; }
+
+    .pitch.half-pitch-only {
+      max-width: none;
+      border-bottom: 2px solid var(--pitch-lines) !important;
+      border-radius: 12px 12px 0 0;
+    }
+    .pitch.half-pitch-only .goal-frame { left: 44.6%; width: 10.8%; }
+    .pitch.half-pitch-only .penalty-area-small { left: 36.5%; width: 27%; height: 10.5%; }
+    .pitch.half-pitch-only .penalty-area-big { left: 20.35%; width: 59.3%; height: 31.4%; }
+    .pitch.half-pitch-only .penalty-spot { top: 21%; }
+    .pitch.half-pitch-only .center-circle {
+      top: auto;
+      bottom: -17.45%;
+      width: 26.9%;
+      height: 34.9%;
+      padding-bottom: 0;
+      transform: translateX(-50%);
+    }
+    /* semicerchio (la "D") fuori dall'area di rigore */
+    .pitch.half-pitch-only::after {
+      content: '';
+      position: absolute;
+      left: 36.55%;
+      top: 3.55%;
+      width: 26.9%;
+      height: 34.9%;
+      border: 1.5px solid var(--pitch-lines);
+      border-radius: 50%;
+      clip-path: inset(79.8% 0 0 0);
+      pointer-events: none;
+    }
+
     .print-title { display: none; }
 
-    /* REGOLE OTTIMIZZATE PER LA STAMPA / SALVATAGGIO IN PDF */
     @media print {
       @page { size: A4 portrait; margin: 5mm; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -830,12 +863,9 @@
       .pitch { width: 100% !important; max-width: 680px !important; height: 95% !important; border: 3px solid var(--pitch-lines) !important; box-shadow: none !important; }
       .player-label { background: #000000 !important; color: #ffffff !important; border: 1px solid #ffffff !important; }
       .control-handle, .arrow-delete-btn { display: none !important; }
-      
-      /* Mantiene la resa perfetta vettoriale di metà campo e frecce in stampa */
-      .pitch.half-pitch-only {
-        height: 70% !important;
-        margin-top: 5%;
-      }
+      /* stesse proporzioni dello schermo => le frecce restano nel punto disegnato */
+      .pitch.full-pitch { width: 152mm !important; height: 234.7mm !important; max-width: none !important; }
+      .pitch.half-pitch-only { width: 196mm !important; height: 151.3mm !important; max-width: none !important; }
     }
   </style>
 </head>
@@ -940,7 +970,7 @@
             <span>↗️</span> Disegna Freccia Uscita
           </button>
           <div style="font-size: 10px; color: var(--text-muted); text-align: center;">
-            Traccia la freccia. Clicca e trascina la freccia in qualsiasi punto per spostarla intera, oppure trascina i pallini di controllo ai lati/centro per modellarla.
+            Traccia la freccia. Clicca e **trascina la freccia in qualsiasi punto** per spostarla intera, oppure trascina i **pallini di controllo** ai lati/centro per modellarla.
           </div>
           <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella tutte le frecce</button>
         </div>
@@ -951,7 +981,7 @@
     <!-- AREA CAMPO DA GIOCO -->
     <main class="pitch-container" id="pitchContainer">
       <div class="pitch-controls">
-        <button class="btn-print" onclick="prepareAndPrint()">🖨️ STAMPA / PDF</button>
+        <button class="btn-print" onclick="window.print()">🖨️ STAMPA / PDF</button>
         <button class="btn-color-pitch" onclick="togglePitchBg()">🎨 SFONDO VERDE / BIANCO</button>
       </div>
       <div class="pitch" id="pitch">
@@ -1122,6 +1152,42 @@
       ]
     };
 
+    function pitchRect() {
+      const r = pitch.getBoundingClientRect();
+      return {
+        left: r.left + pitch.clientLeft,
+        top: r.top + pitch.clientTop,
+        width: pitch.clientWidth,
+        height: pitch.clientHeight
+      };
+    }
+
+    /* Dimensiona il campo con proporzioni reali: intero 68x105, metà campo (palle inattive) 68x52,5 */
+    function fitPitch() {
+      const cont = document.getElementById('pitchContainer');
+      let ratio = null;
+      if (isOppositeMode) ratio = (activeOppTab === 'palleInattive') ? (68 / 52.5) : (68 / 105);
+
+      if (!ratio) {
+        pitch.style.width = '';
+        pitch.style.height = '';
+        pitch.style.maxWidth = '';
+        return;
+      }
+
+      const cs = getComputedStyle(cont);
+      const availW = cont.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const availH = cont.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+
+      let h = availH * 0.98;
+      let w = h * ratio;
+      if (w > availW) { w = availW; h = w / ratio; }
+
+      pitch.style.maxWidth = 'none';
+      pitch.style.width = Math.floor(w) + 'px';
+      pitch.style.height = Math.floor(h) + 'px';
+    }
+
     function togglePitchBg() {
       pitch.classList.toggle('white-pitch');
     }
@@ -1275,7 +1341,7 @@
       if (!isOppositeMode || !isDrawingArrowMode) return;
       if (e.target.classList.contains('player-node') || e.target.classList.contains('control-handle') || e.target.classList.contains('arrow-path')) return;
 
-      const rect = pitch.getBoundingClientRect();
+      const rect = pitchRect();
       const startX = ((e.clientX - rect.left) / rect.width) * 100;
       const startY = ((e.clientY - rect.top) / rect.height) * 100;
 
@@ -1289,7 +1355,7 @@
 
     document.addEventListener('mousemove', (e) => {
       if (!isCreatingArrow || !tempArrow) return;
-      const rect = pitch.getBoundingClientRect();
+      const rect = pitchRect();
       const curX = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
       const curY = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
 
@@ -1321,6 +1387,11 @@
       arrowsSvg.innerHTML = '';
       arrowsSvg.appendChild(defs);
 
+      // il viewBox ancora le frecce al campo: se il campo cambia dimensione (stampa, resize)
+      // le frecce si scalano insieme e restano nello stesso punto
+      arrowsSvg.setAttribute('viewBox', `0 0 ${pitch.clientWidth} ${pitch.clientHeight}`);
+      arrowsSvg.setAttribute('preserveAspectRatio', 'none');
+
       if (!isOppositeMode) return;
 
       const currentArrows = oppData[activeOppTab].arrows || [];
@@ -1335,7 +1406,7 @@
     }
 
     function drawSvgBezierArrow(arr, isSelected, index, isTemp = false) {
-      const rect = pitch.getBoundingClientRect();
+      const rect = pitchRect();
       
       const px1 = (arr.x1 / 100) * rect.width;
       const py1 = (arr.y1 / 100) * rect.height;
@@ -1446,7 +1517,7 @@
 
       const move = (e) => {
         if (!dragging) return;
-        const rect = pitch.getBoundingClientRect();
+        const rect = pitchRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
@@ -1469,7 +1540,7 @@
     }
 
     function createDeleteButton(px1, py1, pcx, pcy, px2, py2, index) {
-      const rect = pitch.getBoundingClientRect();
+      const rect = pitchRect();
 
       const midX = 0.25 * px1 + 0.5 * pcx + 0.25 * px2;
       const midY = 0.25 * py1 + 0.5 * pcy + 0.25 * py2;
@@ -1530,6 +1601,7 @@
       } else {
         pitch.classList.remove('full-pitch', 'half-pitch-only');
       }
+      fitPitch();
 
       if (!isOppositeMode) {
         const currentTeamNodes = mainData[activeMainTab] || [];
@@ -1720,7 +1792,7 @@
       const stopDrag = () => { isDragging = false; };
       const moveDrag = (e) => {
         if (!isDragging) return;
-        const rect = pitch.getBoundingClientRect();
+        const rect = pitchRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
@@ -1765,7 +1837,7 @@
       if (!rawData) return;
       
       const data = JSON.parse(rawData);
-      const rect = pitch.getBoundingClientRect();
+      const rect = pitchRect();
       const leftPct = ((e.clientX - rect.left) / rect.width) * 100;
       const topPct = ((e.clientY - rect.top) / rect.height) * 100;
 
@@ -1983,14 +2055,10 @@
       renderPitchState();
     }
 
-    /* PREPARAZIONE PRIMA DELLA STAMPA */
-    function prepareAndPrint() {
-      selectedArrowIndex = -1;
-      renderPitchState();
-      setTimeout(() => {
-        window.print();
-      }, 100);
-    }
+    window.addEventListener('resize', () => {
+      fitPitch();
+      renderPitchArrows();
+    });
 
     renderRoster();
     updateHistorySelect();
