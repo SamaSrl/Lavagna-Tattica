@@ -813,6 +813,7 @@
 
     .print-title { display: none; }
 
+    /* REGOLE OTTIMIZZATE PER LA STAMPA / SALVATAGGIO IN PDF */
     @media print {
       @page { size: A4 portrait; margin: 5mm; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -829,6 +830,12 @@
       .pitch { width: 100% !important; max-width: 680px !important; height: 95% !important; border: 3px solid var(--pitch-lines) !important; box-shadow: none !important; }
       .player-label { background: #000000 !important; color: #ffffff !important; border: 1px solid #ffffff !important; }
       .control-handle, .arrow-delete-btn { display: none !important; }
+      
+      /* Mantiene la resa perfetta vettoriale di metà campo e frecce in stampa */
+      .pitch.half-pitch-only {
+        height: 70% !important;
+        margin-top: 5%;
+      }
     }
   </style>
 </head>
@@ -933,7 +940,7 @@
             <span>↗️</span> Disegna Freccia Uscita
           </button>
           <div style="font-size: 10px; color: var(--text-muted); text-align: center;">
-            Traccia la freccia. Clicca e **trascina la freccia in qualsiasi punto** per spostarla intera, oppure trascina i **pallini di controllo** ai lati/centro per modellarla.
+            Traccia la freccia. Clicca e trascina la freccia in qualsiasi punto per spostarla intera, oppure trascina i pallini di controllo ai lati/centro per modellarla.
           </div>
           <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella tutte le frecce</button>
         </div>
@@ -944,7 +951,7 @@
     <!-- AREA CAMPO DA GIOCO -->
     <main class="pitch-container" id="pitchContainer">
       <div class="pitch-controls">
-        <button class="btn-print" onclick="window.print()">🖨️ STAMPA / PDF</button>
+        <button class="btn-print" onclick="prepareAndPrint()">🖨️ STAMPA / PDF</button>
         <button class="btn-color-pitch" onclick="togglePitchBg()">🎨 SFONDO VERDE / BIANCO</button>
       </div>
       <div class="pitch" id="pitch">
@@ -1974,6 +1981,15 @@
       }
 
       renderPitchState();
+    }
+
+    /* PREPARAZIONE PRIMA DELLA STAMPA */
+    function prepareAndPrint() {
+      selectedArrowIndex = -1;
+      renderPitchState();
+      setTimeout(() => {
+        window.print();
+      }, 100);
     }
 
     renderRoster();
