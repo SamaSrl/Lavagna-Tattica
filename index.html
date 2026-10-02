@@ -427,6 +427,20 @@
       display: block;
     }
 
+    .pitch.half-pitch-only .goal-frame-bottom,
+    .pitch.half-pitch-only .penalty-area-small-bottom,
+    .pitch.half-pitch-only .penalty-area-big-bottom,
+    .pitch.half-pitch-only .penalty-spot-bottom,
+    .pitch.half-pitch-only .center-line {
+      display: none !important;
+    }
+
+    .pitch.half-pitch-only .center-circle {
+      top: auto;
+      bottom: -14.1%;
+      transform: translateX(-50%);
+    }
+
     .pitch.white-pitch {
       background: #ffffff !important;
       --pitch-lines: #111111;
@@ -882,6 +896,7 @@
           <button class="opp-tab-btn" id="tab-libera" onclick="switchOppTab('libera')">Libera</button>
           <button class="opp-tab-btn" id="tab-costruzione1" onclick="switchOppTab('costruzione1')">Costruzione 1</button>
           <button class="opp-tab-btn" id="tab-costruzione2" onclick="switchOppTab('costruzione2')">Costruzione 2</button>
+          <button class="opp-tab-btn" id="tab-palleInattive" onclick="switchOppTab('palleInattive')" style="grid-column: span 2;">Palle Inattive</button>
         </div>
 
         <div class="panel-header">Panchina Avversari</div>
@@ -1038,7 +1053,8 @@
       reparto: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
       libera: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
       costruzione1: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-      costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] }
+      costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
+      palleInattive: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] }
     };
 
     let isOppositeMode = false;
@@ -1115,10 +1131,9 @@
         formMenu.style.display = 'none';
         oppMenu.style.display = 'block';
         rolesPanel.style.display = 'none';
-        pitch.classList.add('full-pitch');
-        
+
         Object.keys(oppData).forEach(tab => {
-          if (!oppData[tab].teamNodes || oppData[tab].teamNodes.length === 0) {
+          if (tab !== 'palleInattive') {
             syncOppositeNodesForTab(tab);
           }
         });
@@ -1128,7 +1143,6 @@
         formMenu.style.display = 'block';
         oppMenu.style.display = 'none';
         rolesPanel.style.display = 'block';
-        pitch.classList.remove('full-pitch');
         if (isDrawingArrowMode) toggleArrowDrawMode();
       }
       updatePrintTitle();
@@ -1147,7 +1161,8 @@
           'reparto': 'Reparto', 
           'libera': 'Libera',
           'costruzione1': 'Costruzione 1',
-          'costruzione2': 'Costruzione 2'
+          'costruzione2': 'Costruzione 2',
+          'palleInattive': 'Palle Inattive'
         };
         printTitle.innerText = "Contrapposizione - " + labels[activeOppTab];
       }
@@ -1172,7 +1187,7 @@
       document.querySelectorAll('#opponentsMenu .opp-tab-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById(`tab-${tabKey}`).classList.add('active');
       
-      if (!oppData[activeOppTab].teamNodes || oppData[activeOppTab].teamNodes.length === 0) {
+      if (activeOppTab !== 'palleInattive') {
         syncOppositeNodesForTab(activeOppTab);
       }
 
@@ -1208,7 +1223,9 @@
       mainData[activeMainTab] = newNodes;
 
       Object.keys(oppData).forEach(tab => {
-        syncOppositeNodesForTab(tab);
+        if (tab !== 'palleInattive') {
+          syncOppositeNodesForTab(tab);
+        }
       });
 
       renderPitchState();
@@ -1326,7 +1343,6 @@
       path.setAttribute('marker-end', isSelected ? 'url(#arrowhead-selected)' : 'url(#arrowhead)');
 
       if (!isTemp) {
-        let lastClickTime = 0;
         let isDraggingArrow = false;
         let startMouseX = 0;
         let startMouseY = 0;
@@ -1338,7 +1354,7 @@
           isDraggingArrow = true;
           startMouseX = e.touches ? e.touches[0].clientX : e.clientX;
           startMouseY = e.touches ? e.touches[0].clientY : e.clientY;
-          initialArrState = { ...arr };
+          initialArrState = JSON.parse(JSON.stringify(arr));
           renderPitchState();
         };
 
@@ -1371,17 +1387,6 @@
         document.addEventListener('touchmove', moveDrag);
         document.addEventListener('mouseup', stopDrag);
         document.addEventListener('touchend', stopDrag);
-
-        path.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const currentTime = new Date().getTime();
-          const clickLength = currentTime - lastClickTime;
-
-          if (clickLength < 300 && clickLength > 0) {
-            deleteSingleArrow(index);
-          }
-          lastClickTime = currentTime;
-        });
       }
 
       arrowsSvg.appendChild(path);
@@ -1509,6 +1514,16 @@
     function renderPitchState() {
       pitch.querySelectorAll('.player-node').forEach(node => node.remove());
 
+      if (isOppositeMode && activeOppTab === 'palleInattive') {
+        pitch.classList.remove('full-pitch');
+        pitch.classList.add('half-pitch-only');
+      } else if (isOppositeMode) {
+        pitch.classList.remove('half-pitch-only');
+        pitch.classList.add('full-pitch');
+      } else {
+        pitch.classList.remove('full-pitch', 'half-pitch-only');
+      }
+
       if (!isOppositeMode) {
         const currentTeamNodes = mainData[activeMainTab] || [];
         currentTeamNodes.forEach((p, idx) => {
@@ -1570,7 +1585,13 @@
       if (playerId) node.dataset.playerId = playerId;
 
       node.addEventListener('dblclick', () => {
-        if (isOpposite) return;
+        if (isOpposite) {
+          if (activeOppTab === 'palleInattive') {
+            oppData[activeOppTab].teamNodes.splice(index, 1);
+            renderPitchState();
+          }
+          return;
+        }
         if (mainData[activeMainTab][index].capt) {
           mainData[activeMainTab][index].capt = '';
           const badge = node.querySelector('.captain-badge');
@@ -1652,6 +1673,12 @@
       numSpan.innerText = num;
       node.appendChild(numSpan);
 
+      node.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        oppData[activeOppTab].opponentNodes.splice(index, 1);
+        renderPitchState();
+      });
+
       attachDragEvents(node, (topPct, leftPct) => {
         oppData[activeOppTab].opponentNodes[index].top = topPct;
         oppData[activeOppTab].opponentNodes[index].left = leftPct;
@@ -1666,6 +1693,12 @@
       node.style.top = top + '%';
       node.style.left = left + '%';
       node.innerHTML = ballSvgContent;
+
+      node.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        oppData[activeOppTab].ballNode = null;
+        renderPitchState();
+      });
 
       attachDragEvents(node, (topPct, leftPct) => {
         oppData[activeOppTab].ballNode = { top: topPct, left: leftPct };
@@ -1737,6 +1770,16 @@
         oppData[activeOppTab].ballNode = { top: topPct, left: leftPct };
         pitch.querySelectorAll('.ball-node').forEach(b => b.remove());
         createBallNode(topPct, leftPct);
+      } else if (data.id && isOppositeMode && activeOppTab === 'palleInattive') {
+        oppData['palleInattive'].teamNodes.push({
+          top: topPct,
+          left: leftPct,
+          num: data.num,
+          name: data.name,
+          role: data.role,
+          playerId: data.id
+        });
+        renderPitchState();
       }
     });
 
@@ -1912,6 +1955,9 @@
 
       if (match.oppData) {
         oppData = match.oppData;
+        if (!oppData.palleInattive) {
+          oppData.palleInattive = { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] };
+        }
         Object.keys(oppData).forEach(k => {
           if (!oppData[k].arrows) oppData[k].arrows = [];
         });
@@ -1922,7 +1968,8 @@
           reparto: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
           libera: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
           costruzione1: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-          costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] }
+          costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
+          palleInattive: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] }
         };
       }
 
