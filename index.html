@@ -270,7 +270,6 @@
       border-radius: 12px !important;
     }
 
-    /* in modalità disegno le pedine non intercettano il mouse, così si può disegnare anche sopra di loro */
     .pitch.drawing-mode .player-node { pointer-events: none; }
 
     .pitch-controls {
@@ -449,7 +448,6 @@
       --pitch-lines: #111111;
     }
 
-    /* SVG LAYER PER FRECCE E OVALI */
     .arrows-svg-layer {
       position: absolute;
       top: 0;
@@ -460,7 +458,6 @@
       z-index: 8;
     }
 
-    /* mentre si disegna, nessun elemento SVG deve intercettare il mouse */
     .arrows-svg-layer.drawing * { pointer-events: none !important; }
 
     .arrow-path {
@@ -473,11 +470,9 @@
     }
 
     .arrow-path:active { cursor: grabbing; }
-
     .arrow-path:hover, .arrow-path.selected { stroke-width: 7; }
     .arrow-path.selected { filter: drop-shadow(0 0 3px rgba(255,255,255,0.95)); }
 
-    /* OVALI */
     .oval-shape { pointer-events: none; }
     .oval-shape.selected { filter: drop-shadow(0 0 3px rgba(255,255,255,0.95)); }
     .oval-hit {
@@ -850,7 +845,6 @@
     .btn-del-player { background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; }
     .btn-del-player:hover { color: var(--accent-red); }
 
-    /* PALLE INATTIVE: metà campo in orizzontale (proporzioni reali 68 x 52,5 m) */
     .pitch.full-pitch, .pitch.half-pitch-only { transition: none; }
 
     .pitch.half-pitch-only {
@@ -858,13 +852,11 @@
       border-bottom: 2px solid var(--pitch-lines) !important;
       border-radius: 12px 12px 0 0;
     }
-    /* area di rigore ingrandita (più spazio per le pedine con nome) mantenendo la metà campo */
     .pitch.half-pitch-only .goal-frame { left: 41%; width: 18%; }
     .pitch.half-pitch-only .penalty-area-small { left: 30%; width: 40%; height: 16%; }
     .pitch.half-pitch-only .penalty-area-big { left: 10%; width: 80%; height: 48%; }
     .pitch.half-pitch-only .penalty-spot { top: 31%; }
 
-    /* pedine e nomi più piccoli, solo nelle palle inattive (il pallone resta invariato) */
     .pitch.half-pitch-only .player-node:not(.ball-node) {
       width: 26px;
       height: 26px;
@@ -884,7 +876,6 @@
       padding-bottom: 0;
       transform: translateX(-50%);
     }
-    /* semicerchio (la "D") fuori dall'area di rigore */
     .pitch.half-pitch-only::after {
       content: '';
       position: absolute;
@@ -917,7 +908,6 @@
       .player-label { background: #000000 !important; color: #ffffff !important; border: 1px solid #ffffff !important; }
       .control-handle, .arrow-delete-btn { display: none !important; }
       .arrow-path.selected, .oval-shape.selected { filter: none !important; }
-      /* stesse proporzioni dello schermo => le frecce restano nel punto disegnato */
       .pitch.full-pitch { width: 152mm !important; height: 234.7mm !important; max-width: none !important; }
       .pitch.half-pitch-only { width: 196mm !important; height: 151.3mm !important; max-width: none !important; }
     }
@@ -1169,11 +1159,10 @@
     }
 
     let isOppositeMode = false;
-    let drawMode = null;            // null | 'arrow' | 'oval'
+    let drawMode = null;            
     let selectedArrowIndex = -1;
     let selectedOvalIndex = -1;
 
-    /* ===== PALETTE COLORI FRECCE / OVALI (due colori a scelta) ===== */
     let arrowPalette = ['#f59e0b', '#22d3ee'];
     try {
       const saved = JSON.parse(localStorage.getItem('arrowPalette'));
@@ -1276,7 +1265,6 @@
       };
     }
 
-    /* Dimensiona il campo con proporzioni reali: intero 68x105, metà campo (palle inattive) 68x52,5 */
     function fitPitch() {
       const cont = document.getElementById('pitchContainer');
       let ratio = null;
@@ -1376,11 +1364,6 @@
       renderPitchState();
     }
 
-    /* ===== SINCRONIZZAZIONE FORMAZIONE -> CONTRAPPOSIZIONI =====
-       Le pedine della squadra nelle contrapposizioni sono sempre derivate dalla pagina Formazione:
-       "Costruzione 1/2" usano la scheda Costruzione corrispondente, tutte le altre la Formazione Base.
-       Giocatori e modulo vengono sempre ricalcolati; una pedina trascinata a mano in una contrapposizione
-       mantiene la propria posizione finché non si cambia modulo. */
     function sourceKeyForOppTab(tabKey) {
       return (tabKey === 'costruzione1' || tabKey === 'costruzione2') ? tabKey : 'base';
     }
@@ -1421,7 +1404,7 @@
         playerId: ''
       }));
 
-      // Se stiamo modificando la scheda Base, il cambio di modulo si estende anche a Costruzione 1 e 2
+      // Se modifichi il modulo nella tab Base, aggiorna contemporaneamente anche Costruzione 1 e Costruzione 2
       if (activeMainTab === 'base') {
         mainData['base'] = createNodes();
         mainData['costruzione1'] = clone(mainData['base']);
@@ -1430,7 +1413,6 @@
         mainData[activeMainTab] = createNodes();
       }
 
-      // nuovo modulo: le contrapposizioni collegate ripartono dal nuovo schieramento
       OPP_TABS.forEach(tab => {
         if (tab !== 'palleInattive' && (activeMainTab === 'base' || sourceKeyForOppTab(tab) === activeMainTab)) {
           oppData[tab].teamNodes = [];
@@ -1440,28 +1422,28 @@
       renderPitchState();
     }
 
-    /* I giocatori inseriti/cambiati o modificati in "Formazione Base" si riflettono in Costruzione 1 e 2
-       (mantenendo o ereditando i dati del giocatore). Le posizioni sul campo delle Costruzioni restano indipendenti se non specificato altrimenti.
-       Le contrapposizioni leggono da questi dati, quindi si aggiornano di conseguenza. */
+    // Funzione chiave: propaga modifiche, trascini e inserimenti dalla Base a Costruzione 1 e Costruzione 2
     function propagateBaseToConstruction(index) {
       const b = mainData.base[index];
       if (!b) return;
       ['costruzione1', 'costruzione2'].forEach(k => {
-        if (!mainData[k]) mainData[k] = clone(mainData.base);
+        if (!mainData[k] || mainData[k].length <= index) {
+          mainData[k] = clone(mainData.base);
+        }
         let t = mainData[k][index];
-        if (!t) {
-          mainData[k][index] = clone(b);
-        } else {
+        if (t) {
           t.num = b.num || '';
           t.name = b.name || '';
           t.role = b.role || '';
           t.playerId = b.playerId || '';
           t.capt = b.capt || '';
+          // Mantiene la stessa posizione sul campo se si vuole sincronia totale, oppure rimuovi se vuoi posizioni indipendenti
+          t.top = b.top;
+          t.left = b.left;
         }
       });
     }
 
-    /* ===== DRAG GLOBALE (un solo set di listener) ===== */
     let activeDrag = null;
     let suppressClickUntil = 0;
     function suppressClick() { suppressClickUntil = Date.now() + 400; }
@@ -1486,7 +1468,6 @@
     document.addEventListener('touchend', endDrag);
     document.addEventListener('touchcancel', endDrag);
 
-    /* ===== MODALITÀ DISEGNO (frecce / ovali) ===== */
     function updateDrawUi() {
       document.getElementById('btnDrawArrow').classList.toggle('active', drawMode === 'arrow');
       document.getElementById('btnDrawOval').classList.toggle('active', drawMode === 'oval');
@@ -1537,10 +1518,9 @@
       }
     }
 
-    /* ===== CREAZIONE FRECCE / OVALI SUL CAMPO ===== */
     let isCreating = false;
-    let tempArrow = null;    // coordinate in % del campo
-    let tempStroke = null;   // { pts: [{x,y}] } in pixel relativi al campo
+    let tempArrow = null;    
+    let tempStroke = null;   
 
     function startCreate(e) {
       if (!isOppositeMode || !drawMode) return;
@@ -1627,10 +1607,6 @@
     document.addEventListener('mouseup', endCreate);
     document.addEventListener('touchend', endCreate);
 
-    /* ===== CORREZIONE DELL'OVALE A MANO LIBERA =====
-       Il tratto viene approssimato con un'ellisse pulita: asse principale ricavato dalla distribuzione dei punti,
-       agganciato a orizzontale/verticale se quasi allineato, e trasformato in cerchio se quasi circolare.
-       Unità di misura dell'ovale: % della larghezza del campo (sia per x che per y), così non si deforma. */
     function fitOval(pts) {
       if (pts.length < 8) return null;
       const n = pts.length;
@@ -1644,7 +1620,7 @@
         sxx += dx * dx; syy += dy * dy; sxy += dx * dy;
       });
 
-      let deg = 0.5 * Math.atan2(2 * sxy, sxx - syy) * 180 / Math.PI;   // (-90, 90]
+      let deg = 0.5 * Math.atan2(2 * sxy, sxx - syy) * 180 / Math.PI;   
       if (Math.abs(deg) < 12) deg = 0;
       else if (Math.abs(deg) > 78) deg = 90;
 
@@ -1669,14 +1645,13 @@
       const cyPx = my + uy * ca + vy * cb;
 
       const big = Math.max(rx, ry), small = Math.min(rx, ry);
-      if (small < 12) return null;                  // tratto troppo piccolo o troppo "piatto"
+      if (small < 12) return null;                  
       if (big / small < 1.15) { rx = ry = (rx + ry) / 2; deg = 0; }
 
       const W = pitchRect().width;
       return { cx: cxPx / W * 100, cy: cyPx / W * 100, rx: rx / W * 100, ry: ry / W * 100, rot: deg };
     }
 
-    /* ===== RENDERING FRECCE / OVALI ===== */
     let currentDefs = null;
 
     function ensureMarker(color) {
@@ -1704,8 +1679,6 @@
       currentDefs = document.createElementNS(SVG_NS, 'defs');
       arrowsSvg.appendChild(currentDefs);
 
-      // il viewBox ancora i disegni al campo: se il campo cambia dimensione (stampa, resize)
-      // frecce e ovali si scalano insieme e restano nello stesso punto
       arrowsSvg.setAttribute('viewBox', `0 0 ${pitch.clientWidth} ${pitch.clientHeight}`);
       arrowsSvg.setAttribute('preserveAspectRatio', 'none');
 
@@ -1875,14 +1848,12 @@
         const ux = Math.cos(th), uy = Math.sin(th);
         const vx = -Math.sin(th), vy = Math.cos(th);
 
-        // pallino sull'asse principale: regola la larghezza
         createControlHandle(cx + rx * ux, cy + rx * uy, (nx, ny, px, py) => {
           const proj = (px - cx) * ux + (py - cy) * uy;
           ov.rx = Math.max(2, Math.abs(proj) / k);
           renderPitchArrows();
         });
 
-        // pallino sull'asse secondario: regola l'altezza
         createControlHandle(cx + ry * vx, cy + ry * vy, (nx, ny, px, py) => {
           const proj = (px - cx) * vx + (py - cy) * vy;
           ov.ry = Math.max(2, Math.abs(proj) / k);
@@ -1894,7 +1865,6 @@
       }
     }
 
-    /* onMove riceve: percentuali (nx, ny) limitate al campo e pixel grezzi (px, py) relativi al campo */
     function createControlHandle(px, py, onMove, isCP = false) {
       const circle = document.createElementNS(SVG_NS, 'circle');
       circle.setAttribute('cx', px);
@@ -1971,7 +1941,6 @@
       }
     });
 
-    // in stampa nessuna forma deve risultare "selezionata"
     window.addEventListener('beforeprint', () => {
       selectedArrowIndex = -1;
       selectedOvalIndex = -1;
@@ -1999,7 +1968,6 @@
           createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx, false);
         });
       } else {
-        // la squadra nelle contrapposizioni rispecchia sempre la pagina Formazione
         if (activeOppTab !== 'palleInattive') {
           syncOppositeNodesForTab(activeOppTab);
         }
@@ -2093,7 +2061,6 @@
         e.preventDefault();
         node.classList.remove('drag-over');
 
-        // nelle contrapposizioni (tranne palle inattive) i giocatori arrivano dalla pagina Formazione
         if (isOpposite && activeOppTab !== 'palleInattive') return;
 
         const rawData = e.dataTransfer.getData('text/plain');
@@ -2139,7 +2106,11 @@
           mainData[activeMainTab][index].name = data.name;
           mainData[activeMainTab][index].role = data.role;
           mainData[activeMainTab][index].playerId = data.id;
-          if (activeMainTab === 'base') propagateBaseToConstruction(index);
+          
+          // Se siamo nella scheda base, aggiorna subito Costruzione 1 e 2
+          if (activeMainTab === 'base') {
+            propagateBaseToConstruction(index);
+          }
         }
 
         updateUsedPlayersState();
@@ -2343,7 +2314,6 @@
       const isWhite = pitch.classList.contains('white-pitch');
       const oppColor = document.getElementById('oppColorSelect').value;
 
-      // copie profonde: ogni partita salvata è indipendente da quella che si sta modificando
       const matchData = {
         id: Date.now(),
         date,
