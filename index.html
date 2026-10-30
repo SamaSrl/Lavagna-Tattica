@@ -858,10 +858,24 @@
       border-bottom: 2px solid var(--pitch-lines) !important;
       border-radius: 12px 12px 0 0;
     }
-    .pitch.half-pitch-only .goal-frame { left: 44.6%; width: 10.8%; }
-    .pitch.half-pitch-only .penalty-area-small { left: 36.5%; width: 27%; height: 10.5%; }
-    .pitch.half-pitch-only .penalty-area-big { left: 20.35%; width: 59.3%; height: 31.4%; }
-    .pitch.half-pitch-only .penalty-spot { top: 21%; }
+    /* area di rigore ingrandita (più spazio per le pedine con nome) mantenendo la metà campo */
+    .pitch.half-pitch-only .goal-frame { left: 41%; width: 18%; }
+    .pitch.half-pitch-only .penalty-area-small { left: 30%; width: 40%; height: 16%; }
+    .pitch.half-pitch-only .penalty-area-big { left: 10%; width: 80%; height: 48%; }
+    .pitch.half-pitch-only .penalty-spot { top: 31%; }
+
+    /* pedine e nomi più piccoli, solo nelle palle inattive (il pallone resta invariato) */
+    .pitch.half-pitch-only .player-node:not(.ball-node) {
+      width: 26px;
+      height: 26px;
+      font-size: 10px;
+      border-width: 1.5px;
+    }
+    .pitch.half-pitch-only .player-label {
+      bottom: -14px;
+      font-size: 8px;
+      padding: 1px 4px;
+    }
     .pitch.half-pitch-only .center-circle {
       top: auto;
       bottom: -17.45%;
@@ -874,13 +888,13 @@
     .pitch.half-pitch-only::after {
       content: '';
       position: absolute;
-      left: 36.55%;
-      top: 3.55%;
-      width: 26.9%;
-      height: 34.9%;
+      left: 30%;
+      top: 5.1%;
+      width: 40%;
+      height: 51.8%;
       border: 1.5px solid var(--pitch-lines);
       border-radius: 50%;
-      clip-path: inset(79.8% 0 0 0);
+      clip-path: inset(82.8% 0 0 0);
       pointer-events: none;
     }
 
