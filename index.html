@@ -961,7 +961,7 @@
 
       <!-- PANNELLO MODULI E COSTRUZIONE -->
       <div id="formationMenu">
-        <div class="panel-header">Schede Squadra</div>
+        <div class="panel-header">Schedes Squadra</div>
         <div class="opp-tabs-container" style="grid-template-columns: 1fr; margin-bottom: 8px;">
           <button class="opp-tab-btn active" id="tab-main-base" onclick="switchMainTab('base')">Formazione Base</button>
           <button class="opp-tab-btn" id="tab-main-costruzione1" onclick="switchMainTab('costruzione1')">Costruzione 1</button>
@@ -1411,7 +1411,7 @@
     function setFormation(fmt) {
       const config = formations[fmt] || formations['4-3-3'];
 
-      const newNodes = config.map(pos => ({
+      const createNodes = () => config.map(pos => ({
         top: pos.top,
         left: pos.left,
         num: '',
@@ -1421,11 +1421,18 @@
         playerId: ''
       }));
 
-      mainData[activeMainTab] = newNodes;
+      // Se stiamo modificando la scheda Base, il cambio di modulo si estende anche a Costruzione 1 e 2
+      if (activeMainTab === 'base') {
+        mainData['base'] = createNodes();
+        mainData['costruzione1'] = clone(mainData['base']);
+        mainData['costruzione2'] = clone(mainData['base']);
+      } else {
+        mainData[activeMainTab] = createNodes();
+      }
 
       // nuovo modulo: le contrapposizioni collegate ripartono dal nuovo schieramento
       OPP_TABS.forEach(tab => {
-        if (tab !== 'palleInattive' && sourceKeyForOppTab(tab) === activeMainTab) {
+        if (tab !== 'palleInattive' && (activeMainTab === 'base' || sourceKeyForOppTab(tab) === activeMainTab)) {
           oppData[tab].teamNodes = [];
         }
       });
@@ -1433,20 +1440,24 @@
       renderPitchState();
     }
 
-    /* I giocatori inseriti/cambiati in "Formazione Base" si riflettono in Costruzione 1 e 2
-       (stessa posizione nello schieramento). Le posizioni sul campo delle Costruzioni restano indipendenti.
+    /* I giocatori inseriti/cambiati o modificati in "Formazione Base" si riflettono in Costruzione 1 e 2
+       (mantenendo o ereditando i dati del giocatore). Le posizioni sul campo delle Costruzioni restano indipendenti se non specificato altrimenti.
        Le contrapposizioni leggono da questi dati, quindi si aggiornano di conseguenza. */
     function propagateBaseToConstruction(index) {
       const b = mainData.base[index];
       if (!b) return;
       ['costruzione1', 'costruzione2'].forEach(k => {
-        const t = mainData[k] && mainData[k][index];
-        if (!t) return;
-        t.num = b.num || '';
-        t.name = b.name || '';
-        t.role = b.role || '';
-        t.playerId = b.playerId || '';
-        t.capt = b.capt || '';
+        if (!mainData[k]) mainData[k] = clone(mainData.base);
+        let t = mainData[k][index];
+        if (!t) {
+          mainData[k][index] = clone(b);
+        } else {
+          t.num = b.num || '';
+          t.name = b.name || '';
+          t.role = b.role || '';
+          t.playerId = b.playerId || '';
+          t.capt = b.capt || '';
+        }
       });
     }
 
@@ -2072,6 +2083,7 @@
         } else {
           mainData[activeMainTab][index].top = topPct;
           mainData[activeMainTab][index].left = leftPct;
+          if (activeMainTab === 'base') propagateBaseToConstruction(index);
         }
       }, 19);
 
