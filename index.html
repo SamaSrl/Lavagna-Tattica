@@ -270,6 +270,9 @@
       border-radius: 12px !important;
     }
 
+    /* in modalità disegno le pedine non intercettano il mouse, così si può disegnare anche sopra di loro */
+    .pitch.drawing-mode .player-node { pointer-events: none; }
+
     .pitch-controls {
       position: absolute;
       bottom: 20px;
@@ -446,7 +449,7 @@
       --pitch-lines: #111111;
     }
 
-    /* SVG LAYER PER FRECCE */
+    /* SVG LAYER PER FRECCE E OVALI */
     .arrows-svg-layer {
       position: absolute;
       top: 0;
@@ -457,23 +460,35 @@
       z-index: 8;
     }
 
+    /* mentre si disegna, nessun elemento SVG deve intercettare il mouse */
+    .arrows-svg-layer.drawing * { pointer-events: none !important; }
+
     .arrow-path {
-      stroke: #f59e0b;
       stroke-width: 5;
       stroke-dasharray: 6 4;
       fill: none;
       cursor: grab;
       pointer-events: stroke !important;
+      touch-action: none;
     }
 
-    .arrow-path:active {
-      cursor: grabbing;
-    }
+    .arrow-path:active { cursor: grabbing; }
 
-    .arrow-path:hover, .arrow-path.selected {
-      stroke: #ff2a4b;
-      stroke-width: 7;
+    .arrow-path:hover, .arrow-path.selected { stroke-width: 7; }
+    .arrow-path.selected { filter: drop-shadow(0 0 3px rgba(255,255,255,0.95)); }
+
+    /* OVALI */
+    .oval-shape { pointer-events: none; }
+    .oval-shape.selected { filter: drop-shadow(0 0 3px rgba(255,255,255,0.95)); }
+    .oval-hit {
+      fill: none;
+      stroke: transparent;
+      stroke-width: 16;
+      pointer-events: stroke !important;
+      cursor: grab;
+      touch-action: none;
     }
+    .oval-hit:active { cursor: grabbing; }
 
     .control-handle {
       fill: #ffffff;
@@ -484,13 +499,8 @@
       pointer-events: all !important;
     }
 
-    .control-handle:active {
-      cursor: grabbing;
-    }
-
-    .control-handle.handle-cp {
-      fill: #f59e0b;
-    }
+    .control-handle:active { cursor: grabbing; }
+    .control-handle.handle-cp { fill: #f59e0b; }
 
     .arrow-delete-btn {
       pointer-events: all !important;
@@ -663,6 +673,37 @@
       box-shadow: 0 0 10px var(--accent-red-glow);
     }
 
+    .color-slots { display: flex; gap: 8px; }
+
+    .color-slot {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      border: 1px solid var(--border-tech);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-main);
+    }
+
+    .color-slot.active {
+      border-color: var(--accent-red);
+      box-shadow: 0 0 8px var(--accent-red-glow);
+    }
+
+    .color-slot input[type="color"] {
+      width: 26px;
+      height: 26px;
+      border: none;
+      padding: 0;
+      background: none;
+      cursor: pointer;
+    }
+
     .btn-clear-arrows {
       background: #333;
       border: 1px solid #555;
@@ -702,9 +743,7 @@
       outline: none;
     }
 
-    .opp-color-picker-container select:focus {
-      border-color: var(--accent-red);
-    }
+    .opp-color-picker-container select:focus { border-color: var(--accent-red); }
 
     .opponents-bench {
       display: flex;
@@ -863,6 +902,7 @@
       .pitch { width: 100% !important; max-width: 680px !important; height: 95% !important; border: 3px solid var(--pitch-lines) !important; box-shadow: none !important; }
       .player-label { background: #000000 !important; color: #ffffff !important; border: 1px solid #ffffff !important; }
       .control-handle, .arrow-delete-btn { display: none !important; }
+      .arrow-path.selected, .oval-shape.selected { filter: none !important; }
       /* stesse proporzioni dello schermo => le frecce restano nel punto disegnato */
       .pitch.full-pitch { width: 152mm !important; height: 234.7mm !important; max-width: none !important; }
       .pitch.half-pitch-only { width: 196mm !important; height: 151.3mm !important; max-width: none !important; }
@@ -925,7 +965,7 @@
       <!-- PANNELLO AVVERSARI E TAB CONTRAPPOSIZIONI -->
       <div id="opponentsMenu" style="display: none;">
         <div class="panel-header">Contrapposizioni</div>
-        
+
         <div class="opp-tabs-container">
           <button class="opp-tab-btn active" id="tab-uomo" onclick="switchOppTab('uomo')">Uomo/Uomo</button>
           <button class="opp-tab-btn" id="tab-piuUno" onclick="switchOppTab('piuUno')">+1</button>
@@ -963,16 +1003,30 @@
           <div class="ball-bench-item" draggable="true" ondragstart="handleBallDrag(event)" id="ballBenchContainer"></div>
         </div>
 
-        <!-- STRUMENTO FRECCE PER LE USCITE -->
-        <div class="panel-header" style="margin-top: 15px;">Frecce Uscite</div>
+        <!-- STRUMENTI FRECCE E OVALI -->
+        <div class="panel-header" style="margin-top: 15px;">Frecce e Ovali</div>
         <div class="arrow-tools-container">
+          <div class="color-slots">
+            <div class="color-slot active" id="colorSlot0" onclick="selectColorSlot(0)" title="Seleziona questo colore (clicca sul quadratino per cambiarlo)">
+              <input type="color" id="colorInput0" value="#f59e0b" oninput="updatePaletteColor(0, this.value)">
+              <span>Colore 1</span>
+            </div>
+            <div class="color-slot" id="colorSlot1" onclick="selectColorSlot(1)" title="Seleziona questo colore (clicca sul quadratino per cambiarlo)">
+              <input type="color" id="colorInput1" value="#22d3ee" oninput="updatePaletteColor(1, this.value)">
+              <span>Colore 2</span>
+            </div>
+          </div>
           <button class="btn-arrow-tool" id="btnDrawArrow" onclick="toggleArrowDrawMode()">
-            <span>↗️</span> Disegna Freccia Uscita
+            <span>↗️</span> Disegna Freccia
+          </button>
+          <button class="btn-arrow-tool" id="btnDrawOval" onclick="toggleOvalDrawMode()">
+            <span>⭕</span> Disegna Ovale a mano libera
           </button>
           <div style="font-size: 10px; color: var(--text-muted); text-align: center;">
-            Traccia la freccia. Clicca e **trascina la freccia in qualsiasi punto** per spostarla intera, oppure trascina i **pallini di controllo** ai lati/centro per modellarla.
+            Scegli il colore, poi disegna. L'ovale tracciato a mano libera viene raddrizzato automaticamente.
+            Trascina una forma per spostarla, usa i pallini per modificarla. Con una forma selezionata, cliccando un colore la ricolori.
           </div>
-          <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella tutte le frecce</button>
+          <button class="btn-clear-arrows" onclick="clearCurrentTabArrows()">🗑️ Cancella frecce e ovali</button>
         </div>
 
       </div>
@@ -998,17 +1052,8 @@
         <div class="penalty-area-small-bottom"></div>
         <div class="goal-frame-bottom"></div>
 
-        <!-- SVG LAYER PER DISEGNO E RENDERING FRECCE -->
-        <svg class="arrows-svg-layer" id="arrowsSvg">
-          <defs>
-            <marker id="arrowhead" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b" />
-            </marker>
-            <marker id="arrowhead-selected" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 1 L 10 5 L 0 9 z" fill="#ff2a4b" />
-            </marker>
-          </defs>
-        </svg>
+        <!-- SVG LAYER PER DISEGNO E RENDERING FRECCE / OVALI (defs generati da JS) -->
+        <svg class="arrows-svg-layer" id="arrowsSvg"></svg>
       </div>
     </main>
 
@@ -1071,10 +1116,20 @@
 
     document.getElementById('ballBenchContainer').innerHTML = ballSvgContent;
 
+    const SVG_NS = 'http://www.w3.org/2000/svg';
     const pitch = document.getElementById('pitch');
     const arrowsSvg = document.getElementById('arrowsSvg');
     let roster = JSON.parse(localStorage.getItem('teamRoster')) || [];
     let matchHistory = JSON.parse(localStorage.getItem('matchHistory')) || [];
+
+    const OPP_TABS = ['uomo', 'piuUno', 'reparto', 'libera', 'costruzione1', 'costruzione2', 'palleInattive'];
+
+    function newOppTab() {
+      return { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [], ovals: [] };
+    }
+
+    function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
     let activeMainTab = 'base';
     let mainData = {
@@ -1084,19 +1139,64 @@
     };
 
     let activeOppTab = 'uomo';
-    let oppData = {
-      uomo: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-      piuUno: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-      reparto: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-      libera: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-      costruzione1: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-      costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-      palleInattive: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] }
-    };
+    let oppData = {};
+    OPP_TABS.forEach(t => { oppData[t] = newOppTab(); });
+
+    function normalizeOppData(d) {
+      OPP_TABS.forEach(t => {
+        if (!d[t]) d[t] = newOppTab();
+        if (!d[t].teamNodes) d[t].teamNodes = [];
+        if (!d[t].opponentNodes) d[t].opponentNodes = [];
+        if (!d[t].arrows) d[t].arrows = [];
+        if (!d[t].ovals) d[t].ovals = [];
+        if (d[t].ballNode === undefined) d[t].ballNode = null;
+      });
+      return d;
+    }
 
     let isOppositeMode = false;
-    let isDrawingArrowMode = false;
+    let drawMode = null;            // null | 'arrow' | 'oval'
     let selectedArrowIndex = -1;
+    let selectedOvalIndex = -1;
+
+    /* ===== PALETTE COLORI FRECCE / OVALI (due colori a scelta) ===== */
+    let arrowPalette = ['#f59e0b', '#22d3ee'];
+    try {
+      const saved = JSON.parse(localStorage.getItem('arrowPalette'));
+      if (Array.isArray(saved) && saved.length === 2) arrowPalette = saved;
+    } catch (e) {}
+    let activeColorSlot = 0;
+
+    function currentColor() { return arrowPalette[activeColorSlot]; }
+
+    function refreshColorUi() {
+      [0, 1].forEach(i => {
+        document.getElementById('colorInput' + i).value = arrowPalette[i];
+        document.getElementById('colorSlot' + i).classList.toggle('active', i === activeColorSlot);
+      });
+    }
+
+    function getSelectedShape() {
+      const cur = oppData[activeOppTab];
+      if (selectedArrowIndex >= 0) return cur.arrows[selectedArrowIndex] || null;
+      if (selectedOvalIndex >= 0) return cur.ovals[selectedOvalIndex] || null;
+      return null;
+    }
+
+    function selectColorSlot(i) {
+      activeColorSlot = i;
+      const sel = getSelectedShape();
+      if (sel) { sel.color = arrowPalette[i]; renderPitchArrows(); }
+      refreshColorUi();
+    }
+
+    function updatePaletteColor(i, hex) {
+      const old = arrowPalette[i];
+      arrowPalette[i] = hex;
+      try { localStorage.setItem('arrowPalette', JSON.stringify(arrowPalette)); } catch (e) {}
+      const sel = getSelectedShape();
+      if (sel && sel.color === old) { sel.color = hex; renderPitchArrows(); }
+    }
 
     const roleColors = {
       'P': 'var(--role-p)',
@@ -1199,24 +1299,20 @@
       const oppMenu = document.getElementById('opponentsMenu');
       const rolesPanel = document.getElementById('rolesPanelContainer');
 
+      selectedArrowIndex = -1;
+      selectedOvalIndex = -1;
+
       if (isOppositeMode) {
         btnText.innerText = '◄ Formazione';
         formMenu.style.display = 'none';
         oppMenu.style.display = 'block';
         rolesPanel.style.display = 'none';
-
-        Object.keys(oppData).forEach(tab => {
-          if (tab !== 'palleInattive') {
-            syncOppositeNodesForTab(tab);
-          }
-        });
-
       } else {
         btnText.innerText = 'Contrapposizione';
         formMenu.style.display = 'block';
         oppMenu.style.display = 'none';
         rolesPanel.style.display = 'block';
-        if (isDrawingArrowMode) toggleArrowDrawMode();
+        cancelDrawMode();
       }
       updatePrintTitle();
       renderPitchState();
@@ -1228,10 +1324,10 @@
         const labels = { 'base': 'Formazione Base', 'costruzione1': 'Costruzione 1', 'costruzione2': 'Costruzione 2' };
         printTitle.innerText = labels[activeMainTab];
       } else {
-        const labels = { 
-          'uomo': 'Uomo su Uomo', 
-          'piuUno': '+1', 
-          'reparto': 'Reparto', 
+        const labels = {
+          'uomo': 'Uomo su Uomo',
+          'piuUno': '+1',
+          'reparto': 'Reparto',
           'libera': 'Libera',
           'costruzione1': 'Costruzione 1',
           'costruzione2': 'Costruzione 2',
@@ -1247,7 +1343,7 @@
       document.getElementById(`tab-main-${tabKey}`).classList.add('active');
 
       if (!mainData[activeMainTab] || mainData[activeMainTab].length === 0) {
-        mainData[activeMainTab] = JSON.parse(JSON.stringify(mainData['base']));
+        mainData[activeMainTab] = clone(mainData['base']);
       }
 
       updatePrintTitle();
@@ -1257,32 +1353,50 @@
     function switchOppTab(tabKey) {
       activeOppTab = tabKey;
       selectedArrowIndex = -1;
+      selectedOvalIndex = -1;
+      cancelDrawMode();
       document.querySelectorAll('#opponentsMenu .opp-tab-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById(`tab-${tabKey}`).classList.add('active');
-      
-      if (activeOppTab !== 'palleInattive') {
-        syncOppositeNodesForTab(activeOppTab);
-      }
 
       updatePrintTitle();
       renderPitchState();
     }
 
+    /* ===== SINCRONIZZAZIONE FORMAZIONE -> CONTRAPPOSIZIONI =====
+       Le pedine della squadra nelle contrapposizioni sono sempre derivate dalla pagina Formazione:
+       "Costruzione 1/2" usano la scheda Costruzione corrispondente, tutte le altre la Formazione Base.
+       Giocatori e modulo vengono sempre ricalcolati; una pedina trascinata a mano in una contrapposizione
+       mantiene la propria posizione finché non si cambia modulo. */
+    function sourceKeyForOppTab(tabKey) {
+      return (tabKey === 'costruzione1' || tabKey === 'costruzione2') ? tabKey : 'base';
+    }
+
+    function sourceNodesForOppTab(tabKey) {
+      const src = mainData[sourceKeyForOppTab(tabKey)];
+      return (src && src.length > 0) ? src : (mainData.base || []);
+    }
+
     function syncOppositeNodesForTab(tabKey) {
-      const sourceNodes = (mainData[activeMainTab] && mainData[activeMainTab].length > 0) ? mainData[activeMainTab] : mainData['base'];
-      oppData[tabKey].teamNodes = sourceNodes.map(p => ({
-        top: 100 - (p.top * 0.5),
-        left: 100 - p.left,
-        num: p.num,
-        name: p.name,
-        role: p.role,
-        playerId: p.playerId
-      }));
+      const src = sourceNodesForOppTab(tabKey);
+      const old = oppData[tabKey].teamNodes || [];
+      oppData[tabKey].teamNodes = src.map((p, i) => {
+        const prev = old[i];
+        const moved = !!(prev && prev.moved);
+        return {
+          top: moved ? prev.top : 100 - (p.top * 0.5),
+          left: moved ? prev.left : 100 - p.left,
+          moved: moved,
+          num: p.num || '',
+          name: p.name || '',
+          role: p.role || '',
+          playerId: p.playerId || ''
+        };
+      });
     }
 
     function setFormation(fmt) {
       const config = formations[fmt] || formations['4-3-3'];
-      
+
       const newNodes = config.map(pos => ({
         top: pos.top,
         left: pos.left,
@@ -1295,33 +1409,73 @@
 
       mainData[activeMainTab] = newNodes;
 
-      Object.keys(oppData).forEach(tab => {
-        if (tab !== 'palleInattive') {
-          syncOppositeNodesForTab(tab);
+      // nuovo modulo: le contrapposizioni collegate ripartono dal nuovo schieramento
+      OPP_TABS.forEach(tab => {
+        if (tab !== 'palleInattive' && sourceKeyForOppTab(tab) === activeMainTab) {
+          oppData[tab].teamNodes = [];
         }
       });
 
       renderPitchState();
     }
 
-    /* GESTIONE FRECCE DI USCITA */
-    function toggleArrowDrawMode() {
-      isDrawingArrowMode = !isDrawingArrowMode;
-      const btn = document.getElementById('btnDrawArrow');
-      if (isDrawingArrowMode) {
-        btn.classList.add('active');
-        pitch.style.cursor = 'crosshair';
-      } else {
-        btn.classList.remove('active');
-        pitch.style.cursor = 'default';
-      }
+    /* ===== DRAG GLOBALE (un solo set di listener) ===== */
+    let activeDrag = null;
+    let suppressClickUntil = 0;
+    function suppressClick() { suppressClickUntil = Date.now() + 400; }
+
+    function evPoint(e) {
+      const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+      return { x: t.clientX, y: t.clientY };
     }
 
+    function beginDrag(moveFn) { activeDrag = moveFn; }
+
+    document.addEventListener('mousemove', (e) => { if (activeDrag) activeDrag(e); });
+    document.addEventListener('touchmove', (e) => {
+      if (!activeDrag) return;
+      if (e.cancelable) e.preventDefault();
+      activeDrag(e);
+    }, { passive: false });
+    function endDrag() {
+      if (activeDrag) { suppressClick(); activeDrag = null; }
+    }
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+    document.addEventListener('touchcancel', endDrag);
+
+    /* ===== MODALITÀ DISEGNO (frecce / ovali) ===== */
+    function updateDrawUi() {
+      document.getElementById('btnDrawArrow').classList.toggle('active', drawMode === 'arrow');
+      document.getElementById('btnDrawOval').classList.toggle('active', drawMode === 'oval');
+      pitch.classList.toggle('drawing-mode', !!drawMode);
+      arrowsSvg.classList.toggle('drawing', !!drawMode);
+      pitch.style.cursor = drawMode ? 'crosshair' : 'default';
+    }
+
+    function setDrawMode(mode) {
+      drawMode = (drawMode === mode) ? null : mode;
+      updateDrawUi();
+    }
+
+    function cancelDrawMode() {
+      drawMode = null;
+      isCreating = false;
+      tempArrow = null;
+      tempStroke = null;
+      updateDrawUi();
+    }
+
+    function toggleArrowDrawMode() { setDrawMode('arrow'); }
+    function toggleOvalDrawMode() { setDrawMode('oval'); }
+
     function clearCurrentTabArrows() {
-      if (confirm('Vuoi cancellare tutte le frecce in questa scheda?')) {
+      if (confirm('Vuoi cancellare tutte le frecce e gli ovali in questa scheda?')) {
         oppData[activeOppTab].arrows = [];
+        oppData[activeOppTab].ovals = [];
         selectedArrowIndex = -1;
-        renderPitchState();
+        selectedOvalIndex = -1;
+        renderPitchArrows();
       }
     }
 
@@ -1329,85 +1483,223 @@
       if (index >= 0 && index < oppData[activeOppTab].arrows.length) {
         oppData[activeOppTab].arrows.splice(index, 1);
         selectedArrowIndex = -1;
-        renderPitchState();
+        renderPitchArrows();
       }
     }
 
-    // EVENTI DI CREAZIONE FRECCIA SUL CAMPO
-    let isCreatingArrow = false;
-    let tempArrow = null;
+    function deleteSingleOval(index) {
+      if (index >= 0 && index < oppData[activeOppTab].ovals.length) {
+        oppData[activeOppTab].ovals.splice(index, 1);
+        selectedOvalIndex = -1;
+        renderPitchArrows();
+      }
+    }
 
-    pitch.addEventListener('mousedown', (e) => {
-      if (!isOppositeMode || !isDrawingArrowMode) return;
-      if (e.target.classList.contains('player-node') || e.target.classList.contains('control-handle') || e.target.classList.contains('arrow-path')) return;
+    /* ===== CREAZIONE FRECCE / OVALI SUL CAMPO ===== */
+    let isCreating = false;
+    let tempArrow = null;    // coordinate in % del campo
+    let tempStroke = null;   // { pts: [{x,y}] } in pixel relativi al campo
 
+    function startCreate(e) {
+      if (!isOppositeMode || !drawMode) return;
+      if (e.type === 'mousedown' && e.button !== 0) return;
+      if (e.cancelable) e.preventDefault();
+
+      const p = evPoint(e);
       const rect = pitchRect();
-      const startX = ((e.clientX - rect.left) / rect.width) * 100;
-      const startY = ((e.clientY - rect.top) / rect.height) * 100;
+      const rx = p.x - rect.left;
+      const ry = p.y - rect.top;
 
-      isCreatingArrow = true;
-      tempArrow = {
-        x1: startX, y1: startY,
-        cx: startX, cy: startY,
-        x2: startX, y2: startY
-      };
-    });
+      isCreating = true;
+      if (drawMode === 'arrow') {
+        const sx = clamp(rx / rect.width * 100, 0, 100);
+        const sy = clamp(ry / rect.height * 100, 0, 100);
+        tempArrow = { x1: sx, y1: sy, cx: sx, cy: sy, x2: sx, y2: sy, color: currentColor() };
+        tempStroke = null;
+      } else {
+        tempStroke = { pts: [{ x: rx, y: ry }], color: currentColor() };
+        tempArrow = null;
+      }
+    }
 
-    document.addEventListener('mousemove', (e) => {
-      if (!isCreatingArrow || !tempArrow) return;
+    function moveCreate(e) {
+      if (!isCreating) return;
+      if (e.type === 'touchmove' && e.cancelable) e.preventDefault();
+      const p = evPoint(e);
       const rect = pitchRect();
-      const curX = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-      const curY = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+      const rx = p.x - rect.left;
+      const ry = p.y - rect.top;
 
-      tempArrow.x2 = curX;
-      tempArrow.y2 = curY;
-      tempArrow.cx = (tempArrow.x1 + curX) / 2;
-      tempArrow.cy = (tempArrow.y1 + curY) / 2;
-
+      if (drawMode === 'arrow' && tempArrow) {
+        const curX = clamp(rx / rect.width * 100, 0, 100);
+        const curY = clamp(ry / rect.height * 100, 0, 100);
+        tempArrow.x2 = curX;
+        tempArrow.y2 = curY;
+        tempArrow.cx = (tempArrow.x1 + curX) / 2;
+        tempArrow.cy = (tempArrow.y1 + curY) / 2;
+      } else if (drawMode === 'oval' && tempStroke) {
+        const last = tempStroke.pts[tempStroke.pts.length - 1];
+        if (Math.hypot(rx - last.x, ry - last.y) > 2) {
+          tempStroke.pts.push({ x: clamp(rx, 0, rect.width), y: clamp(ry, 0, rect.height) });
+        }
+      }
       renderPitchArrows(true);
-    });
+    }
 
-    document.addEventListener('mouseup', () => {
-      if (isCreatingArrow && tempArrow) {
-        isCreatingArrow = false;
+    function endCreate() {
+      if (!isCreating) return;
+      isCreating = false;
+      const cur = oppData[activeOppTab];
+      let created = false;
+
+      if (drawMode === 'arrow' && tempArrow) {
         const dist = Math.hypot(tempArrow.x2 - tempArrow.x1, tempArrow.y2 - tempArrow.y1);
         if (dist > 3) {
-          if (!oppData[activeOppTab].arrows) oppData[activeOppTab].arrows = [];
-          oppData[activeOppTab].arrows.push(tempArrow);
-          selectedArrowIndex = oppData[activeOppTab].arrows.length - 1;
+          cur.arrows.push(tempArrow);
+          selectedArrowIndex = cur.arrows.length - 1;
+          selectedOvalIndex = -1;
+          created = true;
         }
-        tempArrow = null;
-        toggleArrowDrawMode();
-        renderPitchState();
+      } else if (drawMode === 'oval' && tempStroke) {
+        const oval = fitOval(tempStroke.pts);
+        if (oval) {
+          oval.color = tempStroke.color;
+          cur.ovals.push(oval);
+          selectedOvalIndex = cur.ovals.length - 1;
+          selectedArrowIndex = -1;
+          created = true;
+        }
       }
-    });
+
+      tempArrow = null;
+      tempStroke = null;
+      suppressClick();
+      if (created) cancelDrawMode();
+      renderPitchArrows();
+    }
+
+    pitch.addEventListener('mousedown', startCreate);
+    pitch.addEventListener('touchstart', startCreate, { passive: false });
+    document.addEventListener('mousemove', moveCreate);
+    document.addEventListener('touchmove', moveCreate, { passive: false });
+    document.addEventListener('mouseup', endCreate);
+    document.addEventListener('touchend', endCreate);
+
+    /* ===== CORREZIONE DELL'OVALE A MANO LIBERA =====
+       Il tratto viene approssimato con un'ellisse pulita: asse principale ricavato dalla distribuzione dei punti,
+       agganciato a orizzontale/verticale se quasi allineato, e trasformato in cerchio se quasi circolare.
+       Unità di misura dell'ovale: % della larghezza del campo (sia per x che per y), così non si deforma. */
+    function fitOval(pts) {
+      if (pts.length < 8) return null;
+      const n = pts.length;
+      let mx = 0, my = 0;
+      pts.forEach(p => { mx += p.x; my += p.y; });
+      mx /= n; my /= n;
+
+      let sxx = 0, syy = 0, sxy = 0;
+      pts.forEach(p => {
+        const dx = p.x - mx, dy = p.y - my;
+        sxx += dx * dx; syy += dy * dy; sxy += dx * dy;
+      });
+
+      let deg = 0.5 * Math.atan2(2 * sxy, sxx - syy) * 180 / Math.PI;   // (-90, 90]
+      if (Math.abs(deg) < 12) deg = 0;
+      else if (Math.abs(deg) > 78) deg = 90;
+
+      const th = deg * Math.PI / 180;
+      const ux = Math.cos(th), uy = Math.sin(th);
+      const vx = -Math.sin(th), vy = Math.cos(th);
+
+      let minA = Infinity, maxA = -Infinity, minB = Infinity, maxB = -Infinity;
+      pts.forEach(p => {
+        const dx = p.x - mx, dy = p.y - my;
+        const a = dx * ux + dy * uy;
+        const b = dx * vx + dy * vy;
+        if (a < minA) minA = a; if (a > maxA) maxA = a;
+        if (b < minB) minB = b; if (b > maxB) maxB = b;
+      });
+
+      let rx = (maxA - minA) / 2;
+      let ry = (maxB - minB) / 2;
+      const ca = (minA + maxA) / 2;
+      const cb = (minB + maxB) / 2;
+      const cxPx = mx + ux * ca + vx * cb;
+      const cyPx = my + uy * ca + vy * cb;
+
+      const big = Math.max(rx, ry), small = Math.min(rx, ry);
+      if (small < 12) return null;                  // tratto troppo piccolo o troppo "piatto"
+      if (big / small < 1.15) { rx = ry = (rx + ry) / 2; deg = 0; }
+
+      const W = pitchRect().width;
+      return { cx: cxPx / W * 100, cy: cyPx / W * 100, rx: rx / W * 100, ry: ry / W * 100, rot: deg };
+    }
+
+    /* ===== RENDERING FRECCE / OVALI ===== */
+    let currentDefs = null;
+
+    function ensureMarker(color) {
+      const id = 'ah-' + color.replace('#', '');
+      if (!currentDefs.querySelector('#' + id)) {
+        const m = document.createElementNS(SVG_NS, 'marker');
+        m.setAttribute('id', id);
+        m.setAttribute('viewBox', '0 0 10 10');
+        m.setAttribute('refX', '6');
+        m.setAttribute('refY', '5');
+        m.setAttribute('markerWidth', '6');
+        m.setAttribute('markerHeight', '6');
+        m.setAttribute('orient', 'auto-start-reverse');
+        const p = document.createElementNS(SVG_NS, 'path');
+        p.setAttribute('d', 'M 0 1 L 10 5 L 0 9 z');
+        p.setAttribute('fill', color);
+        m.appendChild(p);
+        currentDefs.appendChild(m);
+      }
+      return id;
+    }
 
     function renderPitchArrows(showTemp = false) {
-      const defs = arrowsSvg.querySelector('defs');
       arrowsSvg.innerHTML = '';
-      arrowsSvg.appendChild(defs);
+      currentDefs = document.createElementNS(SVG_NS, 'defs');
+      arrowsSvg.appendChild(currentDefs);
 
-      // il viewBox ancora le frecce al campo: se il campo cambia dimensione (stampa, resize)
-      // le frecce si scalano insieme e restano nello stesso punto
+      // il viewBox ancora i disegni al campo: se il campo cambia dimensione (stampa, resize)
+      // frecce e ovali si scalano insieme e restano nello stesso punto
       arrowsSvg.setAttribute('viewBox', `0 0 ${pitch.clientWidth} ${pitch.clientHeight}`);
       arrowsSvg.setAttribute('preserveAspectRatio', 'none');
 
       if (!isOppositeMode) return;
 
-      const currentArrows = oppData[activeOppTab].arrows || [];
+      const cur = oppData[activeOppTab];
 
-      currentArrows.forEach((arr, idx) => {
+      (cur.ovals || []).forEach((ov, idx) => {
+        drawSvgOval(ov, idx === selectedOvalIndex, idx);
+      });
+
+      (cur.arrows || []).forEach((arr, idx) => {
         drawSvgBezierArrow(arr, idx === selectedArrowIndex, idx);
       });
 
       if (showTemp && tempArrow) {
-        drawSvgBezierArrow(tempArrow, true, -1, true);
+        drawSvgBezierArrow(tempArrow, false, -1, true);
+      }
+      if (showTemp && tempStroke && tempStroke.pts.length > 1) {
+        const path = document.createElementNS(SVG_NS, 'path');
+        path.setAttribute('d', 'M ' + tempStroke.pts.map(p => `${p.x} ${p.y}`).join(' L '));
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', tempStroke.color);
+        path.setAttribute('stroke-width', '3');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        path.setAttribute('opacity', '0.9');
+        path.style.pointerEvents = 'none';
+        arrowsSvg.appendChild(path);
       }
     }
 
     function drawSvgBezierArrow(arr, isSelected, index, isTemp = false) {
       const rect = pitchRect();
-      
+      const color = arr.color || '#f59e0b';
+
       const px1 = (arr.x1 / 100) * rect.width;
       const py1 = (arr.y1 / 100) * rect.height;
       const pcx = (arr.cx / 100) * rect.width;
@@ -1415,56 +1707,40 @@
       const px2 = (arr.x2 / 100) * rect.width;
       const py2 = (arr.y2 / 100) * rect.height;
 
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const path = document.createElementNS(SVG_NS, 'path');
       path.setAttribute('d', `M ${px1} ${py1} Q ${pcx} ${pcy} ${px2} ${py2}`);
       path.setAttribute('class', `arrow-path ${isSelected ? 'selected' : ''}`);
-      path.setAttribute('marker-end', isSelected ? 'url(#arrowhead-selected)' : 'url(#arrowhead)');
+      path.setAttribute('stroke', color);
+      path.setAttribute('marker-end', `url(#${ensureMarker(color)})`);
 
       if (!isTemp) {
-        let isDraggingArrow = false;
-        let startMouseX = 0;
-        let startMouseY = 0;
-        let initialArrState = null;
-
         const startDrag = (e) => {
           e.stopPropagation();
+          if (e.cancelable) e.preventDefault();
+          suppressClick();
+          const p0 = evPoint(e);
+          const init = clone(arr);
+
+          const changed = selectedArrowIndex !== index || selectedOvalIndex !== -1;
           selectedArrowIndex = index;
-          isDraggingArrow = true;
-          startMouseX = e.touches ? e.touches[0].clientX : e.clientX;
-          startMouseY = e.touches ? e.touches[0].clientY : e.clientY;
-          initialArrState = JSON.parse(JSON.stringify(arr));
-          renderPitchState();
-        };
+          selectedOvalIndex = -1;
 
-        const moveDrag = (e) => {
-          if (!isDraggingArrow || !initialArrState) return;
-          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          beginDrag((ev) => {
+            const q = evPoint(ev);
+            const r = pitchRect();
+            const dX = ((q.x - p0.x) / r.width) * 100;
+            const dY = ((q.y - p0.y) / r.height) * 100;
+            arr.x1 = init.x1 + dX; arr.y1 = init.y1 + dY;
+            arr.cx = init.cx + dX; arr.cy = init.cy + dY;
+            arr.x2 = init.x2 + dX; arr.y2 = init.y2 + dY;
+            renderPitchArrows();
+          });
 
-          const deltaX = ((clientX - startMouseX) / rect.width) * 100;
-          const deltaY = ((clientY - startMouseY) / rect.height) * 100;
-
-          arr.x1 = initialArrState.x1 + deltaX;
-          arr.y1 = initialArrState.y1 + deltaY;
-          arr.cx = initialArrState.cx + deltaX;
-          arr.cy = initialArrState.cy + deltaY;
-          arr.x2 = initialArrState.x2 + deltaX;
-          arr.y2 = initialArrState.y2 + deltaY;
-
-          renderPitchState();
-        };
-
-        const stopDrag = () => {
-          isDraggingArrow = false;
-          initialArrState = null;
+          if (changed) renderPitchArrows();
         };
 
         path.addEventListener('mousedown', startDrag);
-        path.addEventListener('touchstart', startDrag);
-        document.addEventListener('mousemove', moveDrag);
-        document.addEventListener('touchmove', moveDrag);
-        document.addEventListener('mouseup', stopDrag);
-        document.addEventListener('touchend', stopDrag);
+        path.addEventListener('touchstart', startDrag, { passive: false });
       }
 
       arrowsSvg.appendChild(path);
@@ -1473,99 +1749,158 @@
         createControlHandle(px1, py1, (nx, ny) => {
           const dx = nx - arr.x1;
           const dy = ny - arr.y1;
-          arr.x1 = nx; 
+          arr.x1 = nx;
           arr.y1 = ny;
           arr.cx += dx;
           arr.cy += dy;
-          renderPitchState();
+          renderPitchArrows();
         });
 
         createControlHandle(pcx, pcy, (nx, ny) => {
-          arr.cx = nx; 
+          arr.cx = nx;
           arr.cy = ny;
-          renderPitchState();
+          renderPitchArrows();
         }, true);
 
         createControlHandle(px2, py2, (nx, ny) => {
           const dx = nx - arr.x2;
           const dy = ny - arr.y2;
-          arr.x2 = nx; 
+          arr.x2 = nx;
           arr.y2 = ny;
           arr.cx += dx;
           arr.cy += dy;
-          renderPitchState();
+          renderPitchArrows();
         });
 
-        createDeleteButton(px1, py1, pcx, pcy, px2, py2, index);
+        const midX = 0.25 * px1 + 0.5 * pcx + 0.25 * px2;
+        const midY = 0.25 * py1 + 0.5 * pcy + 0.25 * py2;
+        createDeleteButton(midX, midY, () => deleteSingleArrow(index));
       }
     }
 
+    function drawSvgOval(ov, isSelected, index) {
+      const rect = pitchRect();
+      const k = rect.width / 100;
+      const color = ov.color || '#f59e0b';
+      const cx = ov.cx * k, cy = ov.cy * k, rx = ov.rx * k, ry = ov.ry * k;
+      const rot = ov.rot || 0;
+      const transform = `rotate(${rot} ${cx} ${cy})`;
+
+      const shape = document.createElementNS(SVG_NS, 'ellipse');
+      shape.setAttribute('cx', cx); shape.setAttribute('cy', cy);
+      shape.setAttribute('rx', rx); shape.setAttribute('ry', ry);
+      shape.setAttribute('transform', transform);
+      shape.setAttribute('fill', color);
+      shape.setAttribute('fill-opacity', '0.14');
+      shape.setAttribute('stroke', color);
+      shape.setAttribute('stroke-width', isSelected ? '4' : '3');
+      shape.setAttribute('class', `oval-shape ${isSelected ? 'selected' : ''}`);
+      arrowsSvg.appendChild(shape);
+
+      const hit = document.createElementNS(SVG_NS, 'ellipse');
+      hit.setAttribute('cx', cx); hit.setAttribute('cy', cy);
+      hit.setAttribute('rx', rx); hit.setAttribute('ry', ry);
+      hit.setAttribute('transform', transform);
+      hit.setAttribute('class', 'oval-hit');
+
+      const startDrag = (e) => {
+        e.stopPropagation();
+        if (e.cancelable) e.preventDefault();
+        suppressClick();
+        const p0 = evPoint(e);
+        const init = { cx: ov.cx, cy: ov.cy };
+
+        const changed = selectedOvalIndex !== index || selectedArrowIndex !== -1;
+        selectedOvalIndex = index;
+        selectedArrowIndex = -1;
+
+        beginDrag((ev) => {
+          const q = evPoint(ev);
+          const r = pitchRect();
+          ov.cx = clamp(init.cx + (q.x - p0.x) / r.width * 100, 0, 100);
+          ov.cy = clamp(init.cy + (q.y - p0.y) / r.width * 100, 0, r.height / r.width * 100);
+          renderPitchArrows();
+        });
+
+        if (changed) renderPitchArrows();
+      };
+      hit.addEventListener('mousedown', startDrag);
+      hit.addEventListener('touchstart', startDrag, { passive: false });
+      arrowsSvg.appendChild(hit);
+
+      if (isSelected) {
+        const th = rot * Math.PI / 180;
+        const ux = Math.cos(th), uy = Math.sin(th);
+        const vx = -Math.sin(th), vy = Math.cos(th);
+
+        // pallino sull'asse principale: regola la larghezza
+        createControlHandle(cx + rx * ux, cy + rx * uy, (nx, ny, px, py) => {
+          const proj = (px - cx) * ux + (py - cy) * uy;
+          ov.rx = Math.max(2, Math.abs(proj) / k);
+          renderPitchArrows();
+        });
+
+        // pallino sull'asse secondario: regola l'altezza
+        createControlHandle(cx + ry * vx, cy + ry * vy, (nx, ny, px, py) => {
+          const proj = (px - cx) * vx + (py - cy) * vy;
+          ov.ry = Math.max(2, Math.abs(proj) / k);
+          renderPitchArrows();
+        }, true);
+
+        const vertExt = Math.sqrt(Math.pow(rx * Math.sin(th), 2) + Math.pow(ry * Math.cos(th), 2));
+        createDeleteButton(cx, cy - vertExt, () => deleteSingleOval(index));
+      }
+    }
+
+    /* onMove riceve: percentuali (nx, ny) limitate al campo e pixel grezzi (px, py) relativi al campo */
     function createControlHandle(px, py, onMove, isCP = false) {
-      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      const circle = document.createElementNS(SVG_NS, 'circle');
       circle.setAttribute('cx', px);
       circle.setAttribute('cy', py);
       circle.setAttribute('r', isCP ? 7 : 6);
       circle.setAttribute('class', `control-handle ${isCP ? 'handle-cp' : ''}`);
 
-      let dragging = false;
-
       const start = (e) => {
         e.stopPropagation();
-        e.preventDefault();
-        dragging = true;
+        if (e.cancelable) e.preventDefault();
+        suppressClick();
+        beginDrag((ev) => {
+          const rect = pitchRect();
+          const q = evPoint(ev);
+          const rawX = q.x - rect.left;
+          const rawY = q.y - rect.top;
+          const nx = clamp(rawX / rect.width * 100, 0, 100);
+          const ny = clamp(rawY / rect.height * 100, 0, 100);
+          onMove(nx, ny, rawX, rawY);
+        });
       };
-
-      const move = (e) => {
-        if (!dragging) return;
-        const rect = pitchRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-        const nx = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
-        const ny = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
-
-        onMove(nx, ny);
-      };
-
-      const stop = () => { dragging = false; };
 
       circle.addEventListener('mousedown', start);
-      circle.addEventListener('touchstart', start);
-      document.addEventListener('mousemove', move);
-      document.addEventListener('touchmove', move);
-      document.addEventListener('mouseup', stop);
-      document.addEventListener('touchend', stop);
+      circle.addEventListener('touchstart', start, { passive: false });
 
       arrowsSvg.appendChild(circle);
     }
 
-    function createDeleteButton(px1, py1, pcx, pcy, px2, py2, index) {
+    function createDeleteButton(anchorX, anchorY, onDelete) {
       const rect = pitchRect();
+      const btnX = clamp(anchorX, 15, rect.width - 15);
+      const btnY = clamp(anchorY - 26, 15, rect.height - 15);
 
-      const midX = 0.25 * px1 + 0.5 * pcx + 0.25 * px2;
-      const midY = 0.25 * py1 + 0.5 * pcy + 0.25 * py2;
-
-      let btnX = midX;
-      let btnY = midY - 26;
-
-      btnX = Math.max(15, Math.min(rect.width - 15, btnX));
-      btnY = Math.max(15, Math.min(rect.height - 15, btnY));
-
-      const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      const group = document.createElementNS(SVG_NS, 'g');
       group.setAttribute('class', 'arrow-delete-btn');
 
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-      title.textContent = 'Elimina freccia';
+      const title = document.createElementNS(SVG_NS, 'title');
+      title.textContent = 'Elimina';
       group.appendChild(title);
 
-      const bg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      const bg = document.createElementNS(SVG_NS, 'circle');
       bg.setAttribute('cx', btnX);
       bg.setAttribute('cy', btnY);
       bg.setAttribute('r', 13);
       bg.setAttribute('class', 'delete-btn-bg');
       group.appendChild(bg);
 
-      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      const icon = document.createElementNS(SVG_NS, 'text');
       icon.setAttribute('x', btnX);
       icon.setAttribute('y', btnY);
       icon.setAttribute('text-anchor', 'middle');
@@ -1577,16 +1912,29 @@
 
       group.addEventListener('click', (e) => {
         e.stopPropagation();
-        deleteSingleArrow(index);
+        onDelete();
       });
 
       arrowsSvg.appendChild(group);
     }
 
     pitch.addEventListener('click', (e) => {
-      if (e.target.classList.contains('arrow-path') || e.target.classList.contains('control-handle')) return;
+      if (Date.now() < suppressClickUntil) return;
+      const cl = e.target.classList;
+      if (cl && (cl.contains('arrow-path') || cl.contains('control-handle') || cl.contains('oval-hit'))) return;
+      if (selectedArrowIndex !== -1 || selectedOvalIndex !== -1) {
+        selectedArrowIndex = -1;
+        selectedOvalIndex = -1;
+        renderPitchArrows();
+      }
+    });
+
+    // in stampa nessuna forma deve risultare "selezionata"
+    window.addEventListener('beforeprint', () => {
       selectedArrowIndex = -1;
-      renderPitchState();
+      selectedOvalIndex = -1;
+      cancelDrawMode();
+      renderPitchArrows();
     });
 
     function renderPitchState() {
@@ -1609,6 +1957,11 @@
           createPlayerNode(p.top, p.left, p.num, p.name, p.role, p.capt, p.playerId, idx, false);
         });
       } else {
+        // la squadra nelle contrapposizioni rispecchia sempre la pagina Formazione
+        if (activeOppTab !== 'palleInattive') {
+          syncOppositeNodesForTab(activeOppTab);
+        }
+
         const currentOpp = oppData[activeOppTab];
 
         currentOpp.teamNodes.forEach((p, idx) => {
@@ -1680,8 +2033,10 @@
 
       attachDragEvents(node, (topPct, leftPct) => {
         if (isOpposite) {
-          oppData[activeOppTab].teamNodes[index].top = topPct;
-          oppData[activeOppTab].teamNodes[index].left = leftPct;
+          const t = oppData[activeOppTab].teamNodes[index];
+          t.top = topPct;
+          t.left = leftPct;
+          if (activeOppTab !== 'palleInattive') t.moved = true;
         } else {
           mainData[activeMainTab][index].top = topPct;
           mainData[activeMainTab][index].left = leftPct;
@@ -1693,13 +2048,17 @@
       node.addEventListener('drop', (e) => {
         e.preventDefault();
         node.classList.remove('drag-over');
+
+        // nelle contrapposizioni (tranne palle inattive) i giocatori arrivano dalla pagina Formazione
+        if (isOpposite && activeOppTab !== 'palleInattive') return;
+
         const rawData = e.dataTransfer.getData('text/plain');
         if (!rawData) return;
 
         const data = JSON.parse(rawData);
 
         if (data.type === 'CAPTAIN') {
-          if (isOpposite) return; 
+          if (isOpposite) return;
 
           let badge = node.querySelector('.captain-badge');
           if (!badge) {
@@ -1711,6 +2070,8 @@
           mainData[activeMainTab][index].capt = data.badge;
           return;
         }
+
+        if (!data.id) return;
 
         numSpan.innerText = data.num;
         label.innerText = data.name;
@@ -1787,35 +2148,28 @@
     }
 
     function attachDragEvents(node, onMoveCallback, nodeRadius = 19) {
-      let isDragging = false;
-      const startDrag = () => { isDragging = true; };
-      const stopDrag = () => { isDragging = false; };
-      const moveDrag = (e) => {
-        if (!isDragging) return;
-        const rect = pitchRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const start = () => {
+        beginDrag((e) => {
+          const rect = pitchRect();
+          const p = evPoint(e);
 
-        let x = clientX - rect.left;
-        let y = clientY - rect.top;
-        x = Math.max(nodeRadius, Math.min(x, rect.width - nodeRadius));
-        y = Math.max(nodeRadius, Math.min(y, rect.height - nodeRadius));
+          let x = p.x - rect.left;
+          let y = p.y - rect.top;
+          x = Math.max(nodeRadius, Math.min(x, rect.width - nodeRadius));
+          y = Math.max(nodeRadius, Math.min(y, rect.height - nodeRadius));
 
-        const topPct = (y / rect.height) * 100;
-        const leftPct = (x / rect.width) * 100;
+          const topPct = (y / rect.height) * 100;
+          const leftPct = (x / rect.width) * 100;
 
-        node.style.left = leftPct + '%';
-        node.style.top = topPct + '%';
+          node.style.left = leftPct + '%';
+          node.style.top = topPct + '%';
 
-        if (onMoveCallback) onMoveCallback(topPct, leftPct);
+          if (onMoveCallback) onMoveCallback(topPct, leftPct);
+        });
       };
 
-      node.addEventListener('mousedown', startDrag);
-      node.addEventListener('touchstart', startDrag);
-      document.addEventListener('mousemove', moveDrag);
-      document.addEventListener('touchmove', moveDrag);
-      document.addEventListener('mouseup', stopDrag);
-      document.addEventListener('touchend', stopDrag);
+      node.addEventListener('mousedown', start);
+      node.addEventListener('touchstart', start, { passive: true });
     }
 
     function handleOpponentDrag(e, num) {
@@ -1835,7 +2189,7 @@
       if (e.target.classList.contains('player-node')) return;
       const rawData = e.dataTransfer.getData('text/plain');
       if (!rawData) return;
-      
+
       const data = JSON.parse(rawData);
       const rect = pitchRect();
       const leftPct = ((e.clientX - rect.left) / rect.width) * 100;
@@ -1943,16 +2297,17 @@
       const isWhite = pitch.classList.contains('white-pitch');
       const oppColor = document.getElementById('oppColorSelect').value;
 
-      const matchData = { 
-        id: Date.now(), 
-        date, 
-        opponent, 
-        mainData: mainData,
-        oppData: oppData,
+      // copie profonde: ogni partita salvata è indipendente da quella che si sta modificando
+      const matchData = {
+        id: Date.now(),
+        date,
+        opponent,
+        mainData: clone(mainData),
+        oppData: clone(oppData),
         isWhite,
         oppColor
       };
-      
+
       const existingIdx = matchHistory.findIndex(m => m.date === date && m.opponent === opponent);
       if (existingIdx >= 0) {
         matchHistory[existingIdx] = matchData;
@@ -2023,35 +2378,26 @@
       }
 
       if (match.mainData) {
-        mainData = match.mainData;
+        mainData = clone(match.mainData);
       } else if (match.nodes) {
         mainData = {
-          base: match.nodes,
-          costruzione1: JSON.parse(JSON.stringify(match.nodes)),
-          costruzione2: JSON.parse(JSON.stringify(match.nodes))
+          base: clone(match.nodes),
+          costruzione1: clone(match.nodes),
+          costruzione2: clone(match.nodes)
         };
       }
 
       if (match.oppData) {
-        oppData = match.oppData;
-        if (!oppData.palleInattive) {
-          oppData.palleInattive = { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] };
-        }
-        Object.keys(oppData).forEach(k => {
-          if (!oppData[k].arrows) oppData[k].arrows = [];
-        });
+        oppData = normalizeOppData(clone(match.oppData));
       } else {
-        oppData = {
-          uomo: { teamNodes: match.oppositeNodes || [], opponentNodes: match.opponentNodes || [], ballNode: match.ballNode || null, arrows: [] },
-          piuUno: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-          reparto: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-          libera: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-          costruzione1: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-          costruzione2: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] },
-          palleInattive: { teamNodes: [], opponentNodes: [], ballNode: null, arrows: [] }
-        };
+        oppData = normalizeOppData({
+          uomo: { teamNodes: [], opponentNodes: clone(match.opponentNodes || []), ballNode: match.ballNode || null, arrows: [], ovals: [] }
+        });
       }
 
+      selectedArrowIndex = -1;
+      selectedOvalIndex = -1;
+      cancelDrawMode();
       renderPitchState();
     }
 
@@ -2062,6 +2408,7 @@
 
     renderRoster();
     updateHistorySelect();
+    refreshColorUi();
     setFormation('4-3-3');
     changeOpponentColor('celeste');
     document.getElementById('matchDate').valueAsDate = new Date();
