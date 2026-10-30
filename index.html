@@ -1433,6 +1433,23 @@
       renderPitchState();
     }
 
+    /* I giocatori inseriti/cambiati in "Formazione Base" si riflettono in Costruzione 1 e 2
+       (stessa posizione nello schieramento). Le posizioni sul campo delle Costruzioni restano indipendenti.
+       Le contrapposizioni leggono da questi dati, quindi si aggiornano di conseguenza. */
+    function propagateBaseToConstruction(index) {
+      const b = mainData.base[index];
+      if (!b) return;
+      ['costruzione1', 'costruzione2'].forEach(k => {
+        const t = mainData[k] && mainData[k][index];
+        if (!t) return;
+        t.num = b.num || '';
+        t.name = b.name || '';
+        t.role = b.role || '';
+        t.playerId = b.playerId || '';
+        t.capt = b.capt || '';
+      });
+    }
+
     /* ===== DRAG GLOBALE (un solo set di listener) ===== */
     let activeDrag = null;
     let suppressClickUntil = 0;
@@ -2040,6 +2057,7 @@
         }
         if (mainData[activeMainTab][index].capt) {
           mainData[activeMainTab][index].capt = '';
+          if (activeMainTab === 'base') propagateBaseToConstruction(index);
           const badge = node.querySelector('.captain-badge');
           if (badge) badge.remove();
         }
@@ -2082,6 +2100,7 @@
           }
           badge.innerText = data.badge;
           mainData[activeMainTab][index].capt = data.badge;
+          if (activeMainTab === 'base') propagateBaseToConstruction(index);
           return;
         }
 
@@ -2108,6 +2127,7 @@
           mainData[activeMainTab][index].name = data.name;
           mainData[activeMainTab][index].role = data.role;
           mainData[activeMainTab][index].playerId = data.id;
+          if (activeMainTab === 'base') propagateBaseToConstruction(index);
         }
 
         updateUsedPlayersState();
